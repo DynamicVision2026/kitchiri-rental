@@ -343,11 +343,75 @@ export const TOKUYAKU_PATTERNS: Readonly<Record<TokuyakuCode, TokuyakuPattern>> 
  */
 export const VERDICTS = [
   "enforceable",   // all four prongs hold; the charge stands as written
-  "reducible",     // clause survives but the amount is cut back (typically P3 false)
+  "reducible",     // clause survives, the AMOUNT is cut back (P3 false)
+  "severable",     // clause is cut back in SCOPE: void for ordinary wear, alive for damage
   "unenforceable", // clause cannot displace art. 621; cost returns to the landlord
   "needs_review",  // insufficient information to score; route to a human
 ] as const;
 export type Verdict = (typeof VERDICTS)[number];
+
+/**
+ * `reducible` and `severable` are both 一部無効 in Japanese, and collapsing them loses
+ * the only thing a tenant actually needs to know — which part of the bill to dispute.
+ *
+ *   reducible — the clause is valid; the FIGURE is too high. You owe this cost, less.
+ *   severable — the clause over-reached into 通常損耗 and is void that far, but it
+ *               named real damage too. You owe nothing for ordinary wear; you do
+ *               still owe for damage you actually caused.
+ *
+ * The second is not a discount on the first. Liability for tenant-caused damage
+ * arises from art. 621(1) itself, not from the 特約, so it survives the clause being
+ * struck — which is exactly why "unenforceable" would overstate the tenant's position
+ * and mislead them into refusing a bill they partly owe.
+ */
+export interface VerdictMeaning {
+  readonly verdict: Verdict;
+  readonly labelJa: string;
+  readonly labelEn: string;
+  /** Plain-language line safe to show a tenant, once citations are verified. */
+  readonly tenantMessageJa: string;
+  readonly tenantMessageEn: string;
+}
+
+export const VERDICT_MEANINGS: Readonly<Record<Verdict, VerdictMeaning>> = {
+  enforceable: {
+    verdict: "enforceable",
+    labelJa: "有効の可能性が高い",
+    labelEn: "Likely enforceable",
+    tenantMessageJa: "この特約は有効に成立している可能性が高く、記載どおりの負担を求められます。",
+    tenantMessageEn: "This clause appears validly agreed, and the charge stands as written.",
+  },
+  reducible: {
+    verdict: "reducible",
+    labelJa: "一部無効の可能性が高い（金額の減額）",
+    labelEn: "Likely reducible in amount",
+    tenantMessageJa: "特約自体は有効ですが、請求額が相当な範囲を超えています。負担すべき金額の減額を求められます。",
+    tenantMessageEn: "The clause itself holds, but the amount exceeds the supported range. You can seek a reduction.",
+  },
+  severable: {
+    verdict: "severable",
+    labelJa: "一部無効の可能性が高い（通常損耗部分）",
+    labelEn: "Likely severable — void as to ordinary wear",
+    tenantMessageJa:
+      "通常損耗・経年変化にあたる部分について負担する義務はありません。ただし、ご自身の故意・過失により生じた毀損については、民法621条により引き続き負担する義務があります。",
+    tenantMessageEn:
+      "You are not liable for ordinary wear and aging. You do remain liable for damage you actually caused, which art. 621 imposes independently of this clause.",
+  },
+  unenforceable: {
+    verdict: "unenforceable",
+    labelJa: "無効の可能性が高い",
+    labelEn: "Likely unenforceable",
+    tenantMessageJa: "この特約は民法621条の原則を覆すだけの要件を満たしておらず、当該費用は賃貸人の負担となる可能性が高いです。",
+    tenantMessageEn: "The clause does not meet what art. 621 requires to be displaced, so the cost likely stays with the landlord.",
+  },
+  needs_review: {
+    verdict: "needs_review",
+    labelJa: "有効性に疑義が残る（要確認）",
+    labelEn: "Needs review",
+    tenantMessageJa: "判断に必要な情報が不足しています。契約書の記載場所や金額を確認のうえ、専門家にご相談ください。",
+    tenantMessageEn: "Not enough information to decide. Confirm where the term sits and what was charged, then seek advice.",
+  },
+} as const;
 
 /**
  * A prong is true when SATISFIED, false when it FAILS, and "unknown" when the

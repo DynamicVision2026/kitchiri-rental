@@ -1,0 +1,32 @@
+{
+  "note": "Clause texts supplied in an earlier batch (its TK-0001..TK-0027) that were NEVER merged into the golden set and never used to tune the classifier. Held out purely to estimate generalisation. Labels are as supplied.",
+  "cases": [
+    {"expected_code":"TK_CLEAN","clause_text":"賃貸借契約終了時、ハウスクリーニング費用として一律35,000円を借主が負担するものとする。"},
+    {"expected_code":"TK_CLEAN","clause_text":"退去時のハウスクリーニング代は借主負担とし、金額は貸主が指定する業者・金額とする。"},
+    {"expected_code":"TK_SHIKIBIKI","clause_text":"敷引特約として、契約終了時に敷金のうち賃料の2ヶ月分相当額を返還しない。"},
+    {"expected_code":"TK_SHIKIBIKI","clause_text":"敷金は一切返還せず、全額を敷引金として償却する。"},
+    {"expected_code":"TK_KOSHIN","clause_text":"契約更新時、更新料として新賃料の1ヶ月分を支払うものとする。"},
+    {"expected_code":"TK_TATAMI","clause_text":"退去時、畳の表替え及び障子の張り替え費用は全額借主負担とする。"},
+    {"expected_code":"TK_CROSS","clause_text":"故意過失を問わず、退去時のクロス（壁紙）は全面張替えとし、その費用は借主が負担する。"},
+    {"expected_code":"TK_FLOOR","clause_text":"フローリングのキズ・凹みについて、発生原因を問わず借主の責任において全面補修する。"},
+    {"expected_code":"TK_TSUJO","clause_text":"通常の使用による損耗（経年変化含む）についても、借主が原状回復義務を負うものとする。"},
+    {"expected_code":"TK_KEINEN","clause_text":"設備の修繕及び原状回復において、経過年数や減価償却は考慮せず、新品購入価格を基準に算定する。"},
+    {"expected_code":"TK_KAGI","clause_text":"入居時、鍵交換費用として15,000円（税別）を借主が負担する。"},
+    {"expected_code":"TK_SHOUKYAKU","clause_text":"敷金のうち1ヶ月分は償却金として返還しない。"},
+    {"expected_code":"TK_TAIKYO_FEE","clause_text":"退去時、事務手数料および立会料として一律10,000円を請求する。"},
+    {"expected_code":"TK_SHOUDOKU","clause_text":"室内消毒施工費として、入居時に15,000円を借主が負担する。"},
+    {"expected_code":"TK_ZENMEN","clause_text":"退去時はいかなる理由であっても居室全体の内装全面リフォーム費用を借主が支払う。"},
+    {"expected_code":"TK_TANKI","clause_text":"1年未満で解約した場合、違約金として賃料1ヶ月分を徴収する。"},
+    {"expected_code":"TK_CLEAN","clause_text":"ハウスクリーニング代として退去時に実費を請求する。"},
+    {"expected_code":"TK_SHIKIBIKI","clause_text":"敷引3ヶ月分。ただし通常損耗の補修費用もここから充当する。"},
+    {"expected_code":"TK_KOSHIN","clause_text":"更新料は新賃料の1.5ヶ月分とする。"},
+    {"expected_code":"TK_TATAMI","clause_text":"借主の責任により畳に汚損が生じた場合、畳床も含めた全面交換費用を借主が負担する。"},
+    {"expected_code":"TK_CROSS","clause_text":"クロスの落書き・タバコのヤニ汚れについては、該当面のみ借主負担で張替えとする。"},
+    {"expected_code":"TK_FLOOR","clause_text":"ペット飼育によるフローリングの著しい毀損を除き、通常の生活による損耗は貸主負担とする。"},
+    {"expected_code":"TK_TSUJO","clause_text":"特約事項：賃借人は通常損耗についても修繕義務を負うものとする（契約書中程に記載、説明なし）。"},
+    {"expected_code":"TK_KEINEN","clause_text":"設備機器の耐用年数経過後も、故障時の交換費用は全額借主の負担とする。"},
+    {"expected_code":"TK_KAGI","clause_text":"入居時のシリンダー交換は必須とし、費用20,000円は借主負担とする。"},
+    {"expected_code":"TK_TANKI","clause_text":"中途解約違約金として、6ヶ月以内の解約は賃料2ヶ月分、1年以内の解約は1ヶ月分とする。"},
+    {"expected_code":"TK_TAIKYO_FEE","clause_text":"退去時の立会代行手数料として5,000円を請求する。"}
+  ]
+}

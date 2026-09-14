@@ -1,8 +1,8 @@
 {
-  "version": 4,
+  "version": 5,
   "target_size": 80,
   "generated_at": "2026-09-14",
-  "disclaimer": "PROVENANCE AND VERIFICATION WARNING — READ BEFORE USING AS GROUND TRUTH. No clause_text in this file is a verbatim quotation from a decided case or a real lease. Every entry is either 'synthetic_representative' (written to exemplify a pattern) or 'reconstructed_from_holding' (paraphrasing the clause type a cited decision addressed — the wording is ours, not the court's). There are no verbatim field samples: a verbatim claim now requires the document it was transcribed from, enforced by the validator. VERIFICATION. source.verified is true ONLY where a human has confirmed the citation against the primary text, and the validator enforces that it implies verification_status == 'primary_source_verified'. As of v4 that count is ZERO. Primary sources (裁判所, 国土交通省, RETIO) were not reachable from the build environment, so 12 citations were cross-read against secondary summaries only ('secondary_source_checked') and 35 remain 'unverified'; the other 33 are our own fixtures ('not_applicable_synthetic') and assert no judgment. Secondary cross-reading already caught two real errors — see the 敷引 attribution note in bands.ts and the TK-0029 citation note — which is why the flag is not flipped wholesale. Nothing derived from this corpus should reach a user until a human has pulled 判例集 / the MLIT guideline PDF / RETIO for the 47 entries that assert an external source. SCORING CONVENTIONS. (1) A prong is true when SATISFIED, false when it FAILS, 'unknown' when the record lacks the facts to score it; 'unknown' is never collapsed into false. (2) P3 is PROPORTIONALITY ONLY — whether the amount sits inside its band in bands.ts. (3) P4 follows 最判平成17年12月16日 applied uniformly: for a depreciation-sensitive pattern, a clause shifting cost irrespective of occupancy, age or degree of wear may score P4 true only where the clause records explanation or assent — compare TK-0079 with TK-0080, TK-0054, TK-0016 and TK-0037. (4) P4 true presupposes P1 and P2. All conventions are enforced mechanically by tests/golden-set/validate-corpus.ts.",
+  "disclaimer": "PROVENANCE AND VERIFICATION WARNING — READ BEFORE USING AS GROUND TRUTH. No clause_text in this file is a verbatim quotation from a decided case or a real lease. Every entry is either 'synthetic_representative' (written to exemplify a pattern) or 'reconstructed_from_holding' (paraphrasing the clause type a cited decision addressed — the wording is ours, not the court's). There are no verbatim field samples: a verbatim claim now requires the document it was transcribed from, enforced by the validator. VERIFICATION. source.verified is true ONLY where a human has confirmed the citation against the primary text, and the validator enforces that it implies verification_status == 'primary_source_verified'. As of v4 that count is ZERO. Primary sources (裁判所, 国土交通省, RETIO) were not reachable from the build environment, so 12 citations were cross-read against secondary summaries only ('secondary_source_checked') and 35 remain 'unverified'; the other 33 are our own fixtures ('not_applicable_synthetic') and assert no judgment. Secondary cross-reading already caught two real errors — see the 敷引 attribution note in bands.ts and the TK-0029 citation note — which is why the flag is not flipped wholesale. Nothing derived from this corpus should reach a user until a human has pulled 判例集 / the MLIT guideline PDF / RETIO for the 47 entries that assert an external source. SCORING CONVENTIONS. (1) A prong is true when SATISFIED, false when it FAILS, 'unknown' when the record lacks the facts to score it; 'unknown' is never collapsed into false. (2) P3 is PROPORTIONALITY ONLY — whether the amount sits inside its band in bands.ts. (3) P4 follows 最判平成17年12月16日 applied uniformly: for a depreciation-sensitive pattern, a clause shifting cost irrespective of occupancy, age or degree of wear may score P4 true only where the clause records explanation or assent — compare TK-0079 with TK-0080, TK-0054, TK-0016 and TK-0037. (4) P4 true presupposes P1 and P2. (5) 一部無効 splits two ways: 'reducible' means the AMOUNT is cut back (P3 false, clause valid); 'severable' means the SCOPE is cut back (P4 false, but the clause named damage the tenant could have caused — void as to 通常損耗, alive for that damage, which art. 621(1) imposes independently). Collapsing them into 'unenforceable' would tell a tenant they owe nothing when they partly do. All conventions are enforced mechanically by tests/golden-set/validate-corpus.ts.",
   "cases": [
     {
       "id": "TK-0001",
@@ -1141,14 +1141,14 @@
         "P3": false,
         "P4": false
       },
-      "expected_verdict": "reducible",
+      "expected_verdict": "severable",
       "verdict_ja": "一部無効となる可能性が高い（通常損耗部分）",
       "source": {
         "type": "synthetic",
         "reference": "賃貸原状回復トラブルにおける『一切の責任』型クロス特約",
         "verified": false,
         "verification_status": "not_applicable_synthetic",
-        "note": "Downgraded from verbatim_field_sample on ingest: the cited source describes a 類型 (archetype/category), which cannot also be a verbatim transcription of one lease. Restore verbatim_field_sample only if an actual source document is produced."
+        "note": "Downgraded from verbatim_field_sample on ingest: the cited source describes a 類型 (archetype/category), which cannot also be a verbatim transcription of one lease. Restore verbatim_field_sample only if an actual source document is produced. Reclassified reducible -> severable 2026-09-14: its 一部無効 is a cut in SCOPE (void as to 通常損耗, alive for the damage the clause names), not a cut in AMOUNT. The prong vector alone cannot tell those apart, which is why the enum gained a fifth state."
       },
       "rationale": null
     },
@@ -1173,14 +1173,14 @@
         "P3": true,
         "P4": false
       },
-      "expected_verdict": "reducible",
+      "expected_verdict": "severable",
       "verdict_ja": "一部無効となる可能性が高い（通常損耗除外なし）",
       "source": {
         "type": "guideline",
         "reference": "国土交通省ガイドラインフローリング損耗事例",
         "verified": false,
         "verification_status": "unverified",
-        "note": "P3 corrected to true on ingest review: P3 measures PROPORTIONALITY only and this amount sits inside its band. The defect this entry records is real but belongs to another prong — see expected_prongs."
+        "note": "P3 corrected to true on ingest review: P3 measures PROPORTIONALITY only and this amount sits inside its band. The defect this entry records is real but belongs to another prong — see expected_prongs. Reclassified reducible -> severable 2026-09-14: its 一部無効 is a cut in SCOPE (void as to 通常損耗, alive for the damage the clause names), not a cut in AMOUNT. The prong vector alone cannot tell those apart, which is why the enum gained a fifth state."
       },
       "rationale": null
     },

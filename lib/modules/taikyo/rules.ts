@@ -31,8 +31,10 @@ import {
   type ProngId,
   type ProngScore,
   type ProngScores,
+  VERDICT_MEANINGS,
   type TokuyakuCode,
   type Verdict,
+  type VerdictMeaning,
 } from "./taxonomy.ts";
 import {
   CLEANING_BANDS_BY_LAYOUT,
@@ -89,6 +91,14 @@ export interface ClauseSignals {
    * displace the statutory allocation however clearly it is written.
    */
   chargeIrrespectiveOfPerformance: boolean;
+  /**
+   * The clause names concrete damage phenomena (scratches, dents, discolouration,
+   * pin holes) rather than merely an item or a whole surface. This is what makes a
+   * failed clause severable instead of wholly void: there is a real tenant-caused
+   * core underneath the over-reach. Generic 毀損 / 破損 deliberately do NOT count —
+   * they appear in blanket clauses that have no identifiable core.
+   */
+  identifiesDamagePhenomena: boolean;
 }
 
 const RE = {
@@ -100,6 +110,7 @@ const RE = {
   defer: /((貸主|賃貸人)が(指定|決定|定め)|別途定め|後日|事後に|明渡し後に|実費を請求|管理規約による)/,
   preserve: /(経過年数に応じ|減価を行|(通常損耗|経年変化)[^。]{0,24}(賃貸人|貸主)の負担)/,
   noPerformance: /(実施・不実施|実施の有無|施工の有無|履行の有無|作業の有無)[^。]{0,16}(かかわらず|関わらず|問わず)/,
+  damagePhenomena: /(キズ|傷|へこみ|凹み|変色|日焼け|画鋲|落書き|ヤニ|しみ|シミ|汚損|焦げ|カビ)/,
 } as const;
 
 export function detectSignals(clauseText: string): ClauseSignals {
@@ -111,6 +122,7 @@ export function detectSignals(clauseText: string): ClauseSignals {
     defersScopeOrAmount: RE.defer.test(clauseText),
     preservesDepreciation: RE.preserve.test(clauseText),
     chargeIrrespectiveOfPerformance: RE.noPerformance.test(clauseText),
+    identifiesDamagePhenomena: RE.damagePhenomena.test(clauseText),
   };
 }
 
@@ -120,27 +132,233 @@ export function detectSignals(clauseText: string): ClauseSignals {
 
 export interface Candidate {
   code: TokuyakuCode;
-  /** Matched cues over the pattern's total cues, 0..1. */
+  /** Normalised 0..1. Driven by weighted matches, not by cue-list length. */
   score: number;
   matchedCues: readonly string[];
+  /** A strong match names the pattern; a weak one is merely consistent with it. */
+  strongMatches: number;
+}
+
+interface ClassifierRule {
+  /** Vocabulary that names this pattern. */
+  readonly strong: readonly RegExp[];
+  /** Vocabulary consistent with it but shared with neighbours. */
+  readonly weak: readonly RegExp[];
+  /** Wording that rules the pattern OUT however much else matches. */
+  readonly negative: readonly RegExp[];
 }
 
 /**
- * Lexical-cue classifier. Provisional: it matches surface vocabulary, so a clause
- * mentioning two patterns scores for both, and a clause using unseen wording scores
- * for none. Callers should treat anything below `CONFIDENT` as a shortlist for a
- * human, not an answer.
+ * Classification vocabulary. This is deliberately separate from
+ * `TOKUYAKU_PATTERNS[...].lexicalCues`, which documents how a pattern reads; these
+ * are tuned against the golden set and measured by `npm run eval:corpus`.
+ *
+ * Negatives carry most of the precision. The sharpest case: a clause saying
+ * 「経過年数に応じた減価を行い」 PRESERVES depreciation, which is the opposite of the
+ * TK_KEINEN pattern even though it uses the same nouns. Without the negative, every
+ * guideline-compliant clause misfiles as an aging-shift clause.
  */
-export const CONFIDENT_SCORE = 0.34;
+const CLASSIFIER: Readonly<Record<TokuyakuCode, ClassifierRule>> = {
+  TK_CLEAN: {
+    strong: [/ハウスクリーニング/, /室内の?清掃/, /クリーニング(費用|代|費)/],
+    weak: [/クリーニング/, /清掃/],
+    negative: [],
+  },
+  TK_SHIKIBIKI: {
+    strong: [/敷引/],
+    weak: [/控除/, /返還しない/, /敷金/],
+    // NOT negative on 償却: 敷引 (Kansai) and 償却 (Kanto) name the same mechanism and
+    // do co-occur. Excluding each on the other annihilated both and classified such a
+    // clause as nothing at all. Let the scores decide instead.
+    negative: [],
+  },
+  TK_SHOUKYAKU: {
+    strong: [/償却/],
+    weak: [/返還しない/, /敷金/, /没収/],
+    negative: [],
+  },
+  TK_KOSHIN: {
+    strong: [/更新料/],
+    weak: [/更新/],
+    negative: [],
+  },
+  TK_TATAMI: {
+    strong: [/畳/, /表替え/],
+    weak: [/襖|ふすま/, /障子/, /和室/],
+    negative: [],
+  },
+  TK_CROSS: {
+    strong: [/クロス/, /壁紙/],
+    weak: [/張替え|張り替え/, /壁(面|及び|・)/, /天井/],
+    negative: [],
+  },
+  TK_FLOOR: {
+    strong: [/フローリング/, /床材/, /クッションフロア/],
+    weak: [/床/, /部分補修/],
+    negative: [],
+  },
+  TK_TSUJO: {
+    strong: [
+      /通常損耗/,
+      /通常の使用により生じた損耗/,
+      /原状回復(義務|の範囲|を行う|に必要)/,
+      /次の各号|各号の費用|原状回復費用負担表/,
+    ],
+    weak: [/原状に復して/, /一切の費用/, /自然損耗/],
+    // "...は賃貸人の負担とする" is a carve-out PRESERVING the statutory allocation,
+    // not a blanket shift. Without this, every guideline-compliant item clause that
+    // politely reserves ordinary wear to the landlord misfiles as TK_TSUJO.
+    negative: [/(通常損耗|経年変化)[^。]{0,24}(賃貸人|貸主)の負担/],
+  },
+  TK_KEINEN: {
+    strong: [
+      /経年変化/,
+      /経年劣化/,
+      /経過年数[^。]{0,12}(考慮せず|考慮しない|かかわらず|関わらず)/,
+      /耐用年数[^。]{0,12}(かかわらず|関わらず|経過|考慮せず)/,
+      /使用年数[^。]{0,8}考慮せず/,
+      /減価[^。]{0,10}(考慮せず|考慮しない|行わない)/,
+      /新品(購入)?(交換)?価格/,
+    ],
+    weak: [/経年/, /残存価値/],
+    // A clause that PRESERVES depreciation is the inverse of this pattern.
+    negative: [/経過年数に応じ/, /減価を行/, /(通常損耗|経年変化)[^。]{0,24}(賃貸人|貸主)の負担/],
+  },
+  TK_KAGI: {
+    strong: [/鍵の?交換/, /シリンダー/, /錠前/],
+    weak: [/鍵/, /防犯/],
+    negative: [],
+  },
+  TK_TAIKYO_FEE: {
+    strong: [/事務手数料/, /退去立会費/, /立会代行/, /解約事務/, /諸経費/, /書類手数料/],
+    weak: [/手数料/, /立会/],
+    negative: [],
+  },
+  TK_SHOUDOKU: {
+    strong: [/消毒/, /除菌/, /抗菌/, /消臭/],
+    weak: [/施工費/, /コーティング/],
+    negative: [],
+  },
+  TK_ZENMEN: {
+    strong: [/一室単位/, /内装[^。]{0,4}(全面|全体)/, /居室全体/, /部屋全体/, /室内全体/],
+    weak: [/全面/, /全体/, /異議/],
+    negative: [],
+  },
+  TK_TANKI: {
+    strong: [/違約金/, /短期解約/, /中途解約/],
+    weak: [/解約/, /未満で(本契約を)?解約/],
+    negative: [],
+  },
+};
 
+/** Patterns naming a single physical item, which TK_ZENMEN sits on top of. */
+const ITEM_CODES = ["TK_CLEAN", "TK_CROSS", "TK_FLOOR", "TK_TATAMI"] as const;
+
+/**
+ * Patterns describing how money moves rather than what gets restored. These read as
+ * more specific than any scope pattern: a deposit-retention or renewal-fee clause
+ * that happens to mention 通常損耗 is still about the deposit.
+ */
+const MECHANISM_CODES = [
+  "TK_SHIKIBIKI", "TK_SHOUKYAKU", "TK_KOSHIN", "TK_TANKI", "TK_TAIKYO_FEE", "TK_KAGI", "TK_SHOUDOKU",
+] as const;
+
+const STRONG_WEIGHT = 3;
+const WEAK_WEIGHT = 1;
+const NEGATIVE_WEIGHT = 5;
+/** Enough weighted evidence that the top candidate is worth acting on. */
+export const CONFIDENT_SCORE = 0.5;
+
+/**
+ * Weighted classifier with two precedence rules that plain scoring cannot express,
+ * because TK_TSUJO and TK_ZENMEN are not siblings of the item patterns — they sit
+ * above them:
+ *
+ *   1. TK_TSUJO wins outright on its own vocabulary. A clause framed around 通常損耗
+ *      or an itemised 原状回復 schedule is a blanket shifting clause even though it
+ *      also mentions cleaning, cross and tatami.
+ *   2. TK_ZENMEN wins when it names a whole-room remedy, or when two or more item
+ *      patterns fire at once — covering several item types in one sweep is what the
+ *      pattern IS.
+ */
 export function classifyClause(clauseText: string): Candidate[] {
-  const out: Candidate[] = [];
+  const raw = new Map<TokuyakuCode, { score: number; cues: string[]; strong: number }>();
+
   for (const code of TOKUYAKU_CODES) {
-    const cues = TOKUYAKU_PATTERNS[code].lexicalCues;
-    const matched = cues.filter((cue) => clauseText.includes(cue));
-    if (matched.length > 0) out.push({ code, score: matched.length / cues.length, matchedCues: matched });
+    const rule = CLASSIFIER[code];
+    const cues: string[] = [];
+    let strong = 0;
+    let score = 0;
+    for (const re of rule.strong) {
+      const m = clauseText.match(re);
+      if (m) { strong += 1; score += STRONG_WEIGHT; cues.push(m[0]); }
+    }
+    for (const re of rule.weak) {
+      const m = clauseText.match(re);
+      if (m) { score += WEAK_WEIGHT; cues.push(m[0]); }
+    }
+    let negatives = 0;
+    for (const re of rule.negative) if (re.test(clauseText)) negatives += 1;
+    score -= negatives * NEGATIVE_WEIGHT;
+    if (score > 0) raw.set(code, { score, cues, strong });
   }
-  return out.sort((a, b) => b.score - a.score || a.code.localeCompare(b.code));
+
+  // ---- precedence ladder -------------------------------------------------
+  // Plain scoring cannot express that some patterns are not siblings of the others.
+  // Each rung wins outright over the rungs below it.
+  const strongOf = (c: TokuyakuCode) => raw.get(c)?.strong ?? 0;
+  const itemsFiring = ITEM_CODES.filter((c) => strongOf(c) > 0).length;
+  let forced: TokuyakuCode | null = null;
+
+  // 1. A money mechanism (deposit retention, renewal fee, penalty, admin/key fee) is
+  //    orthogonal to restoration scope and always the more specific reading. A
+  //    shikibiki clause that mentions 通常損耗 is still a shikibiki clause.
+  //    Guarded by score: a trailing 「諸経費一律45,000円」 on a flooring clause must not
+  //    turn it into a fee clause, so the mechanism has to out-score the scope reading
+  //    outright rather than merely appear.
+  const scoreOf = (c: TokuyakuCode) => raw.get(c)?.score ?? 0;
+  const bestNonMechanism = Math.max(
+    0,
+    ...TOKUYAKU_CODES.filter((c) => !MECHANISM_CODES.includes(c as (typeof MECHANISM_CODES)[number])).map(scoreOf),
+  );
+  const mechanism = MECHANISM_CODES.filter((c) => strongOf(c) > 0)
+    .sort((a, b) => scoreOf(b) - scoreOf(a))[0];
+  const mechanismPresent = mechanism !== undefined;
+  if (mechanism && scoreOf(mechanism) > bestNonMechanism) forced = mechanism;
+
+  // 2. TK_KEINEN outranks TK_TSUJO: shifting 経年変化 specifically is narrower than
+  //    shifting ordinary wear generally, and its negatives have already removed the
+  //    clauses that merely preserve depreciation. It does NOT outrank a named item —
+  //    a cross clause carrying a 経過年数 disclaimer is still a cross clause.
+  else if (strongOf("TK_KEINEN") > 0 && itemsFiring === 0 && !mechanismPresent) forced = "TK_KEINEN";
+
+  // 3. A blanket ordinary-wear clause is TK_TSUJO whatever items it also names.
+  // Guarded on mechanism too: 「敷引3ヶ月分。ただし通常損耗の補修費用もここから充当する」
+  // is a shikibiki clause that mentions ordinary wear, not an ordinary-wear clause.
+  else if (strongOf("TK_TSUJO") > 0 && !mechanismPresent) forced = "TK_TSUJO";
+
+  // 4. TK_ZENMEN: a whole-room remedy, or two or more item patterns swept together.
+  //    The second case can fire when TK_ZENMEN scored nothing on its own vocabulary,
+  //    so it is admitted here rather than read out of the score map.
+  else if (strongOf("TK_ZENMEN") > 0 || itemsFiring >= 2) forced = "TK_ZENMEN";
+
+  if (forced) {
+    const existing = raw.get(forced);
+    raw.set(forced, existing ?? { score: STRONG_WEIGHT, cues: [], strong: 0 });
+    raw.get(forced)!.score += 100;
+  }
+
+  const maxScore = Math.max(1, ...[...raw.values()].map((v) => Math.min(v.score, 12)));
+  return [...raw.entries()]
+    .map(([code, v]) => ({
+      code,
+      score: Math.min(v.score, 12) / maxScore,
+      matchedCues: v.cues,
+      strongMatches: v.strong,
+      _raw: v.score,
+    }))
+    .sort((a, b) => b._raw - a._raw || a.code.localeCompare(b.code))
+    .map(({ _raw, ...c }) => c);
 }
 
 /* ------------------------------------------------------------------ *
@@ -261,18 +479,24 @@ export function scoreProngs(args: {
  * ------------------------------------------------------------------ */
 
 /**
- * Prong vector -> verdict. Reproduces 78 of the 80 golden-set labels exactly.
+ * Prong vector -> verdict.
  *
- * The two it does not reproduce (TK-0038, TK-0039) are labelled 一部無効 in the sense
- * of SEVERABILITY — void as to ordinary wear, still good for damage the tenant
- * actually caused — whereas `reducible` in this enum means the AMOUNT is cut back.
- * The prong vector cannot tell those apart, so the enum is under-specified. Erring
- * toward `unenforceable` is the safer side for a landlord-facing claim; adding a
- * fifth state is a product decision, not something to paper over here.
+ * `severableCore` carries the one thing the prongs cannot: whether, underneath a
+ * failed article 621 override, the clause named damage the tenant could actually
+ * have caused. When it did, striking the clause outright would tell the tenant they
+ * owe nothing — but article 621(1) makes them liable for their own damage whether or
+ * not the 特約 survives, so "unenforceable" would overstate their position. That case
+ * is `severable`: void as to ordinary wear, alive for the damage.
+ *
+ * Severability is only reachable where P1 and P2 have not themselves failed. A clause
+ * that never fixed its scope, or was never agreed, has no core to fall back to.
  */
-export function deriveVerdict(scores: ProngScores): Verdict {
+export function deriveVerdict(scores: ProngScores, opts?: { severableCore?: boolean }): Verdict {
   const { P1, P2, P3, P4 } = scores;
-  if (P1 === false || P2 === false || P4 === false) return "unenforceable";
+  if (P1 === false || P2 === false) return "unenforceable";
+  if (P4 === false) {
+    return opts?.severableCore && P1 === true && P2 === true ? "severable" : "unenforceable";
+  }
   if (P1 === true && P2 === true && P4 === true) {
     if (P3 === false) return "reducible";
     if (P3 === true) return "enforceable";
@@ -301,6 +525,8 @@ export interface ClauseEvaluation {
   reasons: ProngReasons;
   band: BandResult | null;
   verdict: Verdict;
+  /** Labels and the plain-language line for this verdict, ja and en. */
+  remedy: VerdictMeaning;
   /** True when any prong is unknown, or the classifier was not confident. */
   reviewRequired: boolean;
   authorities: readonly string[];
@@ -330,6 +556,7 @@ export function evaluateClause(input: EvaluateRequest): ClauseEvaluation {
       },
       band: null,
       verdict: "needs_review",
+      remedy: VERDICT_MEANINGS.needs_review,
       reviewRequired: true,
       authorities: [],
       advisory: ADVISORY,
@@ -338,7 +565,7 @@ export function evaluateClause(input: EvaluateRequest): ClauseEvaluation {
 
   const band = input.context ? computeBand(chosen, input.context) : null;
   const { scores, reasons } = scoreProngs({ code: chosen, signals, placement: input.placement, band });
-  const verdict = deriveVerdict(scores);
+  const verdict = deriveVerdict(scores, { severableCore: signals.identifiesDamagePhenomena });
   const anyUnknown = PRONG_IDS.some((id) => scores[id] === "unknown");
 
   return {
@@ -349,6 +576,7 @@ export function evaluateClause(input: EvaluateRequest): ClauseEvaluation {
     reasons,
     band,
     verdict,
+    remedy: VERDICT_MEANINGS[verdict],
     reviewRequired: anyUnknown || !confident,
     authorities: TOKUYAKU_PATTERNS[chosen].authority,
     advisory: ADVISORY,
