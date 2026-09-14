@@ -1,0 +1,14 @@
+{
+  "name": "rental-lifecycle-audit-suite",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Unified rental lifecycle audit suite: move-in cost audits (初期費用) and move-out restoration audits (原状回復).",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.116.0",
+    "playwright": "^1.63.0",
+    "react-hook-form": "^7.88.0",
+    "resend": "^6.28.0",
+    "zod": "^4.6.5"
+  }
+}
