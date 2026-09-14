@@ -30,6 +30,24 @@ export type BatchFinding = ClauseFinding & { reasonsText: LocalizedReasons };
 export type BatchReportResponse = Omit<BatchReport, "findings"> & { findings: BatchFinding[] };
 
 /* ---------------------------------------------------------------- *
+ * PDF ingestion
+ * ---------------------------------------------------------------- */
+
+export type { IngestResult, IngestError, IngestSuccess } from "@/lib/modules/taikyo/ingest.ts";
+import type { IngestResult } from "@/lib/modules/taikyo/ingest.ts";
+
+export async function extractPdfText(file: File, signal?: AbortSignal): Promise<IngestResult> {
+  const form = new FormData();
+  form.append("file", file);
+  const res = await fetch("/api/taikyo/extract", { method: "POST", body: form, signal });
+  const body = await res.json().catch(() => null);
+  if (!res.ok) {
+    throw new EvaluateError(body?.message ?? body?.error ?? `Upload failed (${res.status})`, res.status, body?.issues);
+  }
+  return body.result as IngestResult;
+}
+
+/* ---------------------------------------------------------------- *
  * Negotiation letter
  * ---------------------------------------------------------------- */
 

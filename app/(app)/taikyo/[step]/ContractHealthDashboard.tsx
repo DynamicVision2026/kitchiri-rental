@@ -13,16 +13,18 @@
  * more confident than the analysis behind it.
  */
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   EvaluateError,
   evaluateContractText,
+  extractPdfText,
   generateLetter,
   type BatchFinding,
   type BatchReportResponse,
   type LetterClause,
   type LetterRefusal,
   type LetterResult,
+  type IngestResult,
 } from "@/lib/shared/taikyo-client.ts";
 import styles from "./dashboard.module.css";
 
@@ -142,6 +144,9 @@ export default function ContractHealthDashboard() {
   const [letter, setLetter] = useState<{ title: string; result: LetterResult | LetterRefusal } | null>(null);
   const [letterBusy, setLetterBusy] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [ingest, setIngest] = useState<IngestResult | null>(null);
+  const [dragging, setDragging] = useState(false);
+  const fileInput = useRef<HTMLInputElement | null>(null);
 
   const analyze = useCallback(async () => {
     setBusy(true);
@@ -154,6 +159,28 @@ export default function ContractHealthDashboard() {
       setBusy(false);
     }
   }, [text]);
+
+  const takeFile = useCallback(async (file: File) => {
+    setBusy(true);
+    setError(null);
+    setIngest(null);
+    setReport(null);
+    try {
+      const result = await extractPdfText(file);
+      setIngest(result);
+      if (result.ok) {
+        // Show what was read before judging it. Extraction can mangle a document, and
+        // the user is the only one who can tell — so the text lands in the editable
+        // box and the analysis runs on exactly what they can see.
+        setText(result.text);
+        setReport(await evaluateContractText(result.text));
+      }
+    } catch (e) {
+      setError(e instanceof EvaluateError ? e.message : "ファイルの読み取りに失敗しました。");
+    } finally {
+      setBusy(false);
+    }
+  }, []);
 
   const draftLetter = useCallback(async (clauses: LetterClause[], title: string) => {
     setLetterBusy(true);
@@ -200,6 +227,47 @@ export default function ContractHealthDashboard() {
       </p>
 
       <div className={styles.card}>
+        <div
+          className={`${styles.dropZone} ${dragging ? styles.dropZoneActive : ""} ${busy ? styles.dropZoneBusy : ""}`}
+          onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragging(false);
+            const file = e.dataTransfer.files?.[0];
+            if (file && !busy) void takeFile(file);
+          }}
+          onClick={() => !busy && fileInput.current?.click()}
+          onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && !busy) fileInput.current?.click(); }}
+          role="button"
+          tabIndex={0}
+        >
+          <div className={styles.dropTitle}>{busy ? "読み取り中…" : "契約書のPDFをここにドロップ、またはクリックして選択"}</div>
+          <div className={styles.dropHint}>
+            文字情報を含むPDFに対応しています（最大12MB）。スキャン画像のみのPDFは読み取れないため、その場合は本文を貼り付けてください。
+          </div>
+          <input
+            ref={fileInput}
+            className={styles.hiddenInput}
+            type="file"
+            accept="application/pdf,.pdf"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void takeFile(file);
+              e.target.value = "";
+            }}
+          />
+        </div>
+
+        {ingest && !ingest.ok && <p className={styles.ingestNote}>{ingest.messageJa}</p>}
+        {ingest?.ok && (
+          <p className={styles.ingestOk}>
+            PDF から {ingest.pages} ページ・{ingest.text.length.toLocaleString()} 文字を読み取りました。内容をご確認ください。
+          </p>
+        )}
+
+        <div className={styles.divider}>または本文を貼り付け</div>
+
         <label className={styles.loc} htmlFor="contract">契約書全文</label>
         <textarea
           id="contract"
@@ -214,7 +282,7 @@ export default function ContractHealthDashboard() {
           <button className={styles.btn} disabled={text.trim().length === 0 || busy} onClick={() => void analyze()}>
             {busy ? "診断中…" : "契約書を診断する"}
           </button>
-          {report && <button className={styles.btnGhost} onClick={() => { setReport(null); setText(""); }}>別の契約書を診断する</button>}
+          {report && <button className={styles.btnGhost} onClick={() => { setReport(null); setText(""); setIngest(null); setLetter(null); }}>別の契約書を診断する</button>}
         </div>
         {error && <p className={styles.error}>{error}</p>}
       </div>

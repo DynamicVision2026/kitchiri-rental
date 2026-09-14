@@ -117,3 +117,18 @@
 .letterWarn { margin: .7rem 0 0; padding: .6rem .8rem; border-left: 3px solid var(--warning);
   background: color-mix(in srgb, var(--warning) 10%, transparent); font-size: .78rem; line-height: 1.75; color: var(--ink-2); }
 .letterRefusal { margin: .7rem 0 0; font-size: .84rem; line-height: 1.8; color: var(--ink-2); }
+
+/* upload zone */
+.dropZone { border: 2px dashed var(--border); border-radius: .55rem; padding: 1.5rem 1rem; text-align: center;
+  background: var(--surface); transition: border-color .15s, background .15s; cursor: pointer; }
+.dropZoneActive { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, transparent); }
+.dropZoneBusy { opacity: .6; cursor: progress; }
+.dropTitle { font-weight: 600; font-size: .9rem; }
+.dropHint { color: var(--ink-3); font-size: .78rem; line-height: 1.7; margin-top: .35rem; }
+.hiddenInput { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.divider { display: flex; align-items: center; gap: .75rem; color: var(--ink-3); font-size: .76rem; margin: 1rem 0; }
+.divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+.ingestNote { margin-top: .75rem; padding: .7rem .9rem; border-left: 3px solid var(--warning);
+  background: color-mix(in srgb, var(--warning) 10%, transparent); font-size: .79rem; line-height: 1.8; color: var(--ink-2);
+  border-radius: 0 .3rem .3rem 0; }
+.ingestOk { margin-top: .7rem; font-size: .79rem; color: var(--good); font-weight: 600; }

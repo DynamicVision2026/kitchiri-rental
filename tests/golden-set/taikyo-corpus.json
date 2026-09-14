@@ -869,11 +869,11 @@
       "expected_verdict": "enforceable",
       "verdict_ja": "有効の可能性が高い",
       "source": {
-        "type": "consumer_center",
-        "reference": "国民生活センターPIO-NET相談事例類型（ハウスクリーニング特約・固定額型）",
+        "type": "synthetic",
+        "reference": "Constructed TK_CLEAN fixture: fixed-sum cleaning charge stated irrespective of occupancy",
         "verified": false,
-        "verification_status": "unverified",
-        "note": "Downgraded from verbatim_field_sample on ingest: the cited source describes a 類型 (archetype/category), which cannot also be a verbatim transcription of one lease. Restore verbatim_field_sample only if an actual source document is produced."
+        "verification_status": "not_applicable_synthetic",
+        "note": "Downgraded from verbatim_field_sample on ingest: the cited source describes a 類型 (archetype/category), which cannot also be a verbatim transcription of one lease. Restore verbatim_field_sample only if an actual source document is produced. Reclassified 2026-09-14: previously cited as 「国民生活センターPIO-NET相談事例類型（ハウスクリーニング特約・固定額型）」, which names a category of consultation or a general practice rather than an authority that could be confirmed or refuted against a primary source. This is NOT verification — the entry asserts no judgment, so there is nothing to verify. Re-attach a real citation if one is identified."
       },
       "rationale": null
     },
@@ -985,11 +985,11 @@
       "expected_verdict": "needs_review",
       "verdict_ja": "有効性に疑義が残る（賃料額との比較が必要）",
       "source": {
-        "type": "consumer_center",
-        "reference": "国民生活センターPIO-NET相談事例（敷引き・関西地方の賃貸トラブル類型）",
+        "type": "synthetic",
+        "reference": "Constructed TK_SHIKIBIKI fixture: retention stated without the rent needed to judge it",
         "verified": false,
-        "verification_status": "unverified",
-        "note": "Downgraded from verbatim_field_sample on ingest: the cited source describes a 類型 (archetype/category), which cannot also be a verbatim transcription of one lease. Restore verbatim_field_sample only if an actual source document is produced."
+        "verification_status": "not_applicable_synthetic",
+        "note": "Downgraded from verbatim_field_sample on ingest: the cited source describes a 類型 (archetype/category), which cannot also be a verbatim transcription of one lease. Restore verbatim_field_sample only if an actual source document is produced. Reclassified 2026-09-14: previously cited as 「国民生活センターPIO-NET相談事例（敷引き・関西地方の賃貸トラブル類型）」, which names a category of consultation or a general practice rather than an authority that could be confirmed or refuted against a primary source. This is NOT verification — the entry asserts no judgment, so there is nothing to verify. Re-attach a real citation if one is identified."
       },
       "rationale": null
     },
@@ -1455,7 +1455,7 @@
       "id": "TK-0050",
       "expected_code": "TK_TAIKYO_FEE",
       "clause_text": "退去時、書類作成及び立会いにかかる事務手数料として一律15,000円を借主が負担するものとし、契約書特約事項に明記する。",
-      "clause_text_provenance": "reconstructed_from_holding",
+      "clause_text_provenance": "synthetic_representative",
       "context": {
         "prefecture": "東京都",
         "layout": "1R/1K",
@@ -1474,11 +1474,11 @@
       "expected_verdict": "enforceable",
       "verdict_ja": "有効の可能性が高い",
       "source": {
-        "type": "guideline",
-        "reference": "国民生活センター及び賃貸住宅標準契約書",
+        "type": "synthetic",
+        "reference": "Constructed TK_TAIKYO_FEE fixture: administrative fee naming the service it covers",
         "verified": false,
-        "verification_status": "unverified",
-        "note": null
+        "verification_status": "not_applicable_synthetic",
+        "note": "Reclassified 2026-09-14: previously cited as 「国民生活センター及び賃貸住宅標準契約書」, which names a category of consultation or a general practice rather than an authority that could be confirmed or refuted against a primary source. This is NOT verification — the entry asserts no judgment, so there is nothing to verify. Re-attach a real citation if one is identified."
       },
       "rationale": null
     },
@@ -1528,11 +1528,11 @@
       "expected_verdict": "unenforceable",
       "verdict_ja": "無効の可能性が高い（対価性の欠如）",
       "source": {
-        "type": "consumer_center",
-        "reference": "国民生活センター公表の『消毒・抗菌施工費』に関するトラブル",
+        "type": "synthetic",
+        "reference": "Constructed TK_SHOUDOKU fixture: charge levied whether or not the work is performed",
         "verified": false,
-        "verification_status": "unverified",
-        "note": "P3 corrected to true on ingest review: P3 measures PROPORTIONALITY only and this amount sits inside its band. The defect this entry records is real but belongs to another prong — see expected_prongs. Downgraded from verbatim_field_sample 2026-09-14: no source lease document exists for this entry — the reference describes a category of complaint, not a document that can be produced. Restore only when an actual lease is attached and verification_status reaches primary_source_verified."
+        "verification_status": "not_applicable_synthetic",
+        "note": "P3 corrected to true on ingest review: P3 measures PROPORTIONALITY only and this amount sits inside its band. The defect this entry records is real but belongs to another prong — see expected_prongs. Downgraded from verbatim_field_sample 2026-09-14: no source lease document exists for this entry — the reference describes a category of complaint, not a document that can be produced. Restore only when an actual lease is attached and verification_status reaches primary_source_verified. Reclassified 2026-09-14: previously cited as 「国民生活センター公表の『消毒・抗菌施工費』に関するトラブル」, which names a category of consultation or a general practice rather than an authority that could be confirmed or refuted against a primary source. This is NOT verification — the entry asserts no judgment, so there is nothing to verify. Re-attach a real citation if one is identified."
       },
       "rationale": null
     },
@@ -1639,8 +1639,8 @@
         "type": "lower_court",
         "reference": "東京地方裁判所令和2年2月6日判決",
         "verified": false,
-        "verification_status": "unverified",
-        "note": null
+        "verification_status": "secondary_source_checked",
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 二次資料で照合（2026-09-14）: 期間2年の建物賃貸借について、賃借人都合による中途解約の違約金を賃料及び管理費の1か月分と定める条項を、消費者契約法9条1号の平均的な損害を超えないとして有効と判断。TK-0056 の事実関係および enforceable 判定と一致。判決原本は未読。"
       },
       "rationale": null
     },
@@ -1671,8 +1671,8 @@
         "type": "statute",
         "reference": "解約予告条項と重複する中途解約違約金の消費者契約法10条無効事例",
         "verified": false,
-        "verification_status": "unverified",
-        "note": "P3 corrected to true on ingest review: P3 measures PROPORTIONALITY only and this amount sits inside its band. The defect this entry records is real but belongs to another prong — see expected_prongs."
+        "verification_status": "secondary_source_checked",
+        "note": "P3 corrected to true on ingest review: P3 measures PROPORTIONALITY only and this amount sits inside its band. The defect this entry records is real but belongs to another prong — see expected_prongs. Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 条文を二次資料で照合（2026-09-14）: 10条は、任意規定の適用による場合に比して消費者の権利を制限し義務を加重する条項であって、信義則に反して消費者の利益を一方的に害するものを無効とする。敷引・更新料・違約金の相当性判断の受け皿となる一般条項。e-Gov 原本は未確認。"
       },
       "rationale": null
     },
@@ -2203,8 +2203,8 @@
         "type": "statute",
         "reference": "消費者契約法9条",
         "verified": false,
-        "verification_status": "unverified",
-        "note": null
+        "verification_status": "secondary_source_checked",
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 条文を二次資料で照合（2026-09-14）: 9条1号は、消費者契約の解除に伴う損害賠償額の予定・違約金の定めについて、当該事業者に生ずべき平均的な損害の額を超える部分を無効とする。TANKI_KAIYAKU_BAND の位置づけおよび p4.notice_stacked_on_penalty の理由文と整合。e-Gov 原本は未確認。"
       },
       "rationale": "Trigger, lock-in period and amount are all fixed, and the penalty sits at the supported ceiling."
     },
@@ -2234,8 +2234,8 @@
         "type": "statute",
         "reference": "消費者契約法9条",
         "verified": false,
-        "verification_status": "unverified",
-        "note": null
+        "verification_status": "secondary_source_checked",
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 条文を二次資料で照合（2026-09-14）: 9条1号は、消費者契約の解除に伴う損害賠償額の予定・違約金の定めについて、当該事業者に生ずべき平均的な損害の額を超える部分を無効とする。TANKI_KAIYAKU_BAND の位置づけおよび p4.notice_stacked_on_penalty の理由文と整合。e-Gov 原本は未確認。"
       },
       "rationale": "Specific and agreed, but 3x rent exceeds the band and 消費者契約法9条 caps a penalty at the landlord's average expected loss."
     },
