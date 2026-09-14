@@ -1,8 +1,8 @@
 {
-  "version": 3,
+  "version": 4,
   "target_size": 80,
   "generated_at": "2026-09-14",
-  "disclaimer": "PROVENANCE WARNING — READ BEFORE USING AS GROUND TRUTH. No clause_text in this file is a verified verbatim quotation from a decided case, a real lease, or a 国民生活センター case summary. Each entry declares clause_text_provenance: 'synthetic_representative' (written to exemplify a pattern), 'reconstructed_from_holding' (paraphrasing the clause type a cited decision addressed — the wording is ours, not the court's), or 'verbatim_field_sample' (claims transcription from a real document; NONE is yet backed by a produced document, so all remain verified:false). Every source.reference carries verified:false and MUST be checked against the primary source (判例集 / 国土交通省ガイドライン / PIO-NET / RETIO) before this corpus calibrates the engine or any figure derived from it reaches a user. SCORING CONVENTIONS. (1) A prong is true when SATISFIED, false when it FAILS, \"unknown\" when the record lacks the facts to score it; \"unknown\" is never collapsed into false. (2) P3 is PROPORTIONALITY ONLY — whether the amount sits inside its band in bands.ts. A clause that is in-band but defective for another reason fails P1 or P4, not P3. (3) P4 follows 最判平成17年12月16日 applied uniformly: for a depreciation-sensitive pattern, a clause that shifts cost irrespective of occupancy, age or degree of wear may score P4 true only where the clause itself records explanation or assent. Compare TK-0079 (records both, enforceable) with TK-0080, TK-0054, TK-0016 and TK-0037 (record neither, unenforceable). (4) P4 true presupposes P1 and P2. All four conventions are enforced mechanically by tests/golden-set/validate-corpus.ts.",
+  "disclaimer": "PROVENANCE AND VERIFICATION WARNING — READ BEFORE USING AS GROUND TRUTH. No clause_text in this file is a verbatim quotation from a decided case or a real lease. Every entry is either 'synthetic_representative' (written to exemplify a pattern) or 'reconstructed_from_holding' (paraphrasing the clause type a cited decision addressed — the wording is ours, not the court's). There are no verbatim field samples: a verbatim claim now requires the document it was transcribed from, enforced by the validator. VERIFICATION. source.verified is true ONLY where a human has confirmed the citation against the primary text, and the validator enforces that it implies verification_status == 'primary_source_verified'. As of v4 that count is ZERO. Primary sources (裁判所, 国土交通省, RETIO) were not reachable from the build environment, so 12 citations were cross-read against secondary summaries only ('secondary_source_checked') and 35 remain 'unverified'; the other 33 are our own fixtures ('not_applicable_synthetic') and assert no judgment. Secondary cross-reading already caught two real errors — see the 敷引 attribution note in bands.ts and the TK-0029 citation note — which is why the flag is not flipped wholesale. Nothing derived from this corpus should reach a user until a human has pulled 判例集 / the MLIT guideline PDF / RETIO for the 47 entries that assert an external source. SCORING CONVENTIONS. (1) A prong is true when SATISFIED, false when it FAILS, 'unknown' when the record lacks the facts to score it; 'unknown' is never collapsed into false. (2) P3 is PROPORTIONALITY ONLY — whether the amount sits inside its band in bands.ts. (3) P4 follows 最判平成17年12月16日 applied uniformly: for a depreciation-sensitive pattern, a clause shifting cost irrespective of occupancy, age or degree of wear may score P4 true only where the clause records explanation or assent — compare TK-0079 with TK-0080, TK-0054, TK-0016 and TK-0037. (4) P4 true presupposes P1 and P2. All conventions are enforced mechanically by tests/golden-set/validate-corpus.ts.",
   "cases": [
     {
       "id": "TK-0001",
@@ -29,6 +29,7 @@
         "type": "supreme_court",
         "reference": "最判平成17年12月16日",
         "verified": false,
+        "verification_status": "unverified",
         "note": "The blanket 原状回復 formulation. Names no item and no amount, so the tenant was never on notice of a burden beyond the statutory default."
       },
       "rationale": "P1 fails outright: neither scope nor amount is identified. P2 holds because the term is in the executed lease. P4 therefore fails and the art. 621 default stands.",
@@ -59,6 +60,7 @@
         "type": "synthetic",
         "reference": "Constructed as the positive control for TK_TSUJO",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": "Itemised scope, unit prices, depreciation preserved, ordinary wear expressly left with the landlord. Should score clean on all four prongs."
       },
       "rationale": "Positive control. If the engine ever scores this below 'enforceable', the P1 or P4 logic is over-firing.",
@@ -89,6 +91,7 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
+        "verification_status": "unverified",
         "note": "Fixed sum stated in the lease body and inside the market band for a single-room unit."
       },
       "rationale": "A named fixed sum satisfies P1; the amount sits under the 1R/1K supported ceiling so P3 holds.",
@@ -119,6 +122,7 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
+        "verification_status": "unverified",
         "note": "No sum stated, and the amount actually billed exceeds the band for the unit size."
       },
       "rationale": "Open-ended cleaning clauses fail P1: with no sum in the lease the tenant cannot know the burden. Routine cleaning is the landlord's cost under the guidelines, so P4 fails with it.",
@@ -149,6 +153,7 @@
         "type": "synthetic",
         "reference": "Constructed as the P3-only failure for TK_CLEAN",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": "Clause is specific and properly agreed; only the amount is an outlier for a 1R/1K unit."
       },
       "rationale": "Isolates P3. The clause survives, but the charge is far outside the band for the unit size, so the recoverable amount is cut back rather than voided.",
@@ -179,6 +184,7 @@
         "type": "supreme_court",
         "reference": "最判平成23年3月24日",
         "verified": false,
+        "verification_status": "secondary_source_checked",
         "note": "Retention of 2.0x monthly rent, inside the supported band."
       },
       "rationale": "Amount and mechanism are explicit, so P1 and P2 hold. At 2.0x rent the retention is inside the supported band.",
@@ -209,7 +215,8 @@
         "type": "supreme_court",
         "reference": "最判平成23年3月24日",
         "verified": false,
-        "note": "3.5x monthly rent — the outer edge of what that decision tolerated on its facts. Band level 'elevated', prong still satisfied."
+        "verification_status": "secondary_source_checked",
+        "note": "3.5x monthly rent — the outer edge of what that decision tolerated on its facts. Band level 'elevated', prong still satisfied. CITATION CORRECTED 2026-09-14: the 2x-3.5x range this entry calibrates comes from 最判平成23年7月12日 (第三小法廷), not 平成23年3月24日, which was reported at roughly 2.19x. Re-point this reference once the primary texts are pulled."
       },
       "rationale": "Calibration case for the elevated band. P3 should remain true at 3.5x, but the report must show the charge as elevated rather than clean.",
       "verdict_ja": null
@@ -239,6 +246,7 @@
         "type": "synthetic",
         "reference": "Constructed as the P3 failure for TK_SHIKIBIKI",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": "6.0x monthly rent, well beyond any ratio a reported decision has tolerated."
       },
       "rationale": "Clear and agreed, so P1/P2/P4 hold, but 6x rent is 高額に過ぎる territory under 消費者契約法10条.",
@@ -269,6 +277,7 @@
         "type": "supreme_court",
         "reference": "最判平成23年3月24日",
         "verified": false,
+        "verification_status": "secondary_source_checked",
         "note": "Kanto-style amortisation scored against the shikibiki band; 1.0x rent."
       },
       "rationale": "Confirms TK_SHOUKYAKU routes to the shikibiki band. At 1.0x rent the amount is comfortably supported.",
@@ -299,6 +308,7 @@
         "type": "synthetic",
         "reference": "Constructed as the P1 failure for TK_SHOUKYAKU",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": "'A portion' fixes no amount, so the tenant cannot know the burden at signing."
       },
       "rationale": "An amortisation clause with no stated sum or formula fails P1. The sum actually withheld happens to sit inside the shikibiki band, so P3 is satisfied on the numbers and P1 alone carries the entry.",
@@ -329,6 +339,7 @@
         "type": "supreme_court",
         "reference": "最判平成23年7月15日",
         "verified": false,
+        "verification_status": "secondary_source_checked",
         "note": "0.5 months of rent per renewal year — well inside the supported band."
       },
       "rationale": "Amount and renewal interval both stated. Normalising to a 2-year cycle gives 0.5 months per year.",
@@ -359,7 +370,8 @@
         "type": "supreme_court",
         "reference": "最判平成23年7月15日",
         "verified": false,
-        "note": "Roughly 2.6 months of rent per renewal year — the calibration point for the elevated band."
+        "verification_status": "secondary_source_checked",
+        "note": "Roughly 2.6 months of rent per renewal year — the calibration point for the elevated band. CONTESTED FIGURE 2026-09-14: secondary summaries disagree on the facts of 最判平成23年7月15日 — two months' rent per year on rent of ¥38,000 under one reading, ¥100,000 (about 2.63) under another. This entry assumes the higher reading. If the lower one is right, its band level and P3 both change."
       },
       "rationale": "Boundary case. Should score P3 true but surface as elevated, matching the facts the decision upheld.",
       "verdict_ja": null
@@ -389,6 +401,7 @@
         "type": "synthetic",
         "reference": "Constructed as the P3 failure for TK_KOSHIN",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": "4.0 months per renewal year, far beyond the upheld facts."
       },
       "rationale": "Specific and agreed, but the annualised burden is well past the elevated ceiling.",
@@ -419,6 +432,7 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
+        "verification_status": "unverified",
         "note": "畳表 is treated as a consumable with no 経過年数 depreciation, so P3 turns on unit price alone."
       },
       "rationale": "Unit price and mat count are both fixed. Confirms the engine applies no depreciation to 畳表.",
@@ -449,6 +463,7 @@
         "type": "synthetic",
         "reference": "Constructed as the P1 failure for TK_TATAMI",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": "Neither unit price nor mat count stated; the billed sum implies an inflated per-mat rate."
       },
       "rationale": "Without a unit price the tenant cannot size the obligation, so P1 fails and the statutory default survives.",
@@ -479,6 +494,7 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
+        "verification_status": "unverified",
         "note": "クロス carries a 6-year useful life; at 84 months the tenant's residual share is nil, and the clause expressly disclaims depreciation."
       },
       "rationale": "Key depreciation case. 'Regardless of length of occupancy' is a direct assault on 経年変化, so P4 fails; residualBurdenRatio('cross', 84) is 0, so P3 fails too.",
@@ -509,6 +525,7 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
+        "verification_status": "unverified",
         "note": "Damaged-portion accounting with depreciation preserved — the guideline-compliant shape of this clause."
       },
       "rationale": "Positive control for TK_CROSS. Scoped to tenant-caused damage, priced per unit, depreciation retained.",
@@ -539,6 +556,7 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
+        "verification_status": "unverified",
         "note": "Full replacement charged irrespective of damage; the guidelines account for flooring by damaged portion."
       },
       "rationale": "The amount is stated, so P1 holds, but charging full replacement with no damage requirement defeats P4 and blows the band.",
@@ -569,6 +587,7 @@
         "type": "statute",
         "reference": "民法621条",
         "verified": false,
+        "verification_status": "unverified",
         "note": "Names the two categories art. 621 expressly carves out, with no itemisation or amount."
       },
       "rationale": "The clearest P4 failure in the set: it targets exactly what the statute excludes, and names neither items nor sums.",
@@ -599,6 +618,7 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
+        "verification_status": "unverified",
         "note": "The guidelines allocate re-keying done for the next tenant's benefit to the landlord, so this pattern depends entirely on a clear, agreed clause."
       },
       "rationale": "Fixed sum in the lease body and inside the band. Tests that a specific clause can shift a cost the guidelines otherwise place on the landlord.",
@@ -629,6 +649,7 @@
         "type": "synthetic",
         "reference": "Constructed as the P3 failure for TK_KAGI",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": "Above the elevated ceiling for a standard cylinder change."
       },
       "rationale": "Isolates P3 for TK_KAGI: the clause is sound but the sum is an outlier.",
@@ -659,6 +680,7 @@
         "type": "synthetic",
         "reference": "Constructed for TK_TAIKYO_FEE",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": "A sum with no identified service behind it. P1 asks for scope AND amount; only the amount is present."
       },
       "rationale": "Tests that P1 requires scope as well as amount. A bare fee with no corresponding service fails even though the number is specific.",
@@ -689,6 +711,7 @@
         "type": "synthetic",
         "reference": "Constructed as the positive control for TK_SHOUDOKU",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": "Stated in the lease body with a fixed sum and inside the band."
       },
       "rationale": "Positive control. The pattern is frequently contested in practice, but a specific, agreed, in-band charge should pass all four prongs.",
@@ -719,6 +742,7 @@
         "type": "synthetic",
         "reference": "Constructed as the P2 failure for the set",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": "Appears only in the 重要事項説明書, never in the executed lease."
       },
       "rationale": "The one entry that isolates P2. The amount is specific and in-band, but a term living only in the explanatory document was never agreed as a contractual burden.",
@@ -749,6 +773,7 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
+        "verification_status": "unverified",
         "note": "Room-unit accounting conflicts with the guidelines' 毀損部分 unit, and no depreciation is applied at 48 months."
       },
       "rationale": "Tests the ZENMEN pattern independently of CROSS: the defect is the unit of accounting, not the unit price.",
@@ -779,6 +804,7 @@
         "type": "synthetic",
         "reference": "Constructed as the positive control for TK_TANKI",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": "1.0x rent within a 1-year lock-in — the common market shape."
       },
       "rationale": "Trigger, duration and amount are all stated, and the penalty is at the supported ceiling.",
@@ -809,6 +835,7 @@
         "type": "synthetic",
         "reference": "Constructed as the P3 failure for TK_TANKI",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": "3.0x rent over a 2-year lock-in, above the elevated ceiling. 消費者契約法9条 caps a penalty at average expected loss."
       },
       "rationale": "Specific and agreed, but the penalty exceeds the band and is exposed under 消費者契約法9条.",
@@ -840,6 +867,7 @@
         "type": "consumer_center",
         "reference": "国民生活センターPIO-NET相談事例類型（ハウスクリーニング特約・固定額型）",
         "verified": false,
+        "verification_status": "unverified",
         "note": "Downgraded from verbatim_field_sample on ingest: the cited source describes a 類型 (archetype/category), which cannot also be a verbatim transcription of one lease. Restore verbatim_field_sample only if an actual source document is produced."
       },
       "rationale": null
@@ -848,7 +876,7 @@
       "id": "TK-0029",
       "expected_code": "TK_CLEAN",
       "clause_text": "本物件の退去時には、ハウスクリーニング費用として26,250円を敷金から差し引く。詳細は入居後配布の管理規約による。",
-      "clause_text_provenance": "reconstructed_from_holding",
+      "clause_text_provenance": "synthetic_representative",
       "context": {
         "prefecture": "東京都",
         "layout": "1R/1K",
@@ -867,12 +895,13 @@
       "expected_verdict": "unenforceable",
       "verdict_ja": "無効の可能性が高い（合意欠如）",
       "source": {
-        "type": "lower_court",
-        "reference": "東京地方裁判所平成21年9月18日判決（国土交通省ガイドライン事例36）",
+        "type": "synthetic",
+        "reference": "Constructed P2-failure variant, contrasted against 東京地裁平成21年9月18日 (ガイドライン事例36)",
         "verified": false,
-        "note": "P3 corrected to true on ingest review: P3 measures PROPORTIONALITY only and this amount sits inside its band. The defect this entry records is real but belongs to another prong — see expected_prongs."
+        "verification_status": "not_applicable_synthetic",
+        "note": "CITATION CORRECTED 2026-09-14. This entry previously cited 東京地裁平成21年9月18日 as authority for the clause being INVALID. That is backwards: 東京地裁平成21年9月18日 (MLIT ガイドライン事例36) addressed BOTH charges in one case — rent ¥56,000/month, house cleaning ¥25,000+tax (¥26,250 incl. 5%) and key change ¥12,600 — and held NEITHER violated 消費者契約法10条. So one judgment legitimately backing two entries was never a contradiction. Secondary summaries only; the MLIT PDF itself was not reachable. Our clause keeps the case's ¥26,250 figure but adds 「詳細は入居後配布の管理規約による」, which is our own alteration and is what makes P2 fail. The label is right for the altered clause; the judgment must NOT be cited as authority for invalidity."
       },
-      "rationale": null
+      "rationale": "A term whose detail is deferred to a document handed over after move-in was never agreed at contract level, so P2 fails. Deliberately contrasts with the real case, where the same fee stated in the lease was upheld."
     },
     {
       "id": "TK-0030",
@@ -900,6 +929,7 @@
         "type": "supreme_court",
         "reference": "最高裁判所第一小法廷平成23年3月24日判決",
         "verified": false,
+        "verification_status": "secondary_source_checked",
         "note": null
       },
       "rationale": null
@@ -930,6 +960,7 @@
         "type": "supreme_court",
         "reference": "最高裁判所第一小法廷平成23年3月24日判決",
         "verified": false,
+        "verification_status": "secondary_source_checked",
         "note": null
       },
       "rationale": null
@@ -952,6 +983,7 @@
         "type": "consumer_center",
         "reference": "国民生活センターPIO-NET相談事例（敷引き・関西地方の賃貸トラブル類型）",
         "verified": false,
+        "verification_status": "unverified",
         "note": "Downgraded from verbatim_field_sample on ingest: the cited source describes a 類型 (archetype/category), which cannot also be a verbatim transcription of one lease. Restore verbatim_field_sample only if an actual source document is produced."
       },
       "rationale": null
@@ -983,6 +1015,7 @@
         "type": "supreme_court",
         "reference": "最高裁判所第二小法廷平成23年7月15日判決",
         "verified": false,
+        "verification_status": "secondary_source_checked",
         "note": null
       },
       "rationale": null
@@ -1005,6 +1038,7 @@
         "type": "synthetic",
         "reference": "Yahoo!知恵袋型相談（賃貸更新料・高額請求）",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": "Downgraded from verbatim_field_sample on ingest: the cited source describes a 類型 (archetype/category), which cannot also be a verbatim transcription of one lease. Restore verbatim_field_sample only if an actual source document is produced."
       },
       "rationale": null
@@ -1036,6 +1070,7 @@
         "type": "guideline",
         "reference": "国土交通省ガイドライン及び国民生活センター公表事例",
         "verified": false,
+        "verification_status": "unverified",
         "note": "P3 corrected to true on ingest review: P3 measures PROPORTIONALITY only and this amount sits inside its band. The defect this entry records is real but belongs to another prong — see expected_prongs."
       },
       "rationale": null
@@ -1044,7 +1079,7 @@
       "id": "TK-0036",
       "expected_code": "TK_TATAMI",
       "clause_text": "畳・襖・障子等の消耗品については、破損の有無を問わず退去時に借主が全額負担して交換すること。",
-      "clause_text_provenance": "verbatim_field_sample",
+      "clause_text_provenance": "synthetic_representative",
       "context": null,
       "expected_prongs": {
         "P1": "unknown",
@@ -1058,7 +1093,8 @@
         "type": "synthetic",
         "reference": "賃貸トラブル相談で見られる消耗品一括交換特約",
         "verified": false,
-        "note": null
+        "verification_status": "not_applicable_synthetic",
+        "note": "Downgraded from verbatim_field_sample 2026-09-14: no source lease document exists for this entry — the reference describes a category of complaint, not a document that can be produced. Restore only when an actual lease is attached and verification_status reaches primary_source_verified."
       },
       "rationale": null
     },
@@ -1088,6 +1124,7 @@
         "type": "lower_court",
         "reference": "東京地方裁判所平成28年12月20日判決（RETIO109号108頁）",
         "verified": false,
+        "verification_status": "unverified",
         "note": "P4 flipped from true to false to apply 最判平成17年12月16日 uniformly: the clause is written into the 特約事項欄 but records no explanation to, or assent from, the tenant, which is what TK-0055 has and this does not. NOTE: the cited 東京地裁平成28年12月20日 (RETIO109号108頁) was offered as authority for VALIDITY. Either the citation needs re-checking or the clause text under-describes what that court actually found — resolve before relying on this entry."
       },
       "rationale": "Aligned with TK-0016: both disclaim 経過年数 for full-room cross replacement and neither records explanation or assent, so both fail P4. TK-0055 stays enforceable because it records both."
@@ -1110,6 +1147,7 @@
         "type": "synthetic",
         "reference": "賃貸原状回復トラブルにおける『一切の責任』型クロス特約",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": "Downgraded from verbatim_field_sample on ingest: the cited source describes a 類型 (archetype/category), which cannot also be a verbatim transcription of one lease. Restore verbatim_field_sample only if an actual source document is produced."
       },
       "rationale": null
@@ -1141,6 +1179,7 @@
         "type": "guideline",
         "reference": "国土交通省ガイドラインフローリング損耗事例",
         "verified": false,
+        "verification_status": "unverified",
         "note": "P3 corrected to true on ingest review: P3 measures PROPORTIONALITY only and this amount sits inside its band. The defect this entry records is real but belongs to another prong — see expected_prongs."
       },
       "rationale": null
@@ -1149,7 +1188,7 @@
       "id": "TK-0040",
       "expected_code": "TK_FLOOR",
       "clause_text": "ペットを飼育していなくても、フローリングの経年による色あせ・軋みについては借主負担で張替えを行う特約とする。諸経費一律45,000円。",
-      "clause_text_provenance": "verbatim_field_sample",
+      "clause_text_provenance": "synthetic_representative",
       "context": null,
       "expected_prongs": {
         "P1": true,
@@ -1163,7 +1202,8 @@
         "type": "synthetic",
         "reference": "賃貸フローリング原状回復に関するインターネット上の借主相談",
         "verified": false,
-        "note": null
+        "verification_status": "not_applicable_synthetic",
+        "note": "Downgraded from verbatim_field_sample 2026-09-14: no source lease document exists for this entry — the reference describes a category of complaint, not a document that can be produced. Restore only when an actual lease is attached and verification_status reaches primary_source_verified."
       },
       "rationale": null
     },
@@ -1185,6 +1225,7 @@
         "type": "supreme_court",
         "reference": "最高裁判所第二小法廷平成17年12月16日判決",
         "verified": false,
+        "verification_status": "unverified",
         "note": null
       },
       "rationale": null
@@ -1207,6 +1248,7 @@
         "type": "supreme_court",
         "reference": "最高裁判所第二小法廷平成17年12月16日判決の要件を満たさない無効パターン",
         "verified": false,
+        "verification_status": "unverified",
         "note": null
       },
       "rationale": null
@@ -1237,6 +1279,7 @@
         "type": "synthetic",
         "reference": "Constructed for TK_TSUJO: scope and amount left to the landlord to fix after move-out",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": "Replaces a tenant-enquiry narrative that was never lease language. The pattern it now carries — an obligation whose content is determined unilaterally after the fact — is the specificity failure 最判平成17年12月16日 turns on."
       },
       "rationale": "P1 fails because nothing is determinable at signing: the landlord fixes both scope and amount afterwards. P3 is unknown rather than false — with no figure in the clause there is no proportionality question to answer yet."
@@ -1259,6 +1302,7 @@
         "type": "guideline",
         "reference": "国交省ガイドライン経年変化考慮原則",
         "verified": false,
+        "verification_status": "unverified",
         "note": null
       },
       "rationale": null
@@ -1281,6 +1325,7 @@
         "type": "synthetic",
         "reference": "賃貸借契約の原状回復トラブル（経年劣化不考慮型）",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": "Downgraded from verbatim_field_sample on ingest: the cited source describes a 類型 (archetype/category), which cannot also be a verbatim transcription of one lease. Restore verbatim_field_sample only if an actual source document is produced."
       },
       "rationale": null
@@ -1311,7 +1356,8 @@
         "type": "lower_court",
         "reference": "東京地方裁判所平成21年9月18日判決（ガイドライン事例36）",
         "verified": false,
-        "note": null
+        "verification_status": "secondary_source_checked",
+        "note": "CITATION CONFIRMED against secondary summaries: 東京地裁平成21年9月18日 (MLIT ガイドライン事例36) addressed BOTH charges in one case — rent ¥56,000/month, house cleaning ¥25,000+tax (¥26,250 incl. 5%) and key change ¥12,600 — and held NEITHER violated 消費者契約法10条. So one judgment legitimately backing two entries was never a contradiction. Secondary summaries only; the MLIT PDF itself was not reachable. The ¥12,600 here is that case's key-change figure and the enforceable label matches its holding."
       },
       "rationale": null
     },
@@ -1319,7 +1365,7 @@
       "id": "TK-0047",
       "expected_code": "TK_KAGI",
       "clause_text": "退去時、次の入居者のために鍵交換費用一式（諸経費含む）を借主が負担するものとし、金額は貸主が別途定める。",
-      "clause_text_provenance": "verbatim_field_sample",
+      "clause_text_provenance": "synthetic_representative",
       "context": null,
       "expected_prongs": {
         "P1": false,
@@ -1333,7 +1379,8 @@
         "type": "synthetic",
         "reference": "賃貸鍵交換費用に関する借主からの相談事例",
         "verified": false,
-        "note": null
+        "verification_status": "not_applicable_synthetic",
+        "note": "Downgraded from verbatim_field_sample 2026-09-14: no source lease document exists for this entry — the reference describes a category of complaint, not a document that can be produced. Restore only when an actual lease is attached and verification_status reaches primary_source_verified."
       },
       "rationale": null
     },
@@ -1363,6 +1410,7 @@
         "type": "supreme_court",
         "reference": "最高裁判所第一小法廷平成23年3月24日判決",
         "verified": false,
+        "verification_status": "secondary_source_checked",
         "note": null
       },
       "rationale": null
@@ -1371,7 +1419,7 @@
       "id": "TK-0049",
       "expected_code": "TK_SHOUKYAKU",
       "clause_text": "敷金は解約時に一切返還せず、全額を賃貸人が償却する。原状回復費用が敷金を上回る場合は別途借主が負担する。",
-      "clause_text_provenance": "verbatim_field_sample",
+      "clause_text_provenance": "synthetic_representative",
       "context": {
         "prefecture": "千葉県",
         "layout": "1R/1K",
@@ -1393,7 +1441,8 @@
         "type": "synthetic",
         "reference": "賃貸敷金償却に関する相談事例（全額没収＋追加請求）",
         "verified": false,
-        "note": null
+        "verification_status": "not_applicable_synthetic",
+        "note": "Downgraded from verbatim_field_sample 2026-09-14: no source lease document exists for this entry — the reference describes a category of complaint, not a document that can be produced. Restore only when an actual lease is attached and verification_status reaches primary_source_verified."
       },
       "rationale": null
     },
@@ -1423,6 +1472,7 @@
         "type": "guideline",
         "reference": "国民生活センター及び賃貸住宅標準契約書",
         "verified": false,
+        "verification_status": "unverified",
         "note": null
       },
       "rationale": null
@@ -1431,7 +1481,7 @@
       "id": "TK-0051",
       "expected_code": "TK_TAIKYO_FEE",
       "clause_text": "退去時費用として、原状回復費用のほか『退去立会費』『書類手数料』『管理諸経費』を諸経費一律で合計3万円徴収する。内訳は開示しない。",
-      "clause_text_provenance": "verbatim_field_sample",
+      "clause_text_provenance": "synthetic_representative",
       "context": null,
       "expected_prongs": {
         "P1": false,
@@ -1445,7 +1495,8 @@
         "type": "synthetic",
         "reference": "賃貸退去時の『諸経費一律』請求に関する相談事例",
         "verified": false,
-        "note": null
+        "verification_status": "not_applicable_synthetic",
+        "note": "Downgraded from verbatim_field_sample 2026-09-14: no source lease document exists for this entry — the reference describes a category of complaint, not a document that can be produced. Restore only when an actual lease is attached and verification_status reaches primary_source_verified."
       },
       "rationale": null
     },
@@ -1453,7 +1504,7 @@
       "id": "TK-0052",
       "expected_code": "TK_SHOUDOKU",
       "clause_text": "入居時及び退去時、室内の抗菌コーティング施工費として借主負担で18,000円を徴収する（施工の実施・不実施にかかわらず費用は発生する）。",
-      "clause_text_provenance": "verbatim_field_sample",
+      "clause_text_provenance": "synthetic_representative",
       "context": {
         "prefecture": "神奈川県",
         "layout": "1R/1K",
@@ -1475,7 +1526,8 @@
         "type": "consumer_center",
         "reference": "国民生活センター公表の『消毒・抗菌施工費』に関するトラブル",
         "verified": false,
-        "note": "P3 corrected to true on ingest review: P3 measures PROPORTIONALITY only and this amount sits inside its band. The defect this entry records is real but belongs to another prong — see expected_prongs."
+        "verification_status": "unverified",
+        "note": "P3 corrected to true on ingest review: P3 measures PROPORTIONALITY only and this amount sits inside its band. The defect this entry records is real but belongs to another prong — see expected_prongs. Downgraded from verbatim_field_sample 2026-09-14: no source lease document exists for this entry — the reference describes a category of complaint, not a document that can be produced. Restore only when an actual lease is attached and verification_status reaches primary_source_verified."
       },
       "rationale": null
     },
@@ -1505,6 +1557,7 @@
         "type": "synthetic",
         "reference": "消毒施工費特約の有効性判断枠組み",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": null
       },
       "rationale": null
@@ -1513,7 +1566,7 @@
       "id": "TK-0054",
       "expected_code": "TK_ZENMEN",
       "clause_text": "退去時は、居住年数・使用状況を問わず、居室全体のクロス・畳・クリーニングを全面的に借主負担で実施するものとし、一切の異議を申し出ないものとする。",
-      "clause_text_provenance": "verbatim_field_sample",
+      "clause_text_provenance": "synthetic_representative",
       "context": null,
       "expected_prongs": {
         "P1": "unknown",
@@ -1527,7 +1580,8 @@
         "type": "synthetic",
         "reference": "賃貸原状回復における『全面借主負担・異議申出禁止』",
         "verified": false,
-        "note": null
+        "verification_status": "not_applicable_synthetic",
+        "note": "Downgraded from verbatim_field_sample 2026-09-14: no source lease document exists for this entry — the reference describes a category of complaint, not a document that can be produced. Restore only when an actual lease is attached and verification_status reaches primary_source_verified."
       },
       "rationale": null
     },
@@ -1549,6 +1603,7 @@
         "type": "lower_court",
         "reference": "控訴審判決（RETIO51号59頁掲載事例）",
         "verified": false,
+        "verification_status": "unverified",
         "note": null
       },
       "rationale": null
@@ -1579,6 +1634,7 @@
         "type": "lower_court",
         "reference": "東京地方裁判所令和2年2月6日判決",
         "verified": false,
+        "verification_status": "unverified",
         "note": null
       },
       "rationale": null
@@ -1610,6 +1666,7 @@
         "type": "statute",
         "reference": "解約予告条項と重複する中途解約違約金の消費者契約法10条無効事例",
         "verified": false,
+        "verification_status": "unverified",
         "note": "P3 corrected to true on ingest review: P3 measures PROPORTIONALITY only and this amount sits inside its band. The defect this entry records is real but belongs to another prong — see expected_prongs."
       },
       "rationale": null
@@ -1640,6 +1697,7 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
+        "verification_status": "unverified",
         "note": null
       },
       "rationale": "Fixed sum, explained and separately signed. At ¥60,000 for a 2DK/2LDK the charge is elevated rather than clean, so the report should show the band even while the clause holds."
@@ -1671,6 +1729,7 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
+        "verification_status": "unverified",
         "note": null
       },
       "rationale": "Guideline-shaped positive control: damaged-face scope, stated unit price inside the band, depreciation preserved, ordinary wear left with the landlord."
@@ -1702,6 +1761,7 @@
         "type": "synthetic",
         "reference": "Constructed as the P3-only failure for TK_CROSS",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": null
       },
       "rationale": "Scope and depreciation are handled correctly; only the unit price is out of band. The clause survives and the recoverable rate is cut back."
@@ -1733,6 +1793,7 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
+        "verification_status": "unverified",
         "note": null
       },
       "rationale": "Partial-repair accounting with ordinary wear expressly excluded, priced inside the band."
@@ -1764,6 +1825,7 @@
         "type": "synthetic",
         "reference": "Constructed as the P3-only failure for TK_FLOOR",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": null
       },
       "rationale": "Correctly scoped to tenant-caused damage but priced well above the band; the rate is reducible, the clause is not void."
@@ -1794,6 +1856,7 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
+        "verification_status": "unverified",
         "note": null
       },
       "rationale": "Fixed sum inside the band. The guidelines place re-keying for the next tenant on the landlord, so this pattern depends entirely on a specific clause of this shape."
@@ -1824,6 +1887,7 @@
         "type": "synthetic",
         "reference": "Constructed as the P3-only failure for TK_KAGI",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": null
       },
       "rationale": "Specific and agreed, but far above the band for a standard cylinder change."
@@ -1854,6 +1918,7 @@
         "type": "statute",
         "reference": "民法621条",
         "verified": false,
+        "verification_status": "unverified",
         "note": null
       },
       "rationale": "Targets the aging carve-out in art. 621 directly and records no explanation or assent, so P4 fails. P3 is unknown, not false: the clause names no figure, so there is nothing to measure."
@@ -1884,6 +1949,7 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
+        "verification_status": "unverified",
         "note": null
       },
       "rationale": "Equipment carries a six-year useful life, so at 76 months the tenant's residual share is nil. Charging the full new-unit price is both disproportionate and a direct override of the aging rule."
@@ -1915,6 +1981,7 @@
         "type": "supreme_court",
         "reference": "最判平成23年7月15日",
         "verified": false,
+        "verification_status": "secondary_source_checked",
         "note": null
       },
       "rationale": "Normalised to 0.75 months of rent per renewal year, comfortably inside the band the 2011 renewal-fee decision calibrates."
@@ -1945,6 +2012,7 @@
         "type": "synthetic",
         "reference": "Constructed as the positive control for TK_SHOUDOKU",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": null
       },
       "rationale": "Specific sum inside the band, and a delivered report evidences that the service was actually rendered."
@@ -1975,6 +2043,7 @@
         "type": "synthetic",
         "reference": "Constructed as the P3-only failure for TK_SHOUDOKU",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": null
       },
       "rationale": "Clause is specific and agreed; the amount is the sole defect."
@@ -2005,6 +2074,7 @@
         "type": "supreme_court",
         "reference": "最判平成23年3月24日",
         "verified": false,
+        "verification_status": "secondary_source_checked",
         "note": null
       },
       "rationale": "At 1.5x monthly rent the retention is inside the supported band. Confirms TK_SHOUKYAKU routes to the shikibiki band."
@@ -2035,6 +2105,7 @@
         "type": "synthetic",
         "reference": "Constructed as the P3 failure for TK_SHOUKYAKU",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": null
       },
       "rationale": "4.5x monthly rent, beyond any ratio a reported decision has tolerated; exposed under 消費者契約法10条."
@@ -2065,6 +2136,7 @@
         "type": "synthetic",
         "reference": "Constructed as the positive control for TK_TAIKYO_FEE",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": null
       },
       "rationale": "Unlike a bare fee, this names the service the money buys, which is what P1 asks for alongside the amount."
@@ -2095,6 +2167,7 @@
         "type": "synthetic",
         "reference": "Constructed as the P1 failure for TK_TAIKYO_FEE",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": null
       },
       "rationale": "Neither service nor sum is fixed at signing. P3 is unknown rather than false because no figure exists to place in a band."
@@ -2125,6 +2198,7 @@
         "type": "statute",
         "reference": "消費者契約法9条",
         "verified": false,
+        "verification_status": "unverified",
         "note": null
       },
       "rationale": "Trigger, lock-in period and amount are all fixed, and the penalty sits at the supported ceiling."
@@ -2155,6 +2229,7 @@
         "type": "statute",
         "reference": "消費者契約法9条",
         "verified": false,
+        "verification_status": "unverified",
         "note": null
       },
       "rationale": "Specific and agreed, but 3x rent exceeds the band and 消費者契約法9条 caps a penalty at the landlord's average expected loss."
@@ -2186,6 +2261,7 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
+        "verification_status": "unverified",
         "note": null
       },
       "rationale": "Scoped to tenant-caused soiling with a stated unit price inside the band. 畳表 is a consumable under the guidelines, so no depreciation is expected here."
@@ -2217,6 +2293,7 @@
         "type": "synthetic",
         "reference": "Constructed as the P3-only failure for TK_TATAMI",
         "verified": false,
+        "verification_status": "not_applicable_synthetic",
         "note": null
       },
       "rationale": "Unit price is roughly double the band ceiling; the rate reduces rather than the clause falling."
@@ -2247,6 +2324,7 @@
         "type": "supreme_court",
         "reference": "最判平成17年12月16日",
         "verified": false,
+        "verification_status": "unverified",
         "note": null
       },
       "rationale": "Meets all three limbs of the 2005 test: itemised scope and unit prices, read aloud and explained, and signed. Ordinary wear is still left with the landlord."
@@ -2277,6 +2355,7 @@
         "type": "supreme_court",
         "reference": "最判平成17年12月16日",
         "verified": false,
+        "verification_status": "unverified",
         "note": null
       },
       "rationale": "Deliberate counterpart to TK-0080 and TK-0054: the same blanket wording, but with a stated unit price plus recorded explanation and assent, which is exactly what the 2005 test requires before art. 621 can be displaced."
@@ -2307,6 +2386,7 @@
         "type": "statute",
         "reference": "民法621条",
         "verified": false,
+        "verification_status": "unverified",
         "note": null
       },
       "rationale": "Same blanket wording as TK-0079 with neither a unit price nor any record of explanation or assent, so P4 fails. P1 is unknown rather than false: the work is identified, the cost is not."

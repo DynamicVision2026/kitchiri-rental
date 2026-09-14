@@ -95,11 +95,23 @@ function classify(def: BandDefinition, measured: number | null): BandResult {
 /**
  * 敷引 / 敷金償却, measured as a multiple of monthly rent.
  *
- * 最判平成23年3月24日 held a shikibiki clause in a consumer lease is not void under
- * 消費者契約法10条 merely because it exists; it falls only where the retained sum is
- * 高額に過ぎる. On the facts before the court the retained sum reached roughly 3.5x
- * the monthly rent and was upheld. The court announced no ratio — 3.5 is the outer
- * edge of what that decision tolerated on its own facts, not a safe harbour.
+ * CITATION CORRECTED 2026-09-14. These two numbers come from two different 2011
+ * Supreme Court decisions, and an earlier revision of this file attributed both to
+ * 平成23年3月24日, which was wrong:
+ *
+ *   最判平成23年3月24日 (第一小法廷) is the framework case: a shikibiki clause is not
+ *     void under 消費者契約法10条 merely because it exists, and falls only where the
+ *     retained sum is 高額に過ぎる, judged against expected ordinary-wear repair cost,
+ *     the rent, and any other lump sums such as 礼金. Secondary summaries report the
+ *     facts as rent ¥96,000 with ¥210,000 retained — roughly 2.19x — upheld.
+ *   最判平成23年7月12日 (第三小法廷) is where the 2x-to-3.5x range comes from: applying
+ *     the March framework, a retention in that range was held not 高額に過ぎる.
+ *
+ * Neither court announced a ratio. 3.5 is the outer edge of what a reported decision
+ * has tolerated on its own facts, not a safe harbour.
+ *
+ * VERIFY: sourced from secondary summaries only — primary text was not reachable.
+ * Confirm both against 民集 before any figure derived from this band reaches a user.
  */
 export const SHIKIBIKI_BAND: BandDefinition = {
   key: "shikibiki",
@@ -108,7 +120,7 @@ export const SHIKIBIKI_BAND: BandDefinition = {
   supportedMax: 2.0,
   elevatedMax: 3.5,
   sourcing:
-    "最判平成23年3月24日. Retention of roughly 3.5x monthly rent upheld as not 高額に過ぎる on those facts. No bright-line ratio was announced.",
+    "supportedMax 2.0 brackets 最判平成23年3月24日 (approx. 2.19x upheld); elevatedMax 3.5 is the ceiling of the 2x-3.5x range upheld in 最判平成23年7月12日. No bright-line ratio was announced in either. Secondary sources only — unverified.",
 };
 
 /**
@@ -117,8 +129,19 @@ export const SHIKIBIKI_BAND: BandDefinition = {
  *
  * 最判平成23年7月15日 upheld a renewal-fee clause, holding such clauses valid absent
  * 特段の事情 such as the fee being 高額に過ぎる judged against rent, fee size and
- * renewal interval. The facts there worked out to roughly 2.6 months of rent per
- * renewal year.
+ * renewal interval.
+ *
+ * CONTESTED FIGURE. That judgment disposed of several consolidated appeals with
+ * different numbers, and secondary summaries do not agree on which facts to quote:
+ * one reports rent ¥38,000 with a fee of two months' rent on a one-year cycle
+ * (2.0 per renewal year), another a ¥100,000 fee against that rent (about 2.63).
+ * supportedMax 2.0 is safe under either reading. elevatedMax 2.7 assumes the higher
+ * reading and is NOT safe if the lower one is right.
+ *
+ * VERIFY before relying on elevatedMax: pull 民集65巻5号2269頁 and fix which facts
+ * the court actually upheld. Thresholds are deliberately left unchanged here rather
+ * than retuned on secondary evidence, because moving them silently reclassifies
+ * corpus entries.
  */
 export const KOSHINRYO_BAND: BandDefinition = {
   key: "koshinryo",
@@ -127,7 +150,7 @@ export const KOSHINRYO_BAND: BandDefinition = {
   supportedMax: 2.0,
   elevatedMax: 2.7,
   sourcing:
-    "最判平成23年7月15日. Roughly 2.6 months of rent per renewal year upheld. The court set no numeric limit, only the 高額に過ぎる standard.",
+    "最判平成23年7月15日, which set no numeric limit, only the 高額に過ぎる standard. supportedMax 2.0 is supported under every reading of the consolidated facts; elevatedMax 2.7 depends on the contested higher reading. Secondary sources only — unverified.",
 };
 
 /**

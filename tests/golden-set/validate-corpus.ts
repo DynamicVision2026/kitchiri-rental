@@ -199,6 +199,25 @@ for (const entry of corpus.cases) {
   }
 }
 
+/* 9. the verified flag cannot be set as a formality ----------------------- */
+
+for (const entry of corpus.cases) {
+  const { verified, verification_status: status } = entry.source;
+  if (verified && status !== "primary_source_verified") {
+    failures.push(
+      `${entry.id}: source.verified is true but verification_status is "${status}". ` +
+        `The flag means a human confirmed the citation against the primary text — ` +
+        `set the status first, or leave verified false.`,
+    );
+  }
+  if (entry.clause_text_provenance === "verbatim_field_sample" && status !== "primary_source_verified") {
+    failures.push(
+      `${entry.id}: claims verbatim_field_sample but verification_status is "${status}". ` +
+        `A verbatim transcription requires the document it was transcribed from.`,
+    );
+  }
+}
+
 /* provenance accounting -------------------------------------------------- */
 
 const unverified = corpus.cases.filter((c) => !c.source.verified).length;
@@ -209,7 +228,18 @@ const noContext = corpus.cases.filter(
   (c) => c.context === null && TOKUYAKU_PATTERNS[c.expected_code].bandKey !== null,
 ).length;
 notes.push(`${noContext} entries name a numeric pattern but carry no context — their P3 cannot be rechecked`);
-notes.push(`${unverified} entries carry an UNVERIFIED source citation — human check required`);
+const byStatus = new Map<string, number>();
+for (const c of corpus.cases) {
+  byStatus.set(c.source.verification_status, (byStatus.get(c.source.verification_status) ?? 0) + 1);
+}
+notes.push(`${unverified} entries are not primary-source verified`);
+for (const status of ["primary_source_verified", "secondary_source_checked", "unverified", "not_applicable_synthetic"]) {
+  notes.push(`  ${status}: ${byStatus.get(status) ?? 0}`);
+}
+const needHuman = corpus.cases.filter(
+  (c) => c.source.verification_status === "unverified" || c.source.verification_status === "secondary_source_checked",
+).length;
+notes.push(`${needHuman} entries still need a human with the primary texts before any figure reaches a user`);
 notes.push(`${verbatim} entries are verbatim field samples`);
 
 function report(): void {

@@ -404,12 +404,38 @@ export const provenanceKindSchema = z.enum([
 ]);
 export type ProvenanceKind = z.infer<typeof provenanceKindSchema>;
 
+/**
+ * How far a citation has actually been checked. A bare boolean could not express the
+ * difference between "nobody looked", "cross-read against law-firm summaries", and
+ * "confirmed against 民集", and that difference is the whole point of the flag.
+ */
+export const VERIFICATION_STATUSES = [
+  /** Confirmed against the primary text (判例集, the official guideline PDF, RETIO). */
+  "primary_source_verified",
+  /** Cross-read against reputable secondary summaries. Good enough to catch a
+   *  misattribution, NOT good enough to put a number in front of a user. */
+  "secondary_source_checked",
+  /** Nobody has looked yet. */
+  "unverified",
+  /** The reference describes our own constructed fixture, so there is no external
+   *  claim to verify. Distinguished from "unverified" so reviewers do not waste
+   *  time hunting for a judgment that was never asserted to exist. */
+  "not_applicable_synthetic",
+] as const;
+export type VerificationStatus = (typeof VERIFICATION_STATUSES)[number];
+export const verificationStatusSchema = z.enum(VERIFICATION_STATUSES);
+
 export const sourceRefSchema = z.object({
   type: z.enum(["supreme_court", "lower_court", "guideline", "statute", "consumer_center", "synthetic"]),
   /** Citation string. MUST be checked against the primary source before use. */
   reference: z.string().min(1),
-  /** True only once a human has confirmed the citation against the primary source. */
+  /**
+   * True ONLY when a human has confirmed the citation against the primary source.
+   * The validator enforces that this implies verification_status ===
+   * "primary_source_verified", so it cannot be set as a formality.
+   */
   verified: z.boolean(),
+  verification_status: verificationStatusSchema,
   note: z.string().nullable(),
 });
 export type SourceRef = z.infer<typeof sourceRefSchema>;
