@@ -76,6 +76,7 @@ for (const code of TOKUYAKU_CODES) {
 
 /** Returns null when the entry lacks the facts needed to place it in a band. */
 function computeBand(entry: CorpusEntry): BandResult | null {
+  if (entry.context === null) return null;
   const { charged_amount_jpy: charged, rent_monthly_jpy: rent, layout } = entry.context;
   if (charged === null) return null;
 
@@ -105,6 +106,7 @@ for (const entry of corpus.cases) {
   const band = computeBand(entry);
   if (band === null || band.level === "not_computable") continue;
   checked += 1;
+  if (entry.expected_prongs.P3 === "unknown") continue;
   const expectedP3 = band.level !== "excessive";
   if (entry.expected_prongs.P3 !== expectedP3) {
     failures.push(
@@ -115,12 +117,72 @@ for (const entry of corpus.cases) {
   }
 }
 
+/* 5. clause_text must be a clause ---------------------------------------- */
+
+const QUESTION = /(ですか|ますか|でしょうか)[？?]/;
+for (const entry of corpus.cases) {
+  if (QUESTION.test(entry.clause_text)) {
+    failures.push(
+      `${entry.id}: clause_text reads as a tenant's question, not lease language. ` +
+        `A golden set keyed on clause wording cannot carry a narrative here — ` +
+        `replace it with the clause the enquiry is about, or move the entry to a separate intake fixture.`,
+    );
+  }
+}
+
+/* 6. provenance may not overclaim ---------------------------------------- */
+
+const ARCHETYPE = /型/;
+for (const entry of corpus.cases) {
+  if (entry.clause_text_provenance === "verbatim_field_sample" && ARCHETYPE.test(entry.source.reference)) {
+    failures.push(
+      `${entry.id}: marked verbatim_field_sample but the source describes a 類型/型 (an archetype). ` +
+        `An archetype cannot also be a verbatim transcription — downgrade the provenance or cite the document.`,
+    );
+  }
+}
+
+/* 7. internal consistency on the art. 621 question ------------------------ */
+
+/**
+ * Clauses that disclaim depreciation or occupancy length are the paradigm P4
+ * question. Two such clauses under the SAME pattern code cannot be ground truth
+ * with opposite P4 scores — whichever way the law comes out, the corpus has to
+ * pick one, or the engine is being trained against itself.
+ */
+const DISCLAIMS_DEPRECIATION =
+  /(経過年数|耐用年数|経年|居住年数|居住期間|入居期間|使用年数|損耗の程度|使用状況).{0,12}(かかわらず|関わらず|問わず|考慮せず|考慮しない)/;
+
+const byCode = new Map<TokuyakuCode, CorpusEntry[]>();
+for (const entry of corpus.cases) {
+  if (!DISCLAIMS_DEPRECIATION.test(entry.clause_text)) continue;
+  const bucket = byCode.get(entry.expected_code) ?? [];
+  bucket.push(entry);
+  byCode.set(entry.expected_code, bucket);
+}
+for (const [code, entries] of byCode) {
+  const upheld = entries.filter((e) => e.expected_prongs.P4 === true);
+  const struck = entries.filter((e) => e.expected_prongs.P4 === false);
+  if (upheld.length > 0 && struck.length > 0) {
+    failures.push(
+      `${code}: contradictory ground truth on the art. 621 override. ` +
+        `${upheld.map((e) => e.id).join(", ")} score P4 true while ` +
+        `${struck.map((e) => e.id).join(", ")} score P4 false, but all of them disclaim ` +
+        `depreciation or occupancy length. One side has to change.`,
+    );
+  }
+}
+
 /* provenance accounting -------------------------------------------------- */
 
 const unverified = corpus.cases.filter((c) => !c.source.verified).length;
 const verbatim = corpus.cases.filter((c) => c.clause_text_provenance === "verbatim_field_sample").length;
 notes.push(`${corpus.cases.length}/${corpus.target_size} entries; all 14 patterns covered`);
 notes.push(`${checked} entries had computable bands and agree with bands.ts`);
+const noContext = corpus.cases.filter(
+  (c) => c.context === null && TOKUYAKU_PATTERNS[c.expected_code].bandKey !== null,
+).length;
+notes.push(`${noContext} entries name a numeric pattern but carry no context — their P3 cannot be rechecked`);
 notes.push(`${unverified} entries carry an UNVERIFIED source citation — human check required`);
 notes.push(`${verbatim} entries are verbatim field samples`);
 

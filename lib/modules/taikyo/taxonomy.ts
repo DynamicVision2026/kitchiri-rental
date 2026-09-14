@@ -327,7 +327,15 @@ export const VERDICTS = [
 ] as const;
 export type Verdict = (typeof VERDICTS)[number];
 
-export type ProngScores = Readonly<Record<ProngId, boolean>>;
+/**
+ * A prong is true when SATISFIED, false when it FAILS, and "unknown" when the
+ * record does not carry enough facts to score it. "unknown" is deliberately not
+ * collapsed into false: a clause we cannot score is not the same as a clause that
+ * fails, and treating the two alike would manufacture false positives against
+ * landlords.
+ */
+export type ProngScore = boolean | "unknown";
+export type ProngScores = Readonly<Record<ProngId, ProngScore>>;
 
 /* ------------------------------------------------------------------ *
  * Zod schemas
@@ -336,11 +344,13 @@ export type ProngScores = Readonly<Record<ProngId, boolean>>;
 export const tokuyakuCodeSchema = z.enum(TOKUYAKU_CODES);
 export const verdictSchema = z.enum(VERDICTS);
 
+export const prongScoreSchema = z.union([z.boolean(), z.literal("unknown")]);
+
 export const prongScoresSchema = z.object({
-  P1: z.boolean(),
-  P2: z.boolean(),
-  P3: z.boolean(),
-  P4: z.boolean(),
+  P1: prongScoreSchema,
+  P2: prongScoreSchema,
+  P3: prongScoreSchema,
+  P4: prongScoreSchema,
 });
 
 /** Facts needed to score P3; without these, proportionality is not computable. */
@@ -381,11 +391,17 @@ export const corpusEntrySchema = z.object({
   expected_code: tokuyakuCodeSchema,
   clause_text: z.string().min(1),
   clause_text_provenance: provenanceKindSchema,
-  context: clauseContextSchema,
+  /**
+   * Null for entries harvested as clause text alone. Without it the P3 band cannot
+   * be recomputed, so the validator can only take the recorded P3 on trust.
+   */
+  context: clauseContextSchema.nullable(),
   expected_prongs: prongScoresSchema,
   expected_verdict: verdictSchema,
+  /** The hedged Japanese wording as supplied, preserved verbatim for reviewers. */
+  verdict_ja: z.string().min(1).nullable(),
   source: sourceRefSchema,
-  rationale: z.string().min(1),
+  rationale: z.string().min(1).nullable(),
 });
 export type CorpusEntry = z.infer<typeof corpusEntrySchema>;
 

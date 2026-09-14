@@ -1,305 +1,1478 @@
 {
-  "version": 1,
+  "version": 2,
   "target_size": 80,
   "generated_at": "2026-09-14",
-  "disclaimer": "PROVENANCE WARNING — READ BEFORE USING AS GROUND TRUTH. No clause_text in this file is a verbatim quotation from a decided case, a real lease, or a 国民生活センター case summary. Entries marked 'synthetic_representative' were written to exemplify a pattern. Entries marked 'reconstructed_from_holding' paraphrase the kind of clause a cited decision addressed; the wording is ours, not the court's. Every source.reference carries verified:false and MUST be checked against the primary source (判例集 / 国土交通省ガイドライン / PIO-NET) before this corpus is used to calibrate or validate the engine, and before any figure derived from it reaches a user. Scoring convention: a prong is true when it is SATISFIED. P3 is recorded true where no amount is in dispute or the amount sits inside its band; entries whose facts are too thin to score carry expected_verdict 'needs_review'.",
+  "disclaimer": "PROVENANCE WARNING — READ BEFORE USING AS GROUND TRUTH. No clause_text in this file is a verified verbatim quotation from a decided case, a real lease, or a 国民生活センター case summary. Each entry declares clause_text_provenance: 'synthetic_representative' (written to exemplify a pattern), 'reconstructed_from_holding' (paraphrasing the clause type a cited decision addressed — the wording is ours, not the court's), or 'verbatim_field_sample' (claims transcription from a real document; NONE is yet backed by a produced document, so all remain verified:false). Every source.reference carries verified:false and MUST be checked against the primary source (判例集 / 国土交通省ガイドライン / PIO-NET / RETIO) before this corpus calibrates the engine or any figure derived from it reaches a user. SCORING CONVENTION: a prong is true when SATISFIED, false when it FAILS, and \"unknown\" when the record lacks the facts to score it; \"unknown\" is never collapsed into false. P3 is PROPORTIONALITY ONLY — whether the amount sits inside its band. A clause that is disproportionate-free but defective for another reason fails P1 or P4, not P3. Entries with context:null cannot have their P3 rechecked against bands.ts. OPEN ADJUDICATIONS: npm run validate:corpus currently reports 3 unresolved defects (TK-0043 carries a tenant narrative rather than clause language; TK_CROSS and TK_ZENMEN each hold two entries that disclaim depreciation yet score P4 in opposite directions). These are deliberate red flags, not build breakage.",
   "cases": [
     {
       "id": "TK-0001",
       "expected_code": "TK_TSUJO",
       "clause_text": "本契約が終了したときは、賃借人は自己の費用をもって本物件を原状に復して賃貸人に明け渡すものとする。",
       "clause_text_provenance": "reconstructed_from_holding",
-      "context": { "prefecture": "大阪府", "layout": "2DK/2LDK", "area_sqm": 48.0, "rent_monthly_jpy": 82000, "deposit_jpy": 246000, "charged_amount_jpy": 210000, "tenancy_months": 38 },
-      "expected_prongs": { "P1": false, "P2": true, "P3": true, "P4": false },
+      "context": {
+        "prefecture": "大阪府",
+        "layout": "2DK/2LDK",
+        "area_sqm": 48.0,
+        "rent_monthly_jpy": 82000,
+        "deposit_jpy": 246000,
+        "charged_amount_jpy": 210000,
+        "tenancy_months": 38
+      },
+      "expected_prongs": {
+        "P1": false,
+        "P2": true,
+        "P3": true,
+        "P4": false
+      },
       "expected_verdict": "unenforceable",
-      "source": { "type": "supreme_court", "reference": "最判平成17年12月16日", "verified": false, "note": "The blanket 原状回復 formulation. Names no item and no amount, so the tenant was never on notice of a burden beyond the statutory default." },
-      "rationale": "P1 fails outright: neither scope nor amount is identified. P2 holds because the term is in the executed lease. P4 therefore fails and the art. 621 default stands."
+      "source": {
+        "type": "supreme_court",
+        "reference": "最判平成17年12月16日",
+        "verified": false,
+        "note": "The blanket 原状回復 formulation. Names no item and no amount, so the tenant was never on notice of a burden beyond the statutory default."
+      },
+      "rationale": "P1 fails outright: neither scope nor amount is identified. P2 holds because the term is in the executed lease. P4 therefore fails and the art. 621 default stands.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0002",
       "expected_code": "TK_TSUJO",
       "clause_text": "賃借人は、退去時に次の各号の費用を負担する。(1)ハウスクリーニング費用 金33,000円(税込) (2)クロス張替え費用 1平方メートルあたり金1,100円(税込、毀損部分に限る) (3)畳表替え費用 1枚あたり金5,500円(税込)。いずれも経過年数に応じた減価を行うものとし、通常損耗及び経年変化に起因する部分は賃貸人の負担とする。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "東京都", "layout": "1DK/1LDK", "area_sqm": 32.5, "rent_monthly_jpy": 98000, "deposit_jpy": 196000, "charged_amount_jpy": 61000, "tenancy_months": 26 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": true, "P4": true },
+      "context": {
+        "prefecture": "東京都",
+        "layout": "1DK/1LDK",
+        "area_sqm": 32.5,
+        "rent_monthly_jpy": 98000,
+        "deposit_jpy": 196000,
+        "charged_amount_jpy": 61000,
+        "tenancy_months": 26
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
       "expected_verdict": "enforceable",
-      "source": { "type": "synthetic", "reference": "Constructed as the positive control for TK_TSUJO", "verified": false, "note": "Itemised scope, unit prices, depreciation preserved, ordinary wear expressly left with the landlord. Should score clean on all four prongs." },
-      "rationale": "Positive control. If the engine ever scores this below 'enforceable', the P1 or P4 logic is over-firing."
+      "source": {
+        "type": "synthetic",
+        "reference": "Constructed as the positive control for TK_TSUJO",
+        "verified": false,
+        "note": "Itemised scope, unit prices, depreciation preserved, ordinary wear expressly left with the landlord. Should score clean on all four prongs."
+      },
+      "rationale": "Positive control. If the engine ever scores this below 'enforceable', the P1 or P4 logic is over-firing.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0003",
       "expected_code": "TK_CLEAN",
       "clause_text": "賃借人は、本契約終了による明渡しに際し、室内ハウスクリーニング費用として金30,000円(税別)を負担するものとする。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "東京都", "layout": "1R/1K", "area_sqm": 21.0, "rent_monthly_jpy": 68000, "deposit_jpy": 68000, "charged_amount_jpy": 33000, "tenancy_months": 24 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": true, "P4": true },
+      "context": {
+        "prefecture": "東京都",
+        "layout": "1R/1K",
+        "area_sqm": 21.0,
+        "rent_monthly_jpy": 68000,
+        "deposit_jpy": 68000,
+        "charged_amount_jpy": 33000,
+        "tenancy_months": 24
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
       "expected_verdict": "enforceable",
-      "source": { "type": "guideline", "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）", "verified": false, "note": "Fixed sum stated in the lease body and inside the market band for a single-room unit." },
-      "rationale": "A named fixed sum satisfies P1; the amount sits under the 1R/1K supported ceiling so P3 holds."
+      "source": {
+        "type": "guideline",
+        "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
+        "verified": false,
+        "note": "Fixed sum stated in the lease body and inside the market band for a single-room unit."
+      },
+      "rationale": "A named fixed sum satisfies P1; the amount sits under the 1R/1K supported ceiling so P3 holds.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0004",
       "expected_code": "TK_CLEAN",
       "clause_text": "退去時の室内クリーニング費用は賃借人の負担とする。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "神奈川県", "layout": "1R/1K", "area_sqm": 19.8, "rent_monthly_jpy": 62000, "deposit_jpy": 62000, "charged_amount_jpy": 48000, "tenancy_months": 14 },
-      "expected_prongs": { "P1": false, "P2": true, "P3": false, "P4": false },
+      "context": {
+        "prefecture": "神奈川県",
+        "layout": "1R/1K",
+        "area_sqm": 19.8,
+        "rent_monthly_jpy": 62000,
+        "deposit_jpy": 62000,
+        "charged_amount_jpy": 48000,
+        "tenancy_months": 14
+      },
+      "expected_prongs": {
+        "P1": false,
+        "P2": true,
+        "P3": false,
+        "P4": false
+      },
       "expected_verdict": "unenforceable",
-      "source": { "type": "guideline", "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）", "verified": false, "note": "No sum stated, and the amount actually billed exceeds the band for the unit size." },
-      "rationale": "Open-ended cleaning clauses fail P1: with no sum in the lease the tenant cannot know the burden. Routine cleaning is the landlord's cost under the guidelines, so P4 fails with it."
+      "source": {
+        "type": "guideline",
+        "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
+        "verified": false,
+        "note": "No sum stated, and the amount actually billed exceeds the band for the unit size."
+      },
+      "rationale": "Open-ended cleaning clauses fail P1: with no sum in the lease the tenant cannot know the burden. Routine cleaning is the landlord's cost under the guidelines, so P4 fails with it.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0005",
       "expected_code": "TK_CLEAN",
       "clause_text": "賃借人は、明渡しに際し、専門業者によるハウスクリーニング費用として金120,000円(税込)を負担する。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "東京都", "layout": "1R/1K", "area_sqm": 22.4, "rent_monthly_jpy": 71000, "deposit_jpy": 71000, "charged_amount_jpy": 120000, "tenancy_months": 19 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": false, "P4": true },
+      "context": {
+        "prefecture": "東京都",
+        "layout": "1R/1K",
+        "area_sqm": 22.4,
+        "rent_monthly_jpy": 71000,
+        "deposit_jpy": 71000,
+        "charged_amount_jpy": 120000,
+        "tenancy_months": 19
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": false,
+        "P4": true
+      },
       "expected_verdict": "reducible",
-      "source": { "type": "synthetic", "reference": "Constructed as the P3-only failure for TK_CLEAN", "verified": false, "note": "Clause is specific and properly agreed; only the amount is an outlier for a 1R/1K unit." },
-      "rationale": "Isolates P3. The clause survives, but the charge is far outside the band for the unit size, so the recoverable amount is cut back rather than voided."
+      "source": {
+        "type": "synthetic",
+        "reference": "Constructed as the P3-only failure for TK_CLEAN",
+        "verified": false,
+        "note": "Clause is specific and properly agreed; only the amount is an outlier for a 1R/1K unit."
+      },
+      "rationale": "Isolates P3. The clause survives, but the charge is far outside the band for the unit size, so the recoverable amount is cut back rather than voided.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0006",
       "expected_code": "TK_SHIKIBIKI",
       "clause_text": "賃貸借契約終了の際、賃貸人は敷金のうち金180,000円を敷引金として控除し、残額を賃借人に返還する。",
       "clause_text_provenance": "reconstructed_from_holding",
-      "context": { "prefecture": "兵庫県", "layout": "1DK/1LDK", "area_sqm": 34.0, "rent_monthly_jpy": 90000, "deposit_jpy": 360000, "charged_amount_jpy": 180000, "tenancy_months": 30 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": true, "P4": true },
+      "context": {
+        "prefecture": "兵庫県",
+        "layout": "1DK/1LDK",
+        "area_sqm": 34.0,
+        "rent_monthly_jpy": 90000,
+        "deposit_jpy": 360000,
+        "charged_amount_jpy": 180000,
+        "tenancy_months": 30
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
       "expected_verdict": "enforceable",
-      "source": { "type": "supreme_court", "reference": "最判平成23年3月24日", "verified": false, "note": "Retention of 2.0x monthly rent, inside the supported band." },
-      "rationale": "Amount and mechanism are explicit, so P1 and P2 hold. At 2.0x rent the retention is inside the supported band."
+      "source": {
+        "type": "supreme_court",
+        "reference": "最判平成23年3月24日",
+        "verified": false,
+        "note": "Retention of 2.0x monthly rent, inside the supported band."
+      },
+      "rationale": "Amount and mechanism are explicit, so P1 and P2 hold. At 2.0x rent the retention is inside the supported band.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0007",
       "expected_code": "TK_SHIKIBIKI",
       "clause_text": "本契約が終了したときは、賃貸人は敷金から敷引金として金336,000円を控除するものとし、賃借人はこれに異議を述べないものとする。",
       "clause_text_provenance": "reconstructed_from_holding",
-      "context": { "prefecture": "京都府", "layout": "2DK/2LDK", "area_sqm": 45.5, "rent_monthly_jpy": 96000, "deposit_jpy": 480000, "charged_amount_jpy": 336000, "tenancy_months": 44 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": true, "P4": true },
+      "context": {
+        "prefecture": "京都府",
+        "layout": "2DK/2LDK",
+        "area_sqm": 45.5,
+        "rent_monthly_jpy": 96000,
+        "deposit_jpy": 480000,
+        "charged_amount_jpy": 336000,
+        "tenancy_months": 44
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
       "expected_verdict": "enforceable",
-      "source": { "type": "supreme_court", "reference": "最判平成23年3月24日", "verified": false, "note": "3.5x monthly rent — the outer edge of what that decision tolerated on its facts. Band level 'elevated', prong still satisfied." },
-      "rationale": "Calibration case for the elevated band. P3 should remain true at 3.5x, but the report must show the charge as elevated rather than clean."
+      "source": {
+        "type": "supreme_court",
+        "reference": "最判平成23年3月24日",
+        "verified": false,
+        "note": "3.5x monthly rent — the outer edge of what that decision tolerated on its facts. Band level 'elevated', prong still satisfied."
+      },
+      "rationale": "Calibration case for the elevated band. P3 should remain true at 3.5x, but the report must show the charge as elevated rather than clean.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0008",
       "expected_code": "TK_SHIKIBIKI",
       "clause_text": "賃借人は、契約終了時、敷金のうち金600,000円を敷引金として賃貸人が取得することをあらかじめ承諾する。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "兵庫県", "layout": "2DK/2LDK", "area_sqm": 44.0, "rent_monthly_jpy": 100000, "deposit_jpy": 700000, "charged_amount_jpy": 600000, "tenancy_months": 22 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": false, "P4": true },
+      "context": {
+        "prefecture": "兵庫県",
+        "layout": "2DK/2LDK",
+        "area_sqm": 44.0,
+        "rent_monthly_jpy": 100000,
+        "deposit_jpy": 700000,
+        "charged_amount_jpy": 600000,
+        "tenancy_months": 22
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": false,
+        "P4": true
+      },
       "expected_verdict": "reducible",
-      "source": { "type": "synthetic", "reference": "Constructed as the P3 failure for TK_SHIKIBIKI", "verified": false, "note": "6.0x monthly rent, well beyond any ratio a reported decision has tolerated." },
-      "rationale": "Clear and agreed, so P1/P2/P4 hold, but 6x rent is 高額に過ぎる territory under 消費者契約法10条."
+      "source": {
+        "type": "synthetic",
+        "reference": "Constructed as the P3 failure for TK_SHIKIBIKI",
+        "verified": false,
+        "note": "6.0x monthly rent, well beyond any ratio a reported decision has tolerated."
+      },
+      "rationale": "Clear and agreed, so P1/P2/P4 hold, but 6x rent is 高額に過ぎる territory under 消費者契約法10条.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0009",
       "expected_code": "TK_SHOUKYAKU",
       "clause_text": "敷金のうち賃料1か月分に相当する金85,000円は、契約期間の長短にかかわらず償却するものとし、賃借人に返還しない。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "東京都", "layout": "1DK/1LDK", "area_sqm": 30.2, "rent_monthly_jpy": 85000, "deposit_jpy": 170000, "charged_amount_jpy": 85000, "tenancy_months": 28 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": true, "P4": true },
+      "context": {
+        "prefecture": "東京都",
+        "layout": "1DK/1LDK",
+        "area_sqm": 30.2,
+        "rent_monthly_jpy": 85000,
+        "deposit_jpy": 170000,
+        "charged_amount_jpy": 85000,
+        "tenancy_months": 28
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
       "expected_verdict": "enforceable",
-      "source": { "type": "supreme_court", "reference": "最判平成23年3月24日", "verified": false, "note": "Kanto-style amortisation scored against the shikibiki band; 1.0x rent." },
-      "rationale": "Confirms TK_SHOUKYAKU routes to the shikibiki band. At 1.0x rent the amount is comfortably supported."
+      "source": {
+        "type": "supreme_court",
+        "reference": "最判平成23年3月24日",
+        "verified": false,
+        "note": "Kanto-style amortisation scored against the shikibiki band; 1.0x rent."
+      },
+      "rationale": "Confirms TK_SHOUKYAKU routes to the shikibiki band. At 1.0x rent the amount is comfortably supported.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0010",
       "expected_code": "TK_SHOUKYAKU",
       "clause_text": "敷金は、その一部を償却するものとし、償却後の残額を返還する。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "千葉県", "layout": "1R/1K", "area_sqm": 23.1, "rent_monthly_jpy": 58000, "deposit_jpy": 116000, "charged_amount_jpy": 80000, "tenancy_months": 16 },
-      "expected_prongs": { "P1": false, "P2": true, "P3": true, "P4": false },
+      "context": {
+        "prefecture": "千葉県",
+        "layout": "1R/1K",
+        "area_sqm": 23.1,
+        "rent_monthly_jpy": 58000,
+        "deposit_jpy": 116000,
+        "charged_amount_jpy": 80000,
+        "tenancy_months": 16
+      },
+      "expected_prongs": {
+        "P1": false,
+        "P2": true,
+        "P3": true,
+        "P4": false
+      },
       "expected_verdict": "unenforceable",
-      "source": { "type": "synthetic", "reference": "Constructed as the P1 failure for TK_SHOUKYAKU", "verified": false, "note": "'A portion' fixes no amount, so the tenant cannot know the burden at signing." },
-      "rationale": "An amortisation clause with no stated sum or formula fails P1. The sum actually withheld happens to sit inside the shikibiki band, so P3 is satisfied on the numbers and P1 alone carries the entry."
+      "source": {
+        "type": "synthetic",
+        "reference": "Constructed as the P1 failure for TK_SHOUKYAKU",
+        "verified": false,
+        "note": "'A portion' fixes no amount, so the tenant cannot know the burden at signing."
+      },
+      "rationale": "An amortisation clause with no stated sum or formula fails P1. The sum actually withheld happens to sit inside the shikibiki band, so P3 is satisfied on the numbers and P1 alone carries the entry.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0011",
       "expected_code": "TK_KOSHIN",
       "clause_text": "本契約を更新する場合、賃借人は賃貸人に対し、更新料として賃料1か月分に相当する金76,000円を支払うものとする。更新期間は2年とする。",
       "clause_text_provenance": "reconstructed_from_holding",
-      "context": { "prefecture": "京都府", "layout": "1R/1K", "area_sqm": 24.0, "rent_monthly_jpy": 76000, "deposit_jpy": 152000, "charged_amount_jpy": 76000, "tenancy_months": 24 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": true, "P4": true },
+      "context": {
+        "prefecture": "京都府",
+        "layout": "1R/1K",
+        "area_sqm": 24.0,
+        "rent_monthly_jpy": 76000,
+        "deposit_jpy": 152000,
+        "charged_amount_jpy": 76000,
+        "tenancy_months": 24
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
       "expected_verdict": "enforceable",
-      "source": { "type": "supreme_court", "reference": "最判平成23年7月15日", "verified": false, "note": "0.5 months of rent per renewal year — well inside the supported band." },
-      "rationale": "Amount and renewal interval both stated. Normalising to a 2-year cycle gives 0.5 months per year."
+      "source": {
+        "type": "supreme_court",
+        "reference": "最判平成23年7月15日",
+        "verified": false,
+        "note": "0.5 months of rent per renewal year — well inside the supported band."
+      },
+      "rationale": "Amount and renewal interval both stated. Normalising to a 2-year cycle gives 0.5 months per year.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0012",
       "expected_code": "TK_KOSHIN",
       "clause_text": "契約期間は1年とし、更新にあたり賃借人は更新料として金100,000円を支払う。",
       "clause_text_provenance": "reconstructed_from_holding",
-      "context": { "prefecture": "京都府", "layout": "1R/1K", "area_sqm": 20.5, "rent_monthly_jpy": 38000, "deposit_jpy": 76000, "charged_amount_jpy": 100000, "tenancy_months": 12 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": true, "P4": true },
+      "context": {
+        "prefecture": "京都府",
+        "layout": "1R/1K",
+        "area_sqm": 20.5,
+        "rent_monthly_jpy": 38000,
+        "deposit_jpy": 76000,
+        "charged_amount_jpy": 100000,
+        "tenancy_months": 12
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
       "expected_verdict": "enforceable",
-      "source": { "type": "supreme_court", "reference": "最判平成23年7月15日", "verified": false, "note": "Roughly 2.6 months of rent per renewal year — the calibration point for the elevated band." },
-      "rationale": "Boundary case. Should score P3 true but surface as elevated, matching the facts the decision upheld."
+      "source": {
+        "type": "supreme_court",
+        "reference": "最判平成23年7月15日",
+        "verified": false,
+        "note": "Roughly 2.6 months of rent per renewal year — the calibration point for the elevated band."
+      },
+      "rationale": "Boundary case. Should score P3 true but surface as elevated, matching the facts the decision upheld.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0013",
       "expected_code": "TK_KOSHIN",
       "clause_text": "契約期間は1年とし、更新の都度、賃借人は更新料として賃料4か月分を支払うものとする。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "大阪府", "layout": "1DK/1LDK", "area_sqm": 29.0, "rent_monthly_jpy": 72000, "deposit_jpy": 144000, "charged_amount_jpy": 288000, "tenancy_months": 12 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": false, "P4": true },
+      "context": {
+        "prefecture": "大阪府",
+        "layout": "1DK/1LDK",
+        "area_sqm": 29.0,
+        "rent_monthly_jpy": 72000,
+        "deposit_jpy": 144000,
+        "charged_amount_jpy": 288000,
+        "tenancy_months": 12
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": false,
+        "P4": true
+      },
       "expected_verdict": "reducible",
-      "source": { "type": "synthetic", "reference": "Constructed as the P3 failure for TK_KOSHIN", "verified": false, "note": "4.0 months per renewal year, far beyond the upheld facts." },
-      "rationale": "Specific and agreed, but the annualised burden is well past the elevated ceiling."
+      "source": {
+        "type": "synthetic",
+        "reference": "Constructed as the P3 failure for TK_KOSHIN",
+        "verified": false,
+        "note": "4.0 months per renewal year, far beyond the upheld facts."
+      },
+      "rationale": "Specific and agreed, but the annualised burden is well past the elevated ceiling.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0014",
       "expected_code": "TK_TATAMI",
       "clause_text": "退去時、賃借人は畳の表替え費用として1枚あたり金5,500円(税込)を負担する。対象は和室6畳とする。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "愛知県", "layout": "2DK/2LDK", "area_sqm": 42.0, "rent_monthly_jpy": 64000, "deposit_jpy": 128000, "charged_amount_jpy": 33000, "tenancy_months": 36 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": true, "P4": true },
+      "context": {
+        "prefecture": "愛知県",
+        "layout": "2DK/2LDK",
+        "area_sqm": 42.0,
+        "rent_monthly_jpy": 64000,
+        "deposit_jpy": 128000,
+        "charged_amount_jpy": 33000,
+        "tenancy_months": 36
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
       "expected_verdict": "enforceable",
-      "source": { "type": "guideline", "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）", "verified": false, "note": "畳表 is treated as a consumable with no 経過年数 depreciation, so P3 turns on unit price alone." },
-      "rationale": "Unit price and mat count are both fixed. Confirms the engine applies no depreciation to 畳表."
+      "source": {
+        "type": "guideline",
+        "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
+        "verified": false,
+        "note": "畳表 is treated as a consumable with no 経過年数 depreciation, so P3 turns on unit price alone."
+      },
+      "rationale": "Unit price and mat count are both fixed. Confirms the engine applies no depreciation to 畳表.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0015",
       "expected_code": "TK_TATAMI",
       "clause_text": "和室の畳については、退去時に賃借人の負担において表替えを行うものとする。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "愛知県", "layout": "2DK/2LDK", "area_sqm": 40.0, "rent_monthly_jpy": 60000, "deposit_jpy": 120000, "charged_amount_jpy": 72000, "tenancy_months": 30 },
-      "expected_prongs": { "P1": false, "P2": true, "P3": false, "P4": false },
+      "context": {
+        "prefecture": "愛知県",
+        "layout": "2DK/2LDK",
+        "area_sqm": 40.0,
+        "rent_monthly_jpy": 60000,
+        "deposit_jpy": 120000,
+        "charged_amount_jpy": 72000,
+        "tenancy_months": 30
+      },
+      "expected_prongs": {
+        "P1": false,
+        "P2": true,
+        "P3": false,
+        "P4": false
+      },
       "expected_verdict": "unenforceable",
-      "source": { "type": "synthetic", "reference": "Constructed as the P1 failure for TK_TATAMI", "verified": false, "note": "Neither unit price nor mat count stated; the billed sum implies an inflated per-mat rate." },
-      "rationale": "Without a unit price the tenant cannot size the obligation, so P1 fails and the statutory default survives."
+      "source": {
+        "type": "synthetic",
+        "reference": "Constructed as the P1 failure for TK_TATAMI",
+        "verified": false,
+        "note": "Neither unit price nor mat count stated; the billed sum implies an inflated per-mat rate."
+      },
+      "rationale": "Without a unit price the tenant cannot size the obligation, so P1 fails and the statutory default survives.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0016",
       "expected_code": "TK_CROSS",
       "clause_text": "賃借人は、退去時に居室全室のクロスを全面張替えする費用を、入居期間の長短及び毀損の有無にかかわらず全額負担するものとする。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "埼玉県", "layout": "2DK/2LDK", "area_sqm": 46.0, "rent_monthly_jpy": 78000, "deposit_jpy": 156000, "charged_amount_jpy": 165000, "tenancy_months": 84 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": false, "P4": false },
+      "context": {
+        "prefecture": "埼玉県",
+        "layout": "2DK/2LDK",
+        "area_sqm": 46.0,
+        "rent_monthly_jpy": 78000,
+        "deposit_jpy": 156000,
+        "charged_amount_jpy": 165000,
+        "tenancy_months": 84
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": false,
+        "P4": false
+      },
       "expected_verdict": "unenforceable",
-      "source": { "type": "guideline", "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）", "verified": false, "note": "クロス carries a 6-year useful life; at 84 months the tenant's residual share is nil, and the clause expressly disclaims depreciation." },
-      "rationale": "Key depreciation case. 'Regardless of length of occupancy' is a direct assault on 経年変化, so P4 fails; residualBurdenRatio('cross', 84) is 0, so P3 fails too."
+      "source": {
+        "type": "guideline",
+        "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
+        "verified": false,
+        "note": "クロス carries a 6-year useful life; at 84 months the tenant's residual share is nil, and the clause expressly disclaims depreciation."
+      },
+      "rationale": "Key depreciation case. 'Regardless of length of occupancy' is a direct assault on 経年変化, so P4 fails; residualBurdenRatio('cross', 84) is 0, so P3 fails too.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0017",
       "expected_code": "TK_CROSS",
       "clause_text": "賃借人の故意過失により毀損した部分のクロスについて、1平方メートルあたり金1,100円(税込)を上限として張替え費用を負担する。ただし経過年数に応じた減価を行い、通常損耗及び経年変化による部分は賃貸人の負担とする。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "東京都", "layout": "1DK/1LDK", "area_sqm": 33.0, "rent_monthly_jpy": 105000, "deposit_jpy": 210000, "charged_amount_jpy": 14300, "tenancy_months": 30 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": true, "P4": true },
+      "context": {
+        "prefecture": "東京都",
+        "layout": "1DK/1LDK",
+        "area_sqm": 33.0,
+        "rent_monthly_jpy": 105000,
+        "deposit_jpy": 210000,
+        "charged_amount_jpy": 14300,
+        "tenancy_months": 30
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
       "expected_verdict": "enforceable",
-      "source": { "type": "guideline", "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）", "verified": false, "note": "Damaged-portion accounting with depreciation preserved — the guideline-compliant shape of this clause." },
-      "rationale": "Positive control for TK_CROSS. Scoped to tenant-caused damage, priced per unit, depreciation retained."
+      "source": {
+        "type": "guideline",
+        "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
+        "verified": false,
+        "note": "Damaged-portion accounting with depreciation preserved — the guideline-compliant shape of this clause."
+      },
+      "rationale": "Positive control for TK_CROSS. Scoped to tenant-caused damage, priced per unit, depreciation retained.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0018",
       "expected_code": "TK_FLOOR",
       "clause_text": "退去時、賃借人はフローリングの全面張替え費用金280,000円を負担するものとする。毀損部分の有無は問わない。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "東京都", "layout": "2DK/2LDK", "area_sqm": 52.0, "rent_monthly_jpy": 145000, "deposit_jpy": 290000, "charged_amount_jpy": 280000, "tenancy_months": 40 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": false, "P4": false },
+      "context": {
+        "prefecture": "東京都",
+        "layout": "2DK/2LDK",
+        "area_sqm": 52.0,
+        "rent_monthly_jpy": 145000,
+        "deposit_jpy": 290000,
+        "charged_amount_jpy": 280000,
+        "tenancy_months": 40
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": false,
+        "P4": false
+      },
       "expected_verdict": "unenforceable",
-      "source": { "type": "guideline", "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）", "verified": false, "note": "Full replacement charged irrespective of damage; the guidelines account for flooring by damaged portion." },
-      "rationale": "The amount is stated, so P1 holds, but charging full replacement with no damage requirement defeats P4 and blows the band."
+      "source": {
+        "type": "guideline",
+        "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
+        "verified": false,
+        "note": "Full replacement charged irrespective of damage; the guidelines account for flooring by damaged portion."
+      },
+      "rationale": "The amount is stated, so P1 holds, but charging full replacement with no damage requirement defeats P4 and blows the band.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0019",
       "expected_code": "TK_KEINEN",
       "clause_text": "本物件の原状回復にあたっては、経年変化及び通常損耗に起因する部分についても、すべて賃借人の負担とする。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "福岡県", "layout": "1DK/1LDK", "area_sqm": 31.0, "rent_monthly_jpy": 67000, "deposit_jpy": 134000, "charged_amount_jpy": 143000, "tenancy_months": 52 },
-      "expected_prongs": { "P1": false, "P2": true, "P3": false, "P4": false },
+      "context": {
+        "prefecture": "福岡県",
+        "layout": "1DK/1LDK",
+        "area_sqm": 31.0,
+        "rent_monthly_jpy": 67000,
+        "deposit_jpy": 134000,
+        "charged_amount_jpy": 143000,
+        "tenancy_months": 52
+      },
+      "expected_prongs": {
+        "P1": false,
+        "P2": true,
+        "P3": false,
+        "P4": false
+      },
       "expected_verdict": "unenforceable",
-      "source": { "type": "statute", "reference": "民法621条", "verified": false, "note": "Names the two categories art. 621 expressly carves out, with no itemisation or amount." },
-      "rationale": "The clearest P4 failure in the set: it targets exactly what the statute excludes, and names neither items nor sums."
+      "source": {
+        "type": "statute",
+        "reference": "民法621条",
+        "verified": false,
+        "note": "Names the two categories art. 621 expressly carves out, with no itemisation or amount."
+      },
+      "rationale": "The clearest P4 failure in the set: it targets exactly what the statute excludes, and names neither items nor sums.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0020",
       "expected_code": "TK_KAGI",
       "clause_text": "退去時の鍵交換費用として、賃借人は金16,500円(税込)を負担するものとする。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "東京都", "layout": "1R/1K", "area_sqm": 20.0, "rent_monthly_jpy": 74000, "deposit_jpy": 74000, "charged_amount_jpy": 16500, "tenancy_months": 24 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": true, "P4": true },
+      "context": {
+        "prefecture": "東京都",
+        "layout": "1R/1K",
+        "area_sqm": 20.0,
+        "rent_monthly_jpy": 74000,
+        "deposit_jpy": 74000,
+        "charged_amount_jpy": 16500,
+        "tenancy_months": 24
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
       "expected_verdict": "enforceable",
-      "source": { "type": "guideline", "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）", "verified": false, "note": "The guidelines allocate re-keying done for the next tenant's benefit to the landlord, so this pattern depends entirely on a clear, agreed clause." },
-      "rationale": "Fixed sum in the lease body and inside the band. Tests that a specific clause can shift a cost the guidelines otherwise place on the landlord."
+      "source": {
+        "type": "guideline",
+        "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
+        "verified": false,
+        "note": "The guidelines allocate re-keying done for the next tenant's benefit to the landlord, so this pattern depends entirely on a clear, agreed clause."
+      },
+      "rationale": "Fixed sum in the lease body and inside the band. Tests that a specific clause can shift a cost the guidelines otherwise place on the landlord.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0021",
       "expected_code": "TK_KAGI",
       "clause_text": "鍵及びシリンダーの交換費用として金45,000円を賃借人が負担する。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "大阪府", "layout": "1R/1K", "area_sqm": 22.0, "rent_monthly_jpy": 63000, "deposit_jpy": 63000, "charged_amount_jpy": 45000, "tenancy_months": 18 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": false, "P4": true },
+      "context": {
+        "prefecture": "大阪府",
+        "layout": "1R/1K",
+        "area_sqm": 22.0,
+        "rent_monthly_jpy": 63000,
+        "deposit_jpy": 63000,
+        "charged_amount_jpy": 45000,
+        "tenancy_months": 18
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": false,
+        "P4": true
+      },
       "expected_verdict": "reducible",
-      "source": { "type": "synthetic", "reference": "Constructed as the P3 failure for TK_KAGI", "verified": false, "note": "Above the elevated ceiling for a standard cylinder change." },
-      "rationale": "Isolates P3 for TK_KAGI: the clause is sound but the sum is an outlier."
+      "source": {
+        "type": "synthetic",
+        "reference": "Constructed as the P3 failure for TK_KAGI",
+        "verified": false,
+        "note": "Above the elevated ceiling for a standard cylinder change."
+      },
+      "rationale": "Isolates P3 for TK_KAGI: the clause is sound but the sum is an outlier.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0022",
       "expected_code": "TK_TAIKYO_FEE",
       "clause_text": "賃借人は、契約終了に際し、退去事務手数料として金30,000円を賃貸人に支払うものとする。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "東京都", "layout": "1R/1K", "area_sqm": 25.0, "rent_monthly_jpy": 88000, "deposit_jpy": 88000, "charged_amount_jpy": 30000, "tenancy_months": 20 },
-      "expected_prongs": { "P1": false, "P2": true, "P3": true, "P4": false },
+      "context": {
+        "prefecture": "東京都",
+        "layout": "1R/1K",
+        "area_sqm": 25.0,
+        "rent_monthly_jpy": 88000,
+        "deposit_jpy": 88000,
+        "charged_amount_jpy": 30000,
+        "tenancy_months": 20
+      },
+      "expected_prongs": {
+        "P1": false,
+        "P2": true,
+        "P3": true,
+        "P4": false
+      },
       "expected_verdict": "unenforceable",
-      "source": { "type": "synthetic", "reference": "Constructed for TK_TAIKYO_FEE", "verified": false, "note": "A sum with no identified service behind it. P1 asks for scope AND amount; only the amount is present." },
-      "rationale": "Tests that P1 requires scope as well as amount. A bare fee with no corresponding service fails even though the number is specific."
+      "source": {
+        "type": "synthetic",
+        "reference": "Constructed for TK_TAIKYO_FEE",
+        "verified": false,
+        "note": "A sum with no identified service behind it. P1 asks for scope AND amount; only the amount is present."
+      },
+      "rationale": "Tests that P1 requires scope as well as amount. A bare fee with no corresponding service fails even though the number is specific.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0023",
       "expected_code": "TK_SHOUDOKU",
       "clause_text": "入居に際し、賃借人は室内消毒施工費として金16,500円(税込)を負担するものとする。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "東京都", "layout": "1R/1K", "area_sqm": 21.5, "rent_monthly_jpy": 79000, "deposit_jpy": 79000, "charged_amount_jpy": 16500, "tenancy_months": 24 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": true, "P4": true },
+      "context": {
+        "prefecture": "東京都",
+        "layout": "1R/1K",
+        "area_sqm": 21.5,
+        "rent_monthly_jpy": 79000,
+        "deposit_jpy": 79000,
+        "charged_amount_jpy": 16500,
+        "tenancy_months": 24
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
       "expected_verdict": "enforceable",
-      "source": { "type": "synthetic", "reference": "Constructed as the positive control for TK_SHOUDOKU", "verified": false, "note": "Stated in the lease body with a fixed sum and inside the band." },
-      "rationale": "Positive control. The pattern is frequently contested in practice, but a specific, agreed, in-band charge should pass all four prongs."
+      "source": {
+        "type": "synthetic",
+        "reference": "Constructed as the positive control for TK_SHOUDOKU",
+        "verified": false,
+        "note": "Stated in the lease body with a fixed sum and inside the band."
+      },
+      "rationale": "Positive control. The pattern is frequently contested in practice, but a specific, agreed, in-band charge should pass all four prongs.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0024",
       "expected_code": "TK_SHOUDOKU",
       "clause_text": "(重要事項説明書に記載) 室内消毒施工費 金22,000円 ※本費用は賃借人のご負担となります。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "神奈川県", "layout": "1R/1K", "area_sqm": 23.0, "rent_monthly_jpy": 72000, "deposit_jpy": 72000, "charged_amount_jpy": 22000, "tenancy_months": 13 },
-      "expected_prongs": { "P1": true, "P2": false, "P3": true, "P4": false },
+      "context": {
+        "prefecture": "神奈川県",
+        "layout": "1R/1K",
+        "area_sqm": 23.0,
+        "rent_monthly_jpy": 72000,
+        "deposit_jpy": 72000,
+        "charged_amount_jpy": 22000,
+        "tenancy_months": 13
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": false,
+        "P3": true,
+        "P4": false
+      },
       "expected_verdict": "unenforceable",
-      "source": { "type": "synthetic", "reference": "Constructed as the P2 failure for the set", "verified": false, "note": "Appears only in the 重要事項説明書, never in the executed lease." },
-      "rationale": "The one entry that isolates P2. The amount is specific and in-band, but a term living only in the explanatory document was never agreed as a contractual burden."
+      "source": {
+        "type": "synthetic",
+        "reference": "Constructed as the P2 failure for the set",
+        "verified": false,
+        "note": "Appears only in the 重要事項説明書, never in the executed lease."
+      },
+      "rationale": "The one entry that isolates P2. The amount is specific and in-band, but a term living only in the explanatory document was never agreed as a contractual burden.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0025",
       "expected_code": "TK_ZENMEN",
       "clause_text": "壁及び天井のクロスについては、毀損箇所の大小を問わず、当該箇所を含む一室単位で全面張替えを行い、その費用は賃借人の負担とする。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "北海道", "layout": "1DK/1LDK", "area_sqm": 35.0, "rent_monthly_jpy": 56000, "deposit_jpy": 112000, "charged_amount_jpy": 98000, "tenancy_months": 48 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": false, "P4": false },
+      "context": {
+        "prefecture": "北海道",
+        "layout": "1DK/1LDK",
+        "area_sqm": 35.0,
+        "rent_monthly_jpy": 56000,
+        "deposit_jpy": 112000,
+        "charged_amount_jpy": 98000,
+        "tenancy_months": 48
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": false,
+        "P4": false
+      },
       "expected_verdict": "unenforceable",
-      "source": { "type": "guideline", "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）", "verified": false, "note": "Room-unit accounting conflicts with the guidelines' 毀損部分 unit, and no depreciation is applied at 48 months." },
-      "rationale": "Tests the ZENMEN pattern independently of CROSS: the defect is the unit of accounting, not the unit price."
+      "source": {
+        "type": "guideline",
+        "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
+        "verified": false,
+        "note": "Room-unit accounting conflicts with the guidelines' 毀損部分 unit, and no depreciation is applied at 48 months."
+      },
+      "rationale": "Tests the ZENMEN pattern independently of CROSS: the defect is the unit of accounting, not the unit price.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0026",
       "expected_code": "TK_TANKI",
       "clause_text": "賃借人が入居後1年未満で本契約を解約する場合、違約金として賃料1か月分を賃貸人に支払うものとする。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "東京都", "layout": "1R/1K", "area_sqm": 24.5, "rent_monthly_jpy": 92000, "deposit_jpy": 92000, "charged_amount_jpy": 92000, "tenancy_months": 8 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": true, "P4": true },
+      "context": {
+        "prefecture": "東京都",
+        "layout": "1R/1K",
+        "area_sqm": 24.5,
+        "rent_monthly_jpy": 92000,
+        "deposit_jpy": 92000,
+        "charged_amount_jpy": 92000,
+        "tenancy_months": 8
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
       "expected_verdict": "enforceable",
-      "source": { "type": "synthetic", "reference": "Constructed as the positive control for TK_TANKI", "verified": false, "note": "1.0x rent within a 1-year lock-in — the common market shape." },
-      "rationale": "Trigger, duration and amount are all stated, and the penalty is at the supported ceiling."
+      "source": {
+        "type": "synthetic",
+        "reference": "Constructed as the positive control for TK_TANKI",
+        "verified": false,
+        "note": "1.0x rent within a 1-year lock-in — the common market shape."
+      },
+      "rationale": "Trigger, duration and amount are all stated, and the penalty is at the supported ceiling.",
+      "verdict_ja": null
     },
     {
       "id": "TK-0027",
       "expected_code": "TK_TANKI",
       "clause_text": "入居後2年未満の解約の場合、賃借人は違約金として賃料3か月分を支払うものとする。",
       "clause_text_provenance": "synthetic_representative",
-      "context": { "prefecture": "大阪府", "layout": "1DK/1LDK", "area_sqm": 30.0, "rent_monthly_jpy": 84000, "deposit_jpy": 168000, "charged_amount_jpy": 252000, "tenancy_months": 15 },
-      "expected_prongs": { "P1": true, "P2": true, "P3": false, "P4": true },
+      "context": {
+        "prefecture": "大阪府",
+        "layout": "1DK/1LDK",
+        "area_sqm": 30.0,
+        "rent_monthly_jpy": 84000,
+        "deposit_jpy": 168000,
+        "charged_amount_jpy": 252000,
+        "tenancy_months": 15
+      },
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": false,
+        "P4": true
+      },
       "expected_verdict": "reducible",
-      "source": { "type": "synthetic", "reference": "Constructed as the P3 failure for TK_TANKI", "verified": false, "note": "3.0x rent over a 2-year lock-in, above the elevated ceiling. 消費者契約法9条 caps a penalty at average expected loss." },
-      "rationale": "Specific and agreed, but the penalty exceeds the band and is exposed under 消費者契約法9条."
+      "source": {
+        "type": "synthetic",
+        "reference": "Constructed as the P3 failure for TK_TANKI",
+        "verified": false,
+        "note": "3.0x rent over a 2-year lock-in, above the elevated ceiling. 消費者契約法9条 caps a penalty at average expected loss."
+      },
+      "rationale": "Specific and agreed, but the penalty exceeds the band and is exposed under 消費者契約法9条.",
+      "verdict_ja": null
+    },
+    {
+      "id": "TK-0028",
+      "expected_code": "TK_CLEAN",
+      "clause_text": "退去時のハウスクリーニング費用は、居住期間や利用状況にかかわらず、借主負担として一律35,000円を敷金より差し引くものとする。",
+      "clause_text_provenance": "synthetic_representative",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "expected_verdict": "enforceable",
+      "verdict_ja": "有効の可能性が高い",
+      "source": {
+        "type": "consumer_center",
+        "reference": "国民生活センターPIO-NET相談事例類型（ハウスクリーニング特約・固定額型）",
+        "verified": false,
+        "note": "Downgraded from verbatim_field_sample on ingest: the cited source describes a 類型 (archetype/category), which cannot also be a verbatim transcription of one lease. Restore verbatim_field_sample only if an actual source document is produced."
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0029",
+      "expected_code": "TK_CLEAN",
+      "clause_text": "本物件の退去時には、ハウスクリーニング費用として26,250円を敷金から差し引く。詳細は入居後配布の管理規約による。",
+      "clause_text_provenance": "reconstructed_from_holding",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": false,
+        "P3": "unknown",
+        "P4": false
+      },
+      "expected_verdict": "unenforceable",
+      "verdict_ja": "無効の可能性が高い（合意欠如）",
+      "source": {
+        "type": "lower_court",
+        "reference": "東京地方裁判所平成21年9月18日判決（国土交通省ガイドライン事例36）",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0030",
+      "expected_code": "TK_SHIKIBIKI",
+      "clause_text": "賃貸借契約終了時、敷金のうち賃料の2か月分に相当する金額を敷引金として返還しないものとする（通常損耗の補修費用に充当する）。",
+      "clause_text_provenance": "reconstructed_from_holding",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "expected_verdict": "enforceable",
+      "verdict_ja": "有効の可能性が高い",
+      "source": {
+        "type": "supreme_court",
+        "reference": "最高裁判所第一小法廷平成23年3月24日判決",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0031",
+      "expected_code": "TK_SHIKIBIKI",
+      "clause_text": "退去時、敷金一切は返還せず、全額を敷引金として賃貸人が取得する（借主は原状回復費用を別途一切請求しない）。",
+      "clause_text_provenance": "reconstructed_from_holding",
+      "context": null,
+      "expected_prongs": {
+        "P1": "unknown",
+        "P2": true,
+        "P3": false,
+        "P4": false
+      },
+      "expected_verdict": "unenforceable",
+      "verdict_ja": "無効の可能性が高い（金額の不相当）",
+      "source": {
+        "type": "supreme_court",
+        "reference": "最高裁判所第一小法廷平成23年3月24日判決",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0032",
+      "expected_code": "TK_SHIKIBIKI",
+      "clause_text": "【敷引き特約】敷金40万円のうち20万円は、通常損耗の有無にかかわらず返還しない。（仲介担当者の説明：「関西エリアでは一般的な特約です」）",
+      "clause_text_provenance": "synthetic_representative",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": "unknown",
+        "P4": "unknown"
+      },
+      "expected_verdict": "needs_review",
+      "verdict_ja": "有効性に疑義が残る（賃料額との比較が必要）",
+      "source": {
+        "type": "consumer_center",
+        "reference": "国民生活センターPIO-NET相談事例（敷引き・関西地方の賃貸トラブル類型）",
+        "verified": false,
+        "note": "Downgraded from verbatim_field_sample on ingest: the cited source describes a 類型 (archetype/category), which cannot also be a verbatim transcription of one lease. Restore verbatim_field_sample only if an actual source document is produced."
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0033",
+      "expected_code": "TK_KOSHIN",
+      "clause_text": "本契約は1年毎の更新とし、更新の都度、借主は賃料2か月分の更新料を貸主に支払うものとする。",
+      "clause_text_provenance": "reconstructed_from_holding",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "expected_verdict": "enforceable",
+      "verdict_ja": "有効の可能性が高い",
+      "source": {
+        "type": "supreme_court",
+        "reference": "最高裁判所第二小法廷平成23年7月15日判決",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0034",
+      "expected_code": "TK_KOSHIN",
+      "clause_text": "契約更新時、更新料として新賃料の3か月分を一律で徴収する。更新を拒否する場合は退去とし、更新料は返還しない。",
+      "clause_text_provenance": "synthetic_representative",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": "unknown",
+        "P4": "unknown"
+      },
+      "expected_verdict": "needs_review",
+      "verdict_ja": "有効性に疑義が残る（金額が高額基準に近い）",
+      "source": {
+        "type": "synthetic",
+        "reference": "Yahoo!知恵袋型相談（賃貸更新料・高額請求）",
+        "verified": false,
+        "note": "Downgraded from verbatim_field_sample on ingest: the cited source describes a 類型 (archetype/category), which cannot also be a verbatim transcription of one lease. Restore verbatim_field_sample only if an actual source document is produced."
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0035",
+      "expected_code": "TK_TATAMI",
+      "clause_text": "退去時、畳表替え費用（1畳あたり4,000円）を居住年数にかかわらず借主負担とする。",
+      "clause_text_provenance": "reconstructed_from_holding",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": false,
+        "P4": false
+      },
+      "expected_verdict": "unenforceable",
+      "verdict_ja": "無効の可能性が高い（経年減価未反映）",
+      "source": {
+        "type": "guideline",
+        "reference": "国土交通省ガイドライン及び国民生活センター公表事例",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0036",
+      "expected_code": "TK_TATAMI",
+      "clause_text": "畳・襖・障子等の消耗品については、破損の有無を問わず退去時に借主が全額負担して交換すること。",
+      "clause_text_provenance": "verbatim_field_sample",
+      "context": null,
+      "expected_prongs": {
+        "P1": "unknown",
+        "P2": true,
+        "P3": false,
+        "P4": false
+      },
+      "expected_verdict": "unenforceable",
+      "verdict_ja": "無効の可能性が高い（範囲・金額の不特定と経年減価の無視）",
+      "source": {
+        "type": "synthetic",
+        "reference": "賃貸トラブル相談で見られる消耗品一括交換特約",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0037",
+      "expected_code": "TK_CROSS",
+      "clause_text": "退去時のクロス（壁紙）張替えについては、経過年数や耐用年数にかかわらず、居室全面を借主負担で張り替えるものとし、その旨を本契約書末尾の特約事項欄に明記する。",
+      "clause_text_provenance": "reconstructed_from_holding",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "expected_verdict": "enforceable",
+      "verdict_ja": "有効の可能性が高い",
+      "source": {
+        "type": "lower_court",
+        "reference": "東京地方裁判所平成28年12月20日判決（RETIO109号108頁）",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0038",
+      "expected_code": "TK_CROSS",
+      "clause_text": "クロスの変色、日焼け、画鋲の穴等については、通常使用によるものであっても一切の責任を借主が負い、退去時に全面張替え費用を負担するものとする。",
+      "clause_text_provenance": "synthetic_representative",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": false,
+        "P4": false
+      },
+      "expected_verdict": "reducible",
+      "verdict_ja": "一部無効となる可能性が高い（通常損耗部分）",
+      "source": {
+        "type": "synthetic",
+        "reference": "賃貸原状回復トラブルにおける『一切の責任』型クロス特約",
+        "verified": false,
+        "note": "Downgraded from verbatim_field_sample on ingest: the cited source describes a 類型 (archetype/category), which cannot also be a verbatim transcription of one lease. Restore verbatim_field_sample only if an actual source document is produced."
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0039",
+      "expected_code": "TK_FLOOR",
+      "clause_text": "フローリングに生じたキズ・へこみについては、原因を問わず退去時に借主負担で全面補修するものとする（1平方メートルあたり8,000円）。",
+      "clause_text_provenance": "reconstructed_from_holding",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": false,
+        "P4": false
+      },
+      "expected_verdict": "reducible",
+      "verdict_ja": "一部無効となる可能性が高い（通常損耗除外なし）",
+      "source": {
+        "type": "guideline",
+        "reference": "国土交通省ガイドラインフローリング損耗事例",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0040",
+      "expected_code": "TK_FLOOR",
+      "clause_text": "ペットを飼育していなくても、フローリングの経年による色あせ・軋みについては借主負担で張替えを行う特約とする。諸経費一律45,000円。",
+      "clause_text_provenance": "verbatim_field_sample",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": false,
+        "P4": false
+      },
+      "expected_verdict": "unenforceable",
+      "verdict_ja": "無効の可能性が高い（民法621条違反）",
+      "source": {
+        "type": "synthetic",
+        "reference": "賃貸フローリング原状回復に関するインターネット上の借主相談",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0041",
+      "expected_code": "TK_TSUJO",
+      "clause_text": "賃借人が原状回復義務を負う通常損耗の範囲は、別紙『原状回復費用負担表』に居室ごとの損耗内容及び単価を具体的に明記し、契約締結時に賃借人に読み上げて説明のうえ、賃借人の署名によりその内容を確認するものとする。",
+      "clause_text_provenance": "reconstructed_from_holding",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "expected_verdict": "enforceable",
+      "verdict_ja": "有効の可能性が高い",
+      "source": {
+        "type": "supreme_court",
+        "reference": "最高裁判所第二小法廷平成17年12月16日判決",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0042",
+      "expected_code": "TK_TSUJO",
+      "clause_text": "賃借人は、通常の使用により生じた損耗を含め、賃貸物件の原状回復に必要な一切の費用を負担するものとする。",
+      "clause_text_provenance": "reconstructed_from_holding",
+      "context": null,
+      "expected_prongs": {
+        "P1": false,
+        "P2": "unknown",
+        "P3": false,
+        "P4": false
+      },
+      "expected_verdict": "unenforceable",
+      "verdict_ja": "無効の可能性が高い（具体性欠如）",
+      "source": {
+        "type": "supreme_court",
+        "reference": "最高裁判所第二小法廷平成17年12月16日判決の要件を満たさない無効パターン",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0043",
+      "expected_code": "TK_TSUJO",
+      "clause_text": "契約書には『通常損耗も借主負担』と書いてあるだけで、具体的にどこまで払うのか書いてありません。仲介さんは『大体みんなこうですよ』としか言いません。退去時にハウスクリーニングと壁紙の請求書だけ来ましたが、これは払うべきですか？",
+      "clause_text_provenance": "synthetic_representative",
+      "context": null,
+      "expected_prongs": {
+        "P1": false,
+        "P2": "unknown",
+        "P3": "unknown",
+        "P4": false
+      },
+      "expected_verdict": "unenforceable",
+      "verdict_ja": "無効の可能性が高い（具体性欠如の可能性）",
+      "source": {
+        "type": "synthetic",
+        "reference": "Yahoo!知恵袋型相談（抽象的特約）",
+        "verified": false,
+        "note": "Downgraded from verbatim_field_sample on ingest: the cited source describes a 類型 (archetype/category), which cannot also be a verbatim transcription of one lease. Restore verbatim_field_sample only if an actual source document is produced."
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0044",
+      "expected_code": "TK_KEINEN",
+      "clause_text": "退去時の原状回復費用の算定においては、設備・内装の経過年数による減価（残存価値）を考慮せず、新品交換価格を基準に借主に費用を請求するものとする。",
+      "clause_text_provenance": "reconstructed_from_holding",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": false,
+        "P4": false
+      },
+      "expected_verdict": "unenforceable",
+      "verdict_ja": "無効の可能性が高い（経年減価未反映）",
+      "source": {
+        "type": "guideline",
+        "reference": "国交省ガイドライン経年変化考慮原則",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0045",
+      "expected_code": "TK_KEINEN",
+      "clause_text": "設備の使用年数は考慮せず、退去時は購入時と同等の状態に戻すことを条件とする（借主負担）。",
+      "clause_text_provenance": "synthetic_representative",
+      "context": null,
+      "expected_prongs": {
+        "P1": "unknown",
+        "P2": true,
+        "P3": false,
+        "P4": false
+      },
+      "expected_verdict": "unenforceable",
+      "verdict_ja": "無効の可能性が高い（経年減価未反映・範囲不明確）",
+      "source": {
+        "type": "synthetic",
+        "reference": "賃貸借契約の原状回復トラブル（経年劣化不考慮型）",
+        "verified": false,
+        "note": "Downgraded from verbatim_field_sample on ingest: the cited source describes a 類型 (archetype/category), which cannot also be a verbatim transcription of one lease. Restore verbatim_field_sample only if an actual source document is produced."
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0046",
+      "expected_code": "TK_KAGI",
+      "clause_text": "入居時、防犯上の理由により鍵（シリンダー）を新品に交換するものとし、その費用12,600円は入居時に契約金の一部として借主が負担する。本費用については募集広告及び契約時の説明書に明記する。",
+      "clause_text_provenance": "reconstructed_from_holding",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "expected_verdict": "enforceable",
+      "verdict_ja": "有効の可能性が高い",
+      "source": {
+        "type": "lower_court",
+        "reference": "東京地方裁判所平成21年9月18日判決（ガイドライン事例36）",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0047",
+      "expected_code": "TK_KAGI",
+      "clause_text": "退去時、次の入居者のために鍵交換費用一式（諸経費含む）を借主が負担するものとし、金額は貸主が別途定める。",
+      "clause_text_provenance": "verbatim_field_sample",
+      "context": null,
+      "expected_prongs": {
+        "P1": false,
+        "P2": "unknown",
+        "P3": "unknown",
+        "P4": false
+      },
+      "expected_verdict": "unenforceable",
+      "verdict_ja": "無効の可能性が高い（金額の特定なし）",
+      "source": {
+        "type": "synthetic",
+        "reference": "賃貸鍵交換費用に関する借主からの相談事例",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0048",
+      "expected_code": "TK_SHOUKYAKU",
+      "clause_text": "敷金は賃料の3か月分とし、居住年数に応じて別表の償却率（1年目30%、2年目50%、3年目以上70%）に基づき償却のうえ、残額のみを返還する特約とする。",
+      "clause_text_provenance": "reconstructed_from_holding",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "expected_verdict": "enforceable",
+      "verdict_ja": "有効の可能性が高い",
+      "source": {
+        "type": "supreme_court",
+        "reference": "最高裁判所第一小法廷平成23年3月24日判決",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0049",
+      "expected_code": "TK_SHOUKYAKU",
+      "clause_text": "敷金は解約時に一切返還せず、全額を賃貸人が償却する。原状回復費用が敷金を上回る場合は別途借主が負担する。",
+      "clause_text_provenance": "verbatim_field_sample",
+      "context": null,
+      "expected_prongs": {
+        "P1": "unknown",
+        "P2": true,
+        "P3": false,
+        "P4": false
+      },
+      "expected_verdict": "unenforceable",
+      "verdict_ja": "無効の可能性が高い（金額の不相当・二重負担）",
+      "source": {
+        "type": "synthetic",
+        "reference": "賃貸敷金償却に関する相談事例（全額没収＋追加請求）",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0050",
+      "expected_code": "TK_TAIKYO_FEE",
+      "clause_text": "退去時、書類作成及び立会いにかかる事務手数料として一律15,000円を借主が負担するものとし、契約書特約事項に明記する。",
+      "clause_text_provenance": "reconstructed_from_holding",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "expected_verdict": "enforceable",
+      "verdict_ja": "有効の可能性が高い",
+      "source": {
+        "type": "guideline",
+        "reference": "国民生活センター及び賃貸住宅標準契約書",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0051",
+      "expected_code": "TK_TAIKYO_FEE",
+      "clause_text": "退去時費用として、原状回復費用のほか『退去立会費』『書類手数料』『管理諸経費』を諸経費一律で合計3万円徴収する。内訳は開示しない。",
+      "clause_text_provenance": "verbatim_field_sample",
+      "context": null,
+      "expected_prongs": {
+        "P1": false,
+        "P2": true,
+        "P3": "unknown",
+        "P4": false
+      },
+      "expected_verdict": "unenforceable",
+      "verdict_ja": "無効の可能性が高い（内訳不明・対価性不明）",
+      "source": {
+        "type": "synthetic",
+        "reference": "賃貸退去時の『諸経費一律』請求に関する相談事例",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0052",
+      "expected_code": "TK_SHOUDOKU",
+      "clause_text": "入居時及び退去時、室内の抗菌コーティング施工費として借主負担で18,000円を徴収する（施工の実施・不実施にかかわらず費用は発生する）。",
+      "clause_text_provenance": "verbatim_field_sample",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": false,
+        "P4": false
+      },
+      "expected_verdict": "unenforceable",
+      "verdict_ja": "無効の可能性が高い（対価性の欠如）",
+      "source": {
+        "type": "consumer_center",
+        "reference": "国民生活センター公表の『消毒・抗菌施工費』に関するトラブル",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0053",
+      "expected_code": "TK_SHOUDOKU",
+      "clause_text": "退去後の消毒施工（次期入居者募集のための室内消毒）を実施し、その実施費用12,000円を貸主が別途契約書に明記のうえ借主に請求する。施工報告書を借主に提示する。",
+      "clause_text_provenance": "reconstructed_from_holding",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "expected_verdict": "enforceable",
+      "verdict_ja": "有効の可能性が高い",
+      "source": {
+        "type": "synthetic",
+        "reference": "消毒施工費特約の有効性判断枠組み",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0054",
+      "expected_code": "TK_ZENMEN",
+      "clause_text": "退去時は、居住年数・使用状況を問わず、居室全体のクロス・畳・クリーニングを全面的に借主負担で実施するものとし、一切の異議を申し出ないものとする。",
+      "clause_text_provenance": "verbatim_field_sample",
+      "context": null,
+      "expected_prongs": {
+        "P1": "unknown",
+        "P2": true,
+        "P3": false,
+        "P4": false
+      },
+      "expected_verdict": "unenforceable",
+      "verdict_ja": "無効の可能性が高い（経年減価・通常損耗未除外）",
+      "source": {
+        "type": "synthetic",
+        "reference": "賃貸原状回復における『全面借主負担・異議申出禁止』",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0055",
+      "expected_code": "TK_ZENMEN",
+      "clause_text": "退去時、襖・クロスの張替え及びハウスクリーニングの費用は、損耗の程度にかかわらず借主が負担する旨を契約締結時に説明し、賃借人はこれに同意して契約書に署名する。",
+      "clause_text_provenance": "reconstructed_from_holding",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "expected_verdict": "enforceable",
+      "verdict_ja": "有効の可能性が高い",
+      "source": {
+        "type": "lower_court",
+        "reference": "控訴審判決（RETIO51号59頁掲載事例）",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0056",
+      "expected_code": "TK_TANKI",
+      "clause_text": "契約期間を2年とし、借主の都合により2年未満で解約する場合は、違約金として賃料及び管理費の1か月分を借主が負担するものとする。",
+      "clause_text_provenance": "reconstructed_from_holding",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": true,
+        "P4": true
+      },
+      "expected_verdict": "enforceable",
+      "verdict_ja": "有効の可能性が高い",
+      "source": {
+        "type": "lower_court",
+        "reference": "東京地方裁判所令和2年2月6日判決",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
+    },
+    {
+      "id": "TK-0057",
+      "expected_code": "TK_TANKI",
+      "clause_text": "契約期間2年未満で解約する場合、違約金として賃料1か月分を支払う。なお、解約の申し出は2か月前に行うものとし、申出から2か月後に契約は終了する。",
+      "clause_text_provenance": "reconstructed_from_holding",
+      "context": null,
+      "expected_prongs": {
+        "P1": true,
+        "P2": true,
+        "P3": false,
+        "P4": false
+      },
+      "expected_verdict": "unenforceable",
+      "verdict_ja": "無効の可能性が高い（平均的損害を超える違約金）",
+      "source": {
+        "type": "statute",
+        "reference": "解約予告条項と重複する中途解約違約金の消費者契約法10条無効事例",
+        "verified": false,
+        "note": null
+      },
+      "rationale": null
     }
   ]
 }
