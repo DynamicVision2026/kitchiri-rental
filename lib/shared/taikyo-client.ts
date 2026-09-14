@@ -29,6 +29,31 @@ import type { BatchReport, ClauseFinding } from "@/lib/modules/taikyo/batch.ts";
 export type BatchFinding = ClauseFinding & { reasonsText: LocalizedReasons };
 export type BatchReportResponse = Omit<BatchReport, "findings"> & { findings: BatchFinding[] };
 
+/* ---------------------------------------------------------------- *
+ * Negotiation letter
+ * ---------------------------------------------------------------- */
+
+export type { LetterClause, LetterResult, LetterRefusal } from "@/lib/modules/taikyo/letter.ts";
+import type { LetterClause, LetterRefusal, LetterResult } from "@/lib/modules/taikyo/letter.ts";
+
+export async function generateLetter(
+  clauses: LetterClause[],
+  opts: { propertyName?: string | null } = {},
+  signal?: AbortSignal,
+): Promise<LetterResult | LetterRefusal> {
+  const res = await fetch("/api/taikyo/letter", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ clauses, propertyName: opts.propertyName ?? null }),
+    signal,
+  });
+  const body = await res.json().catch(() => null);
+  if (!res.ok) {
+    throw new EvaluateError(body?.message ?? body?.error ?? `Request failed (${res.status})`, res.status, body?.issues);
+  }
+  return body.letter as LetterResult | LetterRefusal;
+}
+
 export async function evaluateContractText(
   contractText: string,
   signal?: AbortSignal,

@@ -30,8 +30,8 @@
         "type": "supreme_court",
         "reference": "最判平成17年12月16日",
         "verified": false,
-        "verification_status": "unverified",
-        "note": "The blanket 原状回復 formulation. Names no item and no amount, so the tenant was never on notice of a burden beyond the statutory default."
+        "verification_status": "secondary_source_checked",
+        "note": "The blanket 原状回復 formulation. Names no item and no amount, so the tenant was never on notice of a burden beyond the statutory default. Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 二次資料で照合（2026-09-14）: 第二小法廷。通常損耗補修特約が有効となるには、賃借人が負担する通常損耗の範囲が契約書自体に具体的に明記されているか、明記がない場合は賃貸人が口頭で説明し賃借人がその旨を明確に認識して合意の内容としたことを要する。rules.ts の P4 判定および validate-corpus の621条チェックと一致。民集は未読。"
       },
       "rationale": "P1 fails outright: neither scope nor amount is identified. P2 holds because the term is in the executed lease. P4 therefore fails and the art. 621 default stands."
     },
@@ -593,8 +593,8 @@
         "type": "statute",
         "reference": "民法621条",
         "verified": false,
-        "verification_status": "unverified",
-        "note": "Names the two categories art. 621 expressly carves out, with no itemisation or amount."
+        "verification_status": "secondary_source_checked",
+        "note": "Names the two categories art. 621 expressly carves out, with no itemisation or amount. Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 条文を二次資料で照合（2026-09-14）: 「賃借人は、賃借物を受け取った後にこれに生じた損傷（通常の使用及び収益によって生じた賃借物の損耗並びに賃借物の経年変化を除く。）がある場合において、賃貸借が終了したときは、その損傷を原状に復する義務を負う。ただし、その損傷が賃借人の責めに帰することができない事由によるものであるときは、この限りでない。」2020年施行の債権法改正で明文化。e-Gov 原本は未確認。"
       },
       "rationale": "The clearest P4 failure in the set: it targets exactly what the statute excludes, and names neither items nor sums."
     },
@@ -1230,8 +1230,8 @@
         "type": "supreme_court",
         "reference": "最高裁判所第二小法廷平成17年12月16日判決",
         "verified": false,
-        "verification_status": "unverified",
-        "note": null
+        "verification_status": "secondary_source_checked",
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 二次資料で照合（2026-09-14）: 第二小法廷。通常損耗補修特約が有効となるには、賃借人が負担する通常損耗の範囲が契約書自体に具体的に明記されているか、明記がない場合は賃貸人が口頭で説明し賃借人がその旨を明確に認識して合意の内容としたことを要する。rules.ts の P4 判定および validate-corpus の621条チェックと一致。民集は未読。"
       },
       "rationale": null
     },
@@ -1253,8 +1253,8 @@
         "type": "supreme_court",
         "reference": "最高裁判所第二小法廷平成17年12月16日判決の要件を満たさない無効パターン",
         "verified": false,
-        "verification_status": "unverified",
-        "note": null
+        "verification_status": "secondary_source_checked",
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 二次資料で照合（2026-09-14）: 第二小法廷。通常損耗補修特約が有効となるには、賃借人が負担する通常損耗の範囲が契約書自体に具体的に明記されているか、明記がない場合は賃貸人が口頭で説明し賃借人がその旨を明確に認識して合意の内容としたことを要する。rules.ts の P4 判定および validate-corpus の621条チェックと一致。民集は未読。"
       },
       "rationale": null
     },
@@ -1923,8 +1923,8 @@
         "type": "statute",
         "reference": "民法621条",
         "verified": false,
-        "verification_status": "unverified",
-        "note": null
+        "verification_status": "secondary_source_checked",
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 条文を二次資料で照合（2026-09-14）: 「賃借人は、賃借物を受け取った後にこれに生じた損傷（通常の使用及び収益によって生じた賃借物の損耗並びに賃借物の経年変化を除く。）がある場合において、賃貸借が終了したときは、その損傷を原状に復する義務を負う。ただし、その損傷が賃借人の責めに帰することができない事由によるものであるときは、この限りでない。」2020年施行の債権法改正で明文化。e-Gov 原本は未確認。"
       },
       "rationale": "Targets the aging carve-out in art. 621 directly and records no explanation or assent, so P4 fails. P3 is unknown, not false: the clause names no figure, so there is nothing to measure."
     },
@@ -2329,8 +2329,8 @@
         "type": "supreme_court",
         "reference": "最判平成17年12月16日",
         "verified": false,
-        "verification_status": "unverified",
-        "note": null
+        "verification_status": "secondary_source_checked",
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 二次資料で照合（2026-09-14）: 第二小法廷。通常損耗補修特約が有効となるには、賃借人が負担する通常損耗の範囲が契約書自体に具体的に明記されているか、明記がない場合は賃貸人が口頭で説明し賃借人がその旨を明確に認識して合意の内容としたことを要する。rules.ts の P4 判定および validate-corpus の621条チェックと一致。民集は未読。"
       },
       "rationale": "Meets all three limbs of the 2005 test: itemised scope and unit prices, read aloud and explained, and signed. Ordinary wear is still left with the landlord."
     },
@@ -2360,8 +2360,8 @@
         "type": "supreme_court",
         "reference": "最判平成17年12月16日",
         "verified": false,
-        "verification_status": "unverified",
-        "note": null
+        "verification_status": "secondary_source_checked",
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 二次資料で照合（2026-09-14）: 第二小法廷。通常損耗補修特約が有効となるには、賃借人が負担する通常損耗の範囲が契約書自体に具体的に明記されているか、明記がない場合は賃貸人が口頭で説明し賃借人がその旨を明確に認識して合意の内容としたことを要する。rules.ts の P4 判定および validate-corpus の621条チェックと一致。民集は未読。"
       },
       "rationale": "Deliberate counterpart to TK-0080 and TK-0054: the same blanket wording, but with a stated unit price plus recorded explanation and assent, which is exactly what the 2005 test requires before art. 621 can be displaced."
     },
@@ -2391,8 +2391,8 @@
         "type": "statute",
         "reference": "民法621条",
         "verified": false,
-        "verification_status": "unverified",
-        "note": null
+        "verification_status": "secondary_source_checked",
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 条文を二次資料で照合（2026-09-14）: 「賃借人は、賃借物を受け取った後にこれに生じた損傷（通常の使用及び収益によって生じた賃借物の損耗並びに賃借物の経年変化を除く。）がある場合において、賃貸借が終了したときは、その損傷を原状に復する義務を負う。ただし、その損傷が賃借人の責めに帰することができない事由によるものであるときは、この限りでない。」2020年施行の債権法改正で明文化。e-Gov 原本は未確認。"
       },
       "rationale": "Same blanket wording as TK-0079 with neither a unit price nor any record of explanation or assent, so P4 fails. P1 is unknown rather than false: the work is identified, the cost is not."
     }

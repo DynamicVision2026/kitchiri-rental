@@ -18,7 +18,8 @@
     "audit:status": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/citation-verify.ts --list",
     "audit:verify": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/citation-verify.ts",
     "eval:segment": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/segment-check.ts",
-    "eval:batch": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/batch-check.ts"
+    "eval:batch": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/batch-check.ts",
+    "eval:letter": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/letter-check.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

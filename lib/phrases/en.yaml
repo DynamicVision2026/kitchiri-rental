@@ -57,3 +57,35 @@ level:
   elevated: elevated
   excessive: excessive
   not_computable: not computable
+
+letter:
+  subject: "Request for confirmation and reconsideration of restoration charges"
+  greeting: "We hope this letter finds you well, and thank you for your continued assistance."
+  intro: "Following the surrender of the property below, we have received your statement of restoration charges. We are writing to confirm how those costs are allocated."
+  body_lead: "Our understanding of the clause and the charges is set out below. We would be grateful if you would review and reconsider."
+  record_header: "Particulars"
+  section_property: "Property"
+  section_clause: "Clause concerned"
+  section_position: "Our understanding"
+  section_request: "What we are asking"
+  request_itemise: "Please provide an itemised breakdown showing the areas, quantities, unit prices and the depreciation applied for elapsed years."
+  request_reconsider: "In light of the allocation above, we would be grateful if you would reconsider the amount charged."
+  request_reply: "We would appreciate a reply in writing or by email within two weeks of receipt."
+  closing: "This letter is not intended as a legal claim or as the opening of a dispute; it is a request to confirm the allocation of costs and to resolve the matter amicably."
+  complimentary_close: "Yours sincerely,"
+  placeholder_landlord: "[Landlord / managing agent]"
+  placeholder_address: "[Your address]"
+  placeholder_name: "[Your name]"
+  placeholder_property: "[Property name and unit number]"
+  footer_note: "This letter is an automatically generated draft. Please review it before sending and seek professional advice if needed."
+
+position:
+  unenforceable: "The clause appears to place ordinary wear and aging on the tenant. Art. 621 of the Civil Code excludes both from the tenant's restoration obligation, and our understanding is that shifting them requires a special clause that is validly formed."
+  severable: "As to the portion corresponding to ordinary wear and aging, our understanding is that art. 621 places it outside the tenant's restoration obligation. We remain responsible for damage actually caused by our own fault."
+  reducible: "We are not disputing the validity of the clause itself, but the amount charged appears to exceed what is generally regarded as reasonable for this type of work."
+
+cite:
+  civil_621: "Art. 621 of the Civil Code excludes wear arising from ordinary use and the aging of the property from the tenant's restoration obligation."
+  h17: "A clause placing ordinary wear on the tenant is understood to take effect only where its scope is specifically stated in the lease, or, failing that, where the landlord explained it and the tenant clearly recognised and agreed to it (Supreme Court, 16 December 2005)."
+  guideline: "The MLIT restoration guidelines apply depreciation for elapsed years, treating the residual value at the end of a useful life as one yen."
+  shikibiki: "A deposit-retention clause may be void under art. 10 of the Consumer Contract Act where the sum retained is excessive (Supreme Court, 24 March 2011)."

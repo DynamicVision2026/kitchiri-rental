@@ -17,8 +17,12 @@ import { useCallback, useState } from "react";
 import {
   EvaluateError,
   evaluateContractText,
+  generateLetter,
   type BatchFinding,
   type BatchReportResponse,
+  type LetterClause,
+  type LetterRefusal,
+  type LetterResult,
 } from "@/lib/shared/taikyo-client.ts";
 import styles from "./dashboard.module.css";
 
@@ -42,6 +46,18 @@ const RISK_STYLE = {
 
 const PRONG_LABELS = { P1: "P1 明確性", P2: "P2 所在", P3: "P3 相当性", P4: "P4 621条" } as const;
 
+/** Verdicts a letter may be written about. Mirrors LETTERABLE_VERDICTS on the server,
+ *  which is the authority — this only decides whether to show the button. */
+const DISPUTABLE = new Set(["unenforceable", "severable", "reducible"]);
+
+const toLetterClause = (f: BatchFinding): LetterClause => ({
+  label: f.label,
+  clauseText: f.text,
+  verdict: f.evaluation.verdict,
+  code: f.evaluation.code,
+  amountJpy: f.amounts.headlineJpy,
+});
+
 const yen = (n: number) => `¥${n.toLocaleString("ja-JP")}`;
 
 function prongMark(value: boolean | "unknown") {
@@ -50,8 +66,13 @@ function prongMark(value: boolean | "unknown") {
   return "不明";
 }
 
-function FindingCard({ finding }: { finding: BatchFinding }) {
+function FindingCard({ finding, onDraft, busy }: {
+  finding: BatchFinding;
+  onDraft: (clauses: LetterClause[], title: string) => void;
+  busy: boolean;
+}) {
   const verdict = finding.evaluation.verdict as VerdictKey;
+  const disputable = DISPUTABLE.has(verdict);
   const style = VERDICT_STYLE[verdict];
   return (
     <article className={styles.finding} style={{ borderLeftColor: `var(${style.varName})` }}>
@@ -80,6 +101,18 @@ function FindingCard({ finding }: { finding: BatchFinding }) {
         </p>
       )}
 
+      {disputable && (
+        <div className={styles.letterActions}>
+          <button
+            className={styles.letterBtn}
+            disabled={busy}
+            onClick={() => onDraft([toLetterClause(finding)], `${finding.label} の交渉文面`)}
+          >
+            交渉文面を作成
+          </button>
+        </div>
+      )}
+
       <details className={styles.details}>
         <summary>4要件の判定を見る</summary>
         <table className={styles.prongTable}>
@@ -106,6 +139,9 @@ export default function ContractHealthDashboard() {
   const [report, setReport] = useState<BatchReportResponse | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [letter, setLetter] = useState<{ title: string; result: LetterResult | LetterRefusal } | null>(null);
+  const [letterBusy, setLetterBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const analyze = useCallback(async () => {
     setBusy(true);
@@ -119,7 +155,40 @@ export default function ContractHealthDashboard() {
     }
   }, [text]);
 
+  const draftLetter = useCallback(async (clauses: LetterClause[], title: string) => {
+    setLetterBusy(true);
+    setCopied(false);
+    try {
+      setLetter({ title, result: await generateLetter(clauses) });
+    } catch (e) {
+      setError(e instanceof EvaluateError ? e.message : "文面の作成に失敗しました。");
+    } finally {
+      setLetterBusy(false);
+    }
+  }, []);
+
+  const copyLetter = useCallback(async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+    } catch {
+      setError("クリップボードにコピーできませんでした。文面を選択して手動でコピーしてください。");
+    }
+  }, []);
+
+  const downloadLetter = useCallback((text: string) => {
+    const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "原状回復費用_確認再検討申入書.txt";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }, []);
+
   const risk = report ? RISK_STYLE[report.riskLevel] : null;
+  const disputableFindings = report ? report.findings.filter((f) => DISPUTABLE.has(f.evaluation.verdict)) : [];
   const present = report ? VERDICT_ORDER.filter((v) => report.verdictCounts[v] > 0) : [];
 
   return (
@@ -207,11 +276,55 @@ export default function ContractHealthDashboard() {
           </ul>
 
           <h2 className={styles.sectionTitle}>条項ごとの判定（{report.findings.length}件）</h2>
+          {disputableFindings.length > 0 && (
+            <div className={styles.letterActions} style={{ marginBottom: "1rem" }}>
+              <button
+                className={styles.letterBtn}
+                disabled={letterBusy}
+                onClick={() => void draftLetter(disputableFindings.map(toLetterClause), `問題のある${disputableFindings.length}条項をまとめた交渉文面`)}
+              >
+                {letterBusy ? "作成中…" : `問題のある${disputableFindings.length}条項をまとめて交渉文面を作成`}
+              </button>
+            </div>
+          )}
+
+          {letter && (
+            <section className={styles.letterPanel}>
+              <div className={styles.letterHead}>
+                <strong>{letter.title}</strong>
+                <div className={styles.letterActions} style={{ marginTop: 0 }}>
+                  {letter.result.ok && (
+                    <>
+                      <button className={styles.letterBtn} onClick={() => void copyLetter((letter.result as LetterResult).text)}>
+                        {copied ? "コピーしました" : "コピー"}
+                      </button>
+                      <button className={styles.letterBtn} onClick={() => downloadLetter((letter.result as LetterResult).text)}>
+                        テキストで保存
+                      </button>
+                    </>
+                  )}
+                  <button className={styles.letterBtn} onClick={() => setLetter(null)}>閉じる</button>
+                </div>
+              </div>
+
+              {letter.result.ok ? (
+                <>
+                  <p className={styles.letterWarn}>
+                    この文面は草案です。引用している判例・ガイドラインは一次資料での確認が未了のため、
+                    送付前に内容をご確認のうえ、必要に応じて専門家にご相談ください。
+                  </p>
+                  <pre className={styles.letterText}>{letter.result.text}</pre>
+                </>
+              ) : (
+                <p className={styles.letterRefusal}>{letter.result.reason}</p>
+              )}
+            </section>
+          )}
           {[...report.findings]
             .sort((a, b) =>
               VERDICT_ORDER.indexOf(a.evaluation.verdict as VerdictKey) -
                 VERDICT_ORDER.indexOf(b.evaluation.verdict as VerdictKey) || a.index - b.index)
-            .map((f) => <FindingCard key={f.index} finding={f} />)}
+            .map((f) => <FindingCard key={f.index} finding={f} onDraft={(c, t) => void draftLetter(c, t)} busy={letterBusy} />)}
 
           <p className={styles.advisory}>{report.advisory}</p>
         </>

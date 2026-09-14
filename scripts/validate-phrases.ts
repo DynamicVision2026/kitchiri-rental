@@ -13,6 +13,7 @@ import { REASON_CODES } from "../lib/modules/taikyo/rules.ts";
 import { LOCALES, VOCAB_PREFIXES, bankKeys, phrase } from "../lib/phrases/index.ts";
 import { PLACEMENTS } from "../lib/modules/taikyo/rules.ts";
 import { BAND_KEYS, BAND_LEVELS } from "../lib/modules/taikyo/bands.ts";
+import { LETTER_KEYS } from "../lib/modules/taikyo/letter.ts";
 
 /** Identifier vocabularies whose every value must have display text in every locale. */
 const VOCABULARIES: Record<(typeof VOCAB_PREFIXES)[number], readonly string[]> = {
@@ -28,7 +29,18 @@ const SUPPLIED_PARAMS: Record<string, readonly string[]> = {
   "p3.measured": ["measured", "band", "supported", "elevated", "level"],
 };
 
+/** Namespaces owned by the negotiation-letter builder rather than by reason codes. */
+const LETTER_PREFIXES = ["letter", "position", "cite"] as const;
+
 const failures: string[] = [];
+
+// Every key the letter builder can reference must exist in both locales.
+for (const locale of LOCALES) {
+  const keys = new Set(bankKeys(locale));
+  for (const key of LETTER_KEYS) {
+    if (!keys.has(key)) failures.push(`${locale}: letter builder needs "${key}" but the bank has no entry`);
+  }
+}
 
 for (const locale of LOCALES) {
   const keys = new Set(bankKeys(locale));
@@ -37,7 +49,8 @@ for (const locale of LOCALES) {
   }
   for (const key of keys) {
     const isVocab = VOCAB_PREFIXES.some((p) => key.startsWith(`${p}.`));
-    if (!isVocab && !(REASON_CODES as readonly string[]).includes(key)) {
+    const isLetter = LETTER_PREFIXES.some((p) => key.startsWith(`${p}.`));
+    if (!isVocab && !isLetter && !(REASON_CODES as readonly string[]).includes(key)) {
       failures.push(`${locale}: "${key}" is in the bank but no engine branch emits it`);
     }
   }

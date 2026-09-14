@@ -102,3 +102,18 @@
   background: color-mix(in srgb, var(--warning) 9%, transparent); font-size: .79rem; line-height: 1.75;
   color: var(--ink-2); border-radius: 0 .3rem .3rem 0; }
 .caveats { margin: .6rem 0 0; padding-left: 1.1rem; font-size: .78rem; color: var(--ink-3); line-height: 1.75; }
+
+/* negotiation letter panel */
+.letterActions { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .75rem; }
+.letterBtn { background: transparent; color: var(--accent); border: 1px solid var(--accent); border-radius: .35rem;
+  padding: .35rem .75rem; font: inherit; font-size: .8rem; font-weight: 600; cursor: pointer; }
+.letterBtn:disabled { color: var(--neutral); border-color: var(--border); cursor: not-allowed; }
+.letterPanel { border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: .5rem;
+  background: var(--surface); padding: 1rem 1.15rem; margin: 1rem 0 1.5rem; }
+.letterHead { display: flex; gap: .75rem; align-items: baseline; justify-content: space-between; flex-wrap: wrap; }
+.letterText { white-space: pre-wrap; font-family: "Hiragino Mincho ProN", "Yu Mincho", serif; font-size: .84rem;
+  line-height: 2; margin: .85rem 0 0; padding: 1rem; background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: .35rem; max-height: 30rem; overflow-y: auto; color: var(--ink); }
+.letterWarn { margin: .7rem 0 0; padding: .6rem .8rem; border-left: 3px solid var(--warning);
+  background: color-mix(in srgb, var(--warning) 10%, transparent); font-size: .78rem; line-height: 1.75; color: var(--ink-2); }
+.letterRefusal { margin: .7rem 0 0; font-size: .84rem; line-height: 1.8; color: var(--ink-2); }
