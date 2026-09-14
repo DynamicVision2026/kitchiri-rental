@@ -1,7 +1,17 @@
 "use client";
 
 /**
- * Contract Health Dashboard — paste a whole lease, get a per-clause verdict map.
+ * 原状回復 workspace — the single surface: ingest, analyse, answer, negotiate.
+ *
+ * Ingestion (PDF or paste), the clause-by-clause verdict map, the questions the
+ * engine still needs answered, and the negotiation letter all live here. They were
+ * three screens and are now one, because they are one task: a user with a bill does
+ * not think of "analysis" and "follow-up questions" as separate activities.
+ *
+ * Answering a question re-runs the WHOLE report server-side rather than patching a
+ * card in place. Verdict counts, adverse totals, risk level and exposure all derive
+ * from the findings, and recomputing them in the browser would let the summary drift
+ * away from the list it summarises.
  *
  * Verdicts are STATUS values, so every one is rendered as colour + glyph + word. A
  * reader who cannot distinguish the hues still gets the finding from the label, and
@@ -13,11 +23,13 @@
  * more confident than the analysis behind it.
  */
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import FactFieldset from "../_components/FactFieldset";
 import {
   EvaluateError,
   evaluateContractText,
   extractPdfText,
+  type ClauseOverride,
   generateLetter,
   type BatchFinding,
   type BatchReportResponse,
@@ -25,8 +37,10 @@ import {
   type LetterRefusal,
   type LetterResult,
   type IngestResult,
+  type AnswerValue,
+  isAnswered,
 } from "@/lib/shared/taikyo-client.ts";
-import styles from "./dashboard.module.css";
+import styles from "./workspace.module.css";
 
 const VERDICT_ORDER = ["unenforceable", "severable", "reducible", "needs_review", "enforceable"] as const;
 type VerdictKey = (typeof VERDICT_ORDER)[number];
@@ -68,10 +82,14 @@ function prongMark(value: boolean | "unknown") {
   return "不明";
 }
 
-function FindingCard({ finding, onDraft, busy }: {
+function FindingCard({ finding, onDraft, busy, answers, onAnswer, onApply, applying }: {
   finding: BatchFinding;
   onDraft: (clauses: LetterClause[], title: string) => void;
   busy: boolean;
+  answers: Record<string, AnswerValue>;
+  onAnswer: (path: string, value: AnswerValue) => void;
+  onApply: () => void;
+  applying: boolean;
 }) {
   const verdict = finding.evaluation.verdict as VerdictKey;
   const disputable = DISPUTABLE.has(verdict);
@@ -97,10 +115,34 @@ function FindingCard({ finding, onDraft, busy }: {
       <p className={styles.clauseText}>{finding.text}</p>
       <p className={styles.remedy}>{finding.evaluation.remedy.tenantMessageJa}</p>
 
-      {finding.evaluation.missingFacts.length > 0 && (
-        <p className={styles.help}>
-          判定を確定するには：{finding.evaluation.missingFacts.map((f) => f.questionJa).join(" / ")}
-        </p>
+      {/* Only an undecided clause gets the question form. A clause already judged
+          unenforceable has settled prongs that no further answer can move, so asking
+          for rent there is noise that buries the questions which would change something. */}
+      {finding.evaluation.verdict === "needs_review" && finding.evaluation.missingFacts.length > 0 && (
+        <div className={styles.factBox}>
+          <p className={styles.factLead}>この条項の判定にはあと{finding.evaluation.missingFacts.length}点の確認が必要です</p>
+          <p className={styles.factSub}>
+            契約書だけでは判断できない項目です。お手元の書類をご確認のうえご入力ください。分かる範囲だけでも構いません。
+          </p>
+          {finding.evaluation.missingFacts.map((fact) => (
+            <FactFieldset
+              key={fact.id}
+              fact={fact}
+              idPrefix={`c${finding.index}`}
+              value={answers[fact.id]}
+              onChange={(v) => onAnswer(fact.path, v)}
+            />
+          ))}
+          <div className={styles.letterActions}>
+            <button
+              className={styles.letterBtn}
+              disabled={applying || !finding.evaluation.missingFacts.some((f) => isAnswered(f.kind, answers[f.id]))}
+              onClick={onApply}
+            >
+              {applying ? "再判定中…" : "回答を反映して再判定"}
+            </button>
+          </div>
+        </div>
       )}
 
       {disputable && (
@@ -136,7 +178,7 @@ function FindingCard({ finding, onDraft, busy }: {
   );
 }
 
-export default function ContractHealthDashboard() {
+export default function TaikyoWorkspace() {
   const [text, setText] = useState("");
   const [report, setReport] = useState<BatchReportResponse | null>(null);
   const [busy, setBusy] = useState(false);
@@ -145,12 +187,18 @@ export default function ContractHealthDashboard() {
   const [letterBusy, setLetterBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const [ingest, setIngest] = useState<IngestResult | null>(null);
+  const [answers, setAnswers] = useState<Record<number, Record<string, AnswerValue>>>({});
+  const [overrides, setOverrides] = useState<Record<number, ClauseOverride>>({});
+  const [reanalysing, setReanalysing] = useState<number | null>(null);
   const [dragging, setDragging] = useState(false);
   const fileInput = useRef<HTMLInputElement | null>(null);
 
   const analyze = useCallback(async () => {
     setBusy(true);
     setError(null);
+    setAnswers({});
+    setOverrides({});
+    setLetter(null);
     try {
       setReport(await evaluateContractText(text.trim()));
     } catch (e) {
@@ -159,6 +207,34 @@ export default function ContractHealthDashboard() {
       setBusy(false);
     }
   }, [text]);
+
+  /** Folds one answer into that clause's override, using the dot path the engine gave. */
+  const recordAnswer = useCallback((index: number, path: string, value: AnswerValue) => {
+    setOverrides((prev) => {
+      const current: ClauseOverride = { ...(prev[index] ?? {}) };
+      if (path === "placement") {
+        current.placement = value as ClauseOverride["placement"];
+      } else if (path.startsWith("declared.")) {
+        current.declared = { ...(current.declared ?? {}), [path.slice("declared.".length)]: value } as ClauseOverride["declared"];
+      } else if (path.startsWith("context.")) {
+        current.context = { ...(current.context ?? {}), [path.slice("context.".length)]: value };
+      }
+      return { ...prev, [index]: current };
+    });
+  }, []);
+
+  /** Re-runs the whole contract with the answers so far; the server owns aggregation. */
+  const applyAnswers = useCallback(async (index: number) => {
+    setReanalysing(index);
+    setError(null);
+    try {
+      setReport(await evaluateContractText(text.trim(), overrides));
+    } catch (e) {
+      setError(e instanceof EvaluateError ? e.message : "再判定に失敗しました。");
+    } finally {
+      setReanalysing(null);
+    }
+  }, [text, overrides]);
 
   const takeFile = useCallback(async (file: File) => {
     setBusy(true);
@@ -220,11 +296,19 @@ export default function ContractHealthDashboard() {
 
   return (
     <div className={styles.root}>
-      <h1 className={styles.h1}>契約書 まるごと診断</h1>
+      <a className={styles.skipLink} href="#contract">本文入力へスキップ</a>
+      <h1 className={styles.h1}>原状回復 診断ワークスペース</h1>
       <p className={styles.sub}>
-        賃貸借契約書の全文を貼り付けると、条文ごとに分割して原状回復・特約条項を一括で判定します。
-        民法621条および国土交通省ガイドラインに基づく4要件（明確性・所在・相当性・621条）で評価します。
+        賃貸借契約書をアップロード、または本文を貼り付けてください。条文ごとに分割し、原状回復に関する特約を
+        民法621条と国土交通省ガイドラインに基づく4要件（明確性・所在・相当性・621条）で判定します。
+        判定に情報が足りない条項はその場でお尋ねし、争う余地のある条項については交渉文面まで作成できます。
       </p>
+
+      <ol className={styles.steps}>
+        {["契約書を読み込む", "条項ごとの判定を見る", "不足情報に答える", "交渉文面を作成する"].map((label, i) => (
+          <li key={label}><span className={styles.stepNum} aria-hidden="true">{i + 1}</span>{label}</li>
+        ))}
+      </ol>
 
       <div className={styles.card}>
         <div
@@ -241,6 +325,8 @@ export default function ContractHealthDashboard() {
           onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && !busy) fileInput.current?.click(); }}
           role="button"
           tabIndex={0}
+          aria-label="契約書のPDFをアップロード"
+          aria-busy={busy}
         >
           <div className={styles.dropTitle}>{busy ? "読み取り中…" : "契約書のPDFをここにドロップ、またはクリックして選択"}</div>
           <div className={styles.dropHint}>
@@ -259,9 +345,9 @@ export default function ContractHealthDashboard() {
           />
         </div>
 
-        {ingest && !ingest.ok && <p className={styles.ingestNote}>{ingest.messageJa}</p>}
+        {ingest && !ingest.ok && <p className={styles.ingestNote} role="alert">{ingest.messageJa}</p>}
         {ingest?.ok && (
-          <p className={styles.ingestOk}>
+          <p className={styles.ingestOk} role="status" aria-live="polite">
             PDF から {ingest.pages} ページ・{ingest.text.length.toLocaleString()} 文字を読み取りました。内容をご確認ください。
           </p>
         )}
@@ -284,13 +370,17 @@ export default function ContractHealthDashboard() {
           </button>
           {report && <button className={styles.btnGhost} onClick={() => { setReport(null); setText(""); setIngest(null); setLetter(null); }}>別の契約書を診断する</button>}
         </div>
-        {error && <p className={styles.error}>{error}</p>}
+        {error && <p className={styles.error} role="alert">{error}</p>}
       </div>
 
       {report && (
         <>
-          <h2 className={styles.sectionTitle}>診断サマリー</h2>
-          <div className={styles.hero}>
+          <h2 className={styles.sectionTitle} id="summary-heading">診断サマリー</h2>
+          <p className={styles.srOnly} role="status" aria-live="polite">
+            診断が完了しました。{report.clausesEvaluated}件の特約を判定し、うち{report.adverseCount}件に問題の可能性があります。
+            リスク評価は{risk!.labelJa.replace("リスク：", "")}です。
+          </p>
+          <div className={styles.hero} aria-labelledby="summary-heading">
             <div className={styles.heroMain}>
               <span className={styles.riskLabel} style={{ color: `var(${risk!.varName})` }}>
                 <span className={styles.riskDot} style={{ background: `var(${risk!.varName})` }} aria-hidden="true" />
@@ -392,7 +482,22 @@ export default function ContractHealthDashboard() {
             .sort((a, b) =>
               VERDICT_ORDER.indexOf(a.evaluation.verdict as VerdictKey) -
                 VERDICT_ORDER.indexOf(b.evaluation.verdict as VerdictKey) || a.index - b.index)
-            .map((f) => <FindingCard key={f.index} finding={f} onDraft={(c, t) => void draftLetter(c, t)} busy={letterBusy} />)}
+            .map((f) => (
+              <FindingCard
+                key={f.index}
+                finding={f}
+                onDraft={(c, t) => void draftLetter(c, t)}
+                busy={letterBusy}
+                answers={answers[f.index] ?? {}}
+                onAnswer={(path, value) => {
+                  const fact = f.evaluation.missingFacts.find((q) => q.path === path);
+                  if (fact) setAnswers((prev) => ({ ...prev, [f.index]: { ...(prev[f.index] ?? {}), [fact.id]: value } }));
+                  recordAnswer(f.index, path, value);
+                }}
+                onApply={() => void applyAnswers(f.index)}
+                applying={reanalysing === f.index}
+              />
+            ))}
 
           <p className={styles.advisory}>{report.advisory}</p>
         </>

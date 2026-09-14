@@ -13,7 +13,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { PRONG_IDS, type ProngId } from "@/lib/modules/taikyo/taxonomy.ts";
 import { PLACEMENTS } from "@/lib/modules/taikyo/rules.ts";
-import { evaluateContract } from "@/lib/modules/taikyo/batch.ts";
+import { evaluateContract, type ClauseOverride } from "@/lib/modules/taikyo/batch.ts";
 import { phrases, type Locale } from "@/lib/phrases/index.ts";
 
 export const runtime = "nodejs";
@@ -25,6 +25,15 @@ const batchRequestSchema = z.object({
   contract_text: z.string().min(1).max(MAX_CHARS),
   placement: z.enum(PLACEMENTS).default("lease_body"),
   concurrency: z.number().int().min(1).max(32).default(8),
+  /** Answers supplied for individual clauses after the first pass asked for them. */
+  overrides: z.record(
+    z.string().regex(/^\d+$/),
+    z.object({
+      placement: z.enum(PLACEMENTS).optional(),
+      context: z.record(z.string(), z.union([z.string(), z.number(), z.null()])).optional(),
+      declared: z.object({ amount_fixed_in_contract: z.boolean().nullable() }).optional(),
+    }),
+  ).default({}),
 });
 
 export async function POST(request: Request): Promise<NextResponse> {
@@ -46,9 +55,14 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
+  const overrides: Record<number, ClauseOverride> = Object.fromEntries(
+    Object.entries(parsed.data.overrides).map(([k, v]) => [Number(k), v as ClauseOverride]),
+  );
+
   const report = await evaluateContract(parsed.data.contract_text, {
     placement: parsed.data.placement,
     concurrency: parsed.data.concurrency,
+    overrides,
   });
 
   const findings = report.findings.map((f) => ({

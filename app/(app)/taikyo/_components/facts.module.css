@@ -1,0 +1,30 @@
+/* Shared fact-question fields. Used by both the single-clause flow and the
+   workspace, so a question looks and behaves the same wherever it is asked. */
+.field { margin-top: .85rem; }
+.label { display: block; font-weight: 600; font-size: .86rem; line-height: 1.7; }
+.unblocks { font-size: .72rem; color: #7b7a74; font-weight: 400; margin-left: .3rem; }
+.help { color: #7b7a74; font-size: .77rem; line-height: 1.75; margin: .35rem 0 0; }
+.choices { display: flex; flex-direction: column; gap: .35rem; margin-top: .45rem; }
+.choice { display: flex; gap: .5rem; align-items: flex-start; padding: .45rem .65rem; border: 1px solid #ddd;
+  border-radius: .35rem; cursor: pointer; font-size: .85rem; line-height: 1.6; }
+.choice:hover { background: rgba(127,127,127,.06); }
+.choiceOn { border-color: #1b3a6b; background: rgba(27,58,107,.07); }
+.choice:focus-within { outline: 2px solid #1b3a6b; outline-offset: 1px; }
+.number { padding: .45rem .55rem; border: 1px solid #ccc; border-radius: .35rem; font: inherit;
+  width: 11rem; max-width: 100%; background: transparent; color: inherit; }
+.unit { margin-left: .4rem; color: #7b7a74; font-size: .82rem; }
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .choice { border-color: #33332f; }
+  :root:where(:not([data-theme="light"])) .choiceOn { border-color: #9dc2f0; background: rgba(157,194,240,.12); }
+  :root:where(:not([data-theme="light"])) .number { border-color: #33332f; }
+  :root:where(:not([data-theme="light"])) .help,
+  :root:where(:not([data-theme="light"])) .unblocks,
+  :root:where(:not([data-theme="light"])) .unit { color: #8f8e85; }
+}
+:root[data-theme="dark"] .choice { border-color: #33332f; }
+:root[data-theme="dark"] .choiceOn { border-color: #9dc2f0; background: rgba(157,194,240,.12); }
+:root[data-theme="dark"] .number { border-color: #33332f; }
+:root[data-theme="dark"] .help,
+:root[data-theme="dark"] .unblocks,
+:root[data-theme="dark"] .unit { color: #8f8e85; }

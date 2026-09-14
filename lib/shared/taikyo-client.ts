@@ -22,9 +22,9 @@ export type AnswerValue = string | number | boolean;
  * Batch contract scan
  * ---------------------------------------------------------------- */
 
-export type { BatchReport, ClauseFinding, FinancialExposure, RiskLevel } from "@/lib/modules/taikyo/batch.ts";
+export type { BatchReport, ClauseFinding, ClauseOverride, FinancialExposure, RiskLevel } from "@/lib/modules/taikyo/batch.ts";
 
-import type { BatchReport, ClauseFinding } from "@/lib/modules/taikyo/batch.ts";
+import type { BatchReport, ClauseFinding, ClauseOverride } from "@/lib/modules/taikyo/batch.ts";
 
 export type BatchFinding = ClauseFinding & { reasonsText: LocalizedReasons };
 export type BatchReportResponse = Omit<BatchReport, "findings"> & { findings: BatchFinding[] };
@@ -74,12 +74,13 @@ export async function generateLetter(
 
 export async function evaluateContractText(
   contractText: string,
+  overrides: Readonly<Record<number, ClauseOverride>> = {},
   signal?: AbortSignal,
 ): Promise<BatchReportResponse> {
   const res = await fetch("/api/taikyo/batch-evaluate", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ contract_text: contractText }),
+    body: JSON.stringify({ contract_text: contractText, overrides }),
     signal,
   });
   const body = await res.json().catch(() => null);

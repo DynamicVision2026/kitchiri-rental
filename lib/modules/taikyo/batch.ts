@@ -14,7 +14,7 @@
 
 import { segmentContract, segmentLabel, type ContractSegment } from "./segment.ts";
 import { evaluateClause, type ClauseEvaluation, type Placement } from "./rules.ts";
-import { VERDICTS, type Verdict } from "./taxonomy.ts";
+import { VERDICTS, type ClauseContext, type Verdict } from "./taxonomy.ts";
 
 /* ------------------------------------------------------------------ *
  * Amounts stated in the clause itself
@@ -195,6 +195,21 @@ export async function mapConcurrent<T, R>(
 
 export const DEFAULT_CONCURRENCY = 8;
 
+/**
+ * Facts the user supplied for one clause after the first pass asked for them, keyed
+ * by segment index.
+ *
+ * These are applied here and the WHOLE report is recomputed, rather than patching a
+ * single finding on the client. Verdict counts, adverse totals, risk level and
+ * exposure all derive from the findings, and duplicating that arithmetic in the
+ * browser would let the summary drift away from the clause list it summarises.
+ */
+export interface ClauseOverride {
+  placement?: Placement;
+  context?: Partial<ClauseContext>;
+  declared?: { amount_fixed_in_contract?: boolean | null };
+}
+
 export interface BatchOptions {
   /**
    * Where the pasted text came from. Defaults to the lease body, which is what a user
@@ -202,6 +217,8 @@ export interface BatchOptions {
    */
   placement?: Placement;
   concurrency?: number;
+  /** Per-clause answers, keyed by segment index. */
+  overrides?: Readonly<Record<number, ClauseOverride>>;
 }
 
 export async function evaluateContract(source: string, options: BatchOptions = {}): Promise<BatchReport> {
@@ -223,20 +240,26 @@ export async function evaluateContract(source: string, options: BatchOptions = {
         ? facts.rentMonthlyJpy * Math.max(...amounts.rentMonths)
         : null;
 
+    const override = options.overrides?.[segment.index];
+    const baseContext: ClauseContext = {
+      prefecture: null,
+      layout: null,
+      area_sqm: null,
+      rent_monthly_jpy: facts.rentMonthlyJpy,
+      deposit_jpy: facts.depositJpy,
+      charged_amount_jpy: amounts.headlineJpy ?? chargedFromRent,
+      tenancy_months: null,
+      unit_price_jpy: unitPrice ? toNumber(unitPrice[1]) : null,
+      renewal_interval_years: renewal ? toNumber(renewal[1]) : null,
+    };
+
     const evaluation = evaluateClause({
       clause_text: segment.text,
-      placement,
-      context: {
-        prefecture: null,
-        layout: null,
-        area_sqm: null,
-        rent_monthly_jpy: facts.rentMonthlyJpy,
-        deposit_jpy: facts.depositJpy,
-        charged_amount_jpy: amounts.headlineJpy ?? chargedFromRent,
-        tenancy_months: null,
-        unit_price_jpy: unitPrice ? toNumber(unitPrice[1]) : null,
-        renewal_interval_years: renewal ? toNumber(renewal[1]) : null,
-      },
+      placement: override?.placement ?? placement,
+      // A user answer wins over what the document implied: they are looking at the
+      // paperwork, we are pattern-matching it.
+      context: { ...baseContext, ...(override?.context ?? {}) },
+      declared: override?.declared ?? { amount_fixed_in_contract: null },
       code: null,
     });
     return {

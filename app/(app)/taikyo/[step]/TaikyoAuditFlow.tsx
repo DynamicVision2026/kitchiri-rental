@@ -22,6 +22,7 @@ import {
   type EvaluateInput,
   type FactRequest,
 } from "@/lib/shared/taikyo-client.ts";
+import FactFieldset from "../_components/FactFieldset";
 import styles from "./flow.module.css";
 
 const STEPS = ["clause", "facts", "result"] as const;
@@ -146,70 +147,12 @@ export default function TaikyoAuditFlow({ initialStep }: { initialStep: Step }) 
 
           {asks.map((ask) => (
             <div key={ask.id} className={styles.card}>
-              <span className={styles.label}>
-                {ask.questionJa}
-                <span className={styles.unblocks}>（{ask.unblocks.map((p) => PRONG_LABELS[p]).join("・")}の判定に必要）</span>
-              </span>
-
-              {ask.kind === "choice" && (
-                <div className={styles.choices}>
-                  {ask.options?.map((opt) => (
-                    <label key={opt.value} className={`${styles.choice} ${answers[ask.id] === opt.value ? styles.choiceOn : ""}`}>
-                      <input
-                        type="radio"
-                        name={ask.id}
-                        value={opt.value}
-                        checked={answers[ask.id] === opt.value}
-                        onChange={() => setAnswers((a) => ({ ...a, [ask.id]: opt.value }))}
-                      />
-                      {opt.labelJa}
-                    </label>
-                  ))}
-                </div>
-              )}
-
-              {ask.kind === "boolean" && (
-                <div className={styles.choices}>
-                  {[
-                    { v: true, label: "はい、記載されている" },
-                    { v: false, label: "いいえ、記載がない" },
-                  ].map((o) => (
-                    <label key={String(o.v)} className={`${styles.choice} ${answers[ask.id] === o.v ? styles.choiceOn : ""}`}>
-                      <input
-                        type="radio"
-                        name={ask.id}
-                        checked={answers[ask.id] === o.v}
-                        onChange={() => setAnswers((a) => ({ ...a, [ask.id]: o.v }))}
-                      />
-                      {o.label}
-                    </label>
-                  ))}
-                </div>
-              )}
-
-              {ask.kind === "number" && (
-                <div>
-                  <input
-                    className={styles.input}
-                    type="number"
-                    min={0}
-                    inputMode="numeric"
-                    value={typeof answers[ask.id] === "number" ? String(answers[ask.id]) : ""}
-                    onChange={(e) => {
-                      const raw = e.target.value;
-                      setAnswers((a) => {
-                        const next = { ...a };
-                        if (raw === "") delete next[ask.id];
-                        else next[ask.id] = Number(raw);
-                        return next;
-                      });
-                    }}
-                  />
-                  {ask.unit && <span className={styles.unit}>{ask.unit}</span>}
-                </div>
-              )}
-
-              <p className={styles.help}>{ask.helpJa}</p>
+              <FactFieldset
+                fact={ask}
+                idPrefix="flow"
+                value={answers[ask.id]}
+                onChange={(v) => setAnswers((a) => ({ ...a, [ask.id]: v }))}
+              />
             </div>
           ))}
 
