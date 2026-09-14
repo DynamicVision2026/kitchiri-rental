@@ -135,6 +135,14 @@ export interface TokuyakuPattern {
   readonly decisiveProngs: readonly ProngId[];
   /** Key into the band tables in `./bands.ts`, when the pattern has a numeric band. */
   readonly bandKey: string | null;
+  /**
+   * True when the pattern covers an item the MLIT guidelines assign a useful life,
+   * so that 経過年数 depreciation is part of the tenant's protection. Only for these
+   * does a clause saying "irrespective of occupancy / age / wear" attack the art. 621
+   * default. A flat cleaning or key-change fee says the same words harmlessly, because
+   * neither item depreciates.
+   */
+  readonly depreciationSensitive: boolean;
   /** Japanese surface forms that typically signal this pattern in a lease. */
   readonly lexicalCues: readonly string[];
   readonly authority: readonly string[];
@@ -150,6 +158,7 @@ export const TOKUYAKU_PATTERNS: Readonly<Record<TokuyakuCode, TokuyakuPattern>> 
     statutoryBaseline: "landlord",
     decisiveProngs: ["P1", "P3"],
     bandKey: "cleaning",
+    depreciationSensitive: false,
     lexicalCues: ["ハウスクリーニング", "室内清掃", "クリーニング費用"],
     authority: ["国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）", "最判平成17年12月16日"],
   },
@@ -162,6 +171,7 @@ export const TOKUYAKU_PATTERNS: Readonly<Record<TokuyakuCode, TokuyakuPattern>> 
     statutoryBaseline: "landlord",
     decisiveProngs: ["P1", "P3"],
     bandKey: "shikibiki",
+    depreciationSensitive: false,
     lexicalCues: ["敷引", "敷引金", "控除する"],
     authority: ["最判平成23年3月24日", "消費者契約法10条"],
   },
@@ -174,6 +184,7 @@ export const TOKUYAKU_PATTERNS: Readonly<Record<TokuyakuCode, TokuyakuPattern>> 
     statutoryBaseline: "tenant",
     decisiveProngs: ["P1", "P3"],
     bandKey: "koshinryo",
+    depreciationSensitive: false,
     lexicalCues: ["更新料", "更新事務手数料"],
     authority: ["最判平成23年7月15日", "消費者契約法10条"],
   },
@@ -186,6 +197,7 @@ export const TOKUYAKU_PATTERNS: Readonly<Record<TokuyakuCode, TokuyakuPattern>> 
     statutoryBaseline: "landlord",
     decisiveProngs: ["P1", "P3"],
     bandKey: "tatami",
+    depreciationSensitive: true,
     lexicalCues: ["畳表替え", "畳の表替え", "畳交換"],
     authority: ["国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）"],
   },
@@ -198,6 +210,7 @@ export const TOKUYAKU_PATTERNS: Readonly<Record<TokuyakuCode, TokuyakuPattern>> 
     statutoryBaseline: "landlord",
     decisiveProngs: ["P1", "P3", "P4"],
     bandKey: "cross",
+    depreciationSensitive: true,
     lexicalCues: ["クロス張替え", "壁紙張替え", "クロス全面"],
     authority: ["国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）"],
   },
@@ -210,6 +223,7 @@ export const TOKUYAKU_PATTERNS: Readonly<Record<TokuyakuCode, TokuyakuPattern>> 
     statutoryBaseline: "landlord",
     decisiveProngs: ["P1", "P3", "P4"],
     bandKey: "flooring",
+    depreciationSensitive: true,
     lexicalCues: ["フローリング張替え", "床材張替え", "クッションフロア"],
     authority: ["国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）"],
   },
@@ -222,6 +236,7 @@ export const TOKUYAKU_PATTERNS: Readonly<Record<TokuyakuCode, TokuyakuPattern>> 
     statutoryBaseline: "landlord",
     decisiveProngs: ["P1", "P2", "P4"],
     bandKey: null,
+    depreciationSensitive: true,
     lexicalCues: ["原状に復して", "原状回復し", "賃借人の費用負担において"],
     authority: ["最判平成17年12月16日", "民法621条"],
   },
@@ -234,6 +249,7 @@ export const TOKUYAKU_PATTERNS: Readonly<Record<TokuyakuCode, TokuyakuPattern>> 
     statutoryBaseline: "landlord",
     decisiveProngs: ["P4"],
     bandKey: null,
+    depreciationSensitive: true,
     lexicalCues: ["経年変化", "経年劣化", "自然損耗を含む"],
     authority: ["民法621条", "最判平成17年12月16日"],
   },
@@ -246,6 +262,7 @@ export const TOKUYAKU_PATTERNS: Readonly<Record<TokuyakuCode, TokuyakuPattern>> 
     statutoryBaseline: "landlord",
     decisiveProngs: ["P1", "P3"],
     bandKey: "kagi",
+    depreciationSensitive: false,
     lexicalCues: ["鍵交換", "シリンダー交換", "錠前交換"],
     authority: ["国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）"],
   },
@@ -258,6 +275,7 @@ export const TOKUYAKU_PATTERNS: Readonly<Record<TokuyakuCode, TokuyakuPattern>> 
     statutoryBaseline: "landlord",
     decisiveProngs: ["P1", "P3"],
     bandKey: "shikibiki",
+    depreciationSensitive: false,
     lexicalCues: ["敷金償却", "償却する", "返還しないものとする"],
     authority: ["最判平成23年3月24日", "消費者契約法10条"],
   },
@@ -270,6 +288,7 @@ export const TOKUYAKU_PATTERNS: Readonly<Record<TokuyakuCode, TokuyakuPattern>> 
     statutoryBaseline: "landlord",
     decisiveProngs: ["P1", "P3"],
     bandKey: null,
+    depreciationSensitive: false,
     lexicalCues: ["退去事務手数料", "解約事務手数料", "契約終了手数料"],
     authority: ["消費者契約法10条"],
   },
@@ -282,6 +301,7 @@ export const TOKUYAKU_PATTERNS: Readonly<Record<TokuyakuCode, TokuyakuPattern>> 
     statutoryBaseline: "landlord",
     decisiveProngs: ["P1", "P3"],
     bandKey: "shoudoku",
+    depreciationSensitive: false,
     lexicalCues: ["消毒施工", "除菌消臭", "抗菌施工"],
     authority: ["消費者契約法10条"],
   },
@@ -294,6 +314,7 @@ export const TOKUYAKU_PATTERNS: Readonly<Record<TokuyakuCode, TokuyakuPattern>> 
     statutoryBaseline: "landlord",
     decisiveProngs: ["P3", "P4"],
     bandKey: null,
+    depreciationSensitive: true,
     lexicalCues: ["全面張替え", "一室単位", "部屋全体を"],
     authority: ["国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）"],
   },
@@ -306,6 +327,7 @@ export const TOKUYAKU_PATTERNS: Readonly<Record<TokuyakuCode, TokuyakuPattern>> 
     statutoryBaseline: "tenant",
     decisiveProngs: ["P1", "P3"],
     bandKey: "tanki_kaiyaku",
+    depreciationSensitive: false,
     lexicalCues: ["短期解約", "違約金", "1年未満の解約"],
     authority: ["消費者契約法9条", "消費者契約法10条"],
   },
@@ -362,6 +384,12 @@ export const clauseContextSchema = z.object({
   deposit_jpy: z.number().int().nonnegative().nullable(),
   charged_amount_jpy: z.number().int().nonnegative().nullable(),
   tenancy_months: z.number().int().nonnegative().nullable(),
+  /** Unit price the clause itself states: JPY per ㎡ for cross/flooring, per mat for tatami. */
+  unit_price_jpy: z.number().int().nonnegative().nullable().optional(),
+  /** Renewal cycle in years, needed to normalise a 更新料 into months-of-rent per year. */
+  renewal_interval_years: z.number().positive().nullable().optional(),
+  /** Notice period the clause requires, which can stack on top of a cancellation penalty. */
+  notice_period_months: z.number().int().nonnegative().nullable().optional(),
 });
 export type ClauseContext = z.infer<typeof clauseContextSchema>;
 

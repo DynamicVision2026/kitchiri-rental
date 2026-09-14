@@ -25,8 +25,12 @@ import {
   CLEANING_BANDS_BY_LAYOUT,
   KAGI_BAND,
   SHOUDOKU_BAND,
+  CROSS_BAND_PER_SQM,
+  FLOORING_BAND_PER_SQM,
+  TATAMI_BAND_PER_MAT,
   evaluateAgainst,
   evaluateCleaning,
+  evaluateKoshinryo,
   evaluateShikibiki,
   evaluateTankiKaiyaku,
   type BandResult,
@@ -78,25 +82,36 @@ for (const code of TOKUYAKU_CODES) {
 function computeBand(entry: CorpusEntry): BandResult | null {
   if (entry.context === null) return null;
   const { charged_amount_jpy: charged, rent_monthly_jpy: rent, layout } = entry.context;
-  if (charged === null) return null;
+  const unitPrice = entry.context.unit_price_jpy ?? null;
+  if (charged === null && unitPrice === null) return null;
 
   switch (entry.expected_code) {
     case "TK_SHIKIBIKI":
     case "TK_SHOUKYAKU":
-      return rent ? evaluateShikibiki(charged, rent) : null;
+      return rent && charged !== null ? evaluateShikibiki(charged, rent) : null;
     case "TK_TANKI":
-      return rent ? evaluateTankiKaiyaku(charged, rent) : null;
+      return rent && charged !== null ? evaluateTankiKaiyaku(charged, rent) : null;
     case "TK_CLEAN":
-      return layout && layout in CLEANING_BANDS_BY_LAYOUT
+      return charged !== null && layout && layout in CLEANING_BANDS_BY_LAYOUT
         ? evaluateCleaning(charged, { layout })
         : null;
     case "TK_KAGI":
       return evaluateAgainst(KAGI_BAND, charged);
     case "TK_SHOUDOKU":
       return evaluateAgainst(SHOUDOKU_BAND, charged);
+    case "TK_KOSHIN": {
+      const years = entry.context.renewal_interval_years ?? null;
+      return rent && years && charged !== null ? evaluateKoshinryo(charged, rent, years) : null;
+    }
+    // Per-unit patterns are scored on the unit price the clause states, not on the
+    // billed total: a large bill for a large room is not disproportionate.
+    case "TK_TATAMI":
+      return unitPrice === null ? null : evaluateAgainst(TATAMI_BAND_PER_MAT, unitPrice);
+    case "TK_CROSS":
+      return unitPrice === null ? null : evaluateAgainst(CROSS_BAND_PER_SQM, unitPrice);
+    case "TK_FLOOR":
+      return unitPrice === null ? null : evaluateAgainst(FLOORING_BAND_PER_SQM, unitPrice);
     default:
-      // Per-unit bands (cross, tatami, flooring) need a unit count the corpus
-      // context does not yet carry. Tracked as a schema gap, not a failure.
       return null;
   }
 }
@@ -142,33 +157,44 @@ for (const entry of corpus.cases) {
   }
 }
 
-/* 7. internal consistency on the art. 621 question ------------------------ */
+/* 7. the 最判平成17年12月16日 rule, applied uniformly -------------------- */
 
 /**
- * Clauses that disclaim depreciation or occupancy length are the paradigm P4
- * question. Two such clauses under the SAME pattern code cannot be ground truth
- * with opposite P4 scores — whichever way the law comes out, the corpus has to
- * pick one, or the engine is being trained against itself.
+ * A clause that shifts cost "irrespective of" occupancy length, age, or degree of
+ * wear takes aim at the art. 621 default. Under 最判平成17年12月16日 such a clause can
+ * still bind, but only where the tenant was put on notice and assented — so P4 may
+ * be true only when the clause itself records an explanation or the tenant's assent.
+ *
+ * This bites only for depreciation-sensitive patterns. A flat cleaning or key-change
+ * fee may say "regardless of period of occupancy" harmlessly: neither item carries a
+ * useful life, so there is no 経過年数 protection to disclaim.
  */
-const DISCLAIMS_DEPRECIATION =
-  /(経過年数|耐用年数|経年|居住年数|居住期間|入居期間|使用年数|損耗の程度|使用状況).{0,12}(かかわらず|関わらず|問わず|考慮せず|考慮しない)/;
+const DISCLAIMS =
+  /(経過年数|耐用年数|経年|減価|残存価値|居住年数|居住期間|入居期間|使用年数|使用状況|損耗の程度|毀損の有無|破損の有無|原因|故意過失).{0,14}(かかわらず|関わらず|問わず|問わない|考慮せず|考慮しない)/;
+const RECORDS_ASSENT = /(説明|読み上げ|署名|記名|押印|同意|承諾)/;
 
-const byCode = new Map<TokuyakuCode, CorpusEntry[]>();
 for (const entry of corpus.cases) {
-  if (!DISCLAIMS_DEPRECIATION.test(entry.clause_text)) continue;
-  const bucket = byCode.get(entry.expected_code) ?? [];
-  bucket.push(entry);
-  byCode.set(entry.expected_code, bucket);
+  if (!TOKUYAKU_PATTERNS[entry.expected_code].depreciationSensitive) continue;
+  if (!DISCLAIMS.test(entry.clause_text)) continue;
+  if (entry.expected_prongs.P4 !== true) continue;
+  if (RECORDS_ASSENT.test(entry.clause_text)) continue;
+  failures.push(
+    `${entry.id} (${entry.expected_code}): scores P4 true on a clause that disclaims ` +
+      `depreciation or degree of wear without recording any explanation or assent. ` +
+      `Under 最判平成17年12月16日 that clause cannot displace art. 621 — either P4 is false, ` +
+      `or the clause text must show the tenant was told and agreed.`,
+  );
 }
-for (const [code, entries] of byCode) {
-  const upheld = entries.filter((e) => e.expected_prongs.P4 === true);
-  const struck = entries.filter((e) => e.expected_prongs.P4 === false);
-  if (upheld.length > 0 && struck.length > 0) {
+
+/* 8. P4 presupposes P1 and P2 -------------------------------------------- */
+
+for (const entry of corpus.cases) {
+  if (entry.expected_prongs.P4 !== true) continue;
+  const { P1, P2 } = entry.expected_prongs;
+  if (P1 === false || P2 === false) {
     failures.push(
-      `${code}: contradictory ground truth on the art. 621 override. ` +
-        `${upheld.map((e) => e.id).join(", ")} score P4 true while ` +
-        `${struck.map((e) => e.id).join(", ")} score P4 false, but all of them disclaim ` +
-        `depreciation or occupancy length. One side has to change.`,
+      `${entry.id}: P4 true but P1=${P1} P2=${P2}. A clause cannot validly override ` +
+        `art. 621 while failing the specificity or assent it depends on.`,
     );
   }
 }
