@@ -18,7 +18,7 @@ import {
   evaluateClause,
   isAnswered,
   type AnswerValue,
-  type ClauseEvaluation,
+  type EvaluationResponse,
   type EvaluateInput,
   type FactRequest,
 } from "@/lib/shared/taikyo-client.ts";
@@ -54,7 +54,7 @@ export default function TaikyoAuditFlow({ initialStep }: { initialStep: Step }) 
   const [step, setStep] = useState<Step>(initialStep === "result" ? "clause" : initialStep);
   const [clause, setClause] = useState("");
   const [request, setRequest] = useState<EvaluateInput | null>(null);
-  const [result, setResult] = useState<ClauseEvaluation | null>(null);
+  const [result, setResult] = useState<EvaluationResponse | null>(null);
   const [answers, setAnswers] = useState<Record<string, AnswerValue>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -239,22 +239,18 @@ export default function TaikyoAuditFlow({ initialStep }: { initialStep: Step }) 
             <h2 className={styles.sectionTitle}>4要件の判定</h2>
             <table className={styles.table}>
               <thead>
-                <tr><th>要件</th><th>判定</th><th>判定理由（開発用・英語）</th></tr>
+                <tr><th>要件</th><th>判定</th><th>判定理由</th></tr>
               </thead>
               <tbody>
                 {(["P1", "P2", "P3", "P4"] as const).map((p) => (
                   <tr key={p}>
                     <th scope="row">{PRONG_LABELS[p]}</th>
                     <td>{prongCell(result.prongs[p])}</td>
-                    <td>{result.reasons[p]}</td>
+                    <td>{result.reasonsText[p].ja}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            <p className={styles.help}>
-              判定理由は現在エンジンが返す英語のまま表示しています。利用者向けの日本語文言は
-              lib/phrases/ja.yaml に集約する予定です。
-            </p>
             {result.band && result.band.measured !== null && (
               <p className={styles.meta}>
                 相当性バンド：測定値 {result.band.measured.toFixed(2)} ／ 目安 {result.band.supportedMax} 以下・

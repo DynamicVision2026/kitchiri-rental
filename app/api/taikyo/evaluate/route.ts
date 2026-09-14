@@ -11,7 +11,9 @@
  */
 
 import { NextResponse } from "next/server";
+import { PRONG_IDS, type ProngId } from "@/lib/modules/taikyo/taxonomy.ts";
 import { evaluateClause, evaluateRequestSchema } from "@/lib/modules/taikyo/rules.ts";
+import { phrases, type Locale } from "@/lib/phrases/index.ts";
 
 export const runtime = "nodejs";
 
@@ -34,7 +36,16 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  return NextResponse.json({ result: evaluateClause(parsed.data) }, { status: 200 });
+  const evaluation = evaluateClause(parsed.data);
+
+  // Reasons leave the engine as codes and are resolved here, at the edge. Both
+  // locales go out together so the client can switch language without a refetch,
+  // and so the phrase bank itself never reaches the browser.
+  const reasonsText = Object.fromEntries(
+    PRONG_IDS.map((id) => [id, phrases(evaluation.reasons[id])]),
+  ) as Record<ProngId, Record<Locale, string>>;
+
+  return NextResponse.json({ result: { ...evaluation, reasonsText } }, { status: 200 });
 }
 
 export async function GET(): Promise<NextResponse> {

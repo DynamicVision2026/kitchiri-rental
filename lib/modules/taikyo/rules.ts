@@ -51,6 +51,7 @@ import {
   type BandResult,
 } from "./bands.ts";
 import { deriveFactRequests, type FactRequest } from "./questions.ts";
+import type { ReasonRef } from "../../phrases/index.ts";
 
 /* ------------------------------------------------------------------ *
  * Where the term was found
@@ -415,7 +416,26 @@ export function computeBand(code: TokuyakuCode, ctx: ClauseContext): BandResult 
  * Prong scoring
  * ------------------------------------------------------------------ */
 
-export type ProngReasons = Readonly<Record<ProngId, string>>;
+/**
+ * Reasons are CODES plus parameters, not prose. The engine must not hold user-facing
+ * wording: the words live in lib/phrases/*.yaml and are resolved at the edge.
+ */
+export type ProngReasons = Readonly<Record<ProngId, ReasonRef>>;
+
+/**
+ * Every reason code this engine can emit. `npm run validate:phrases` checks that each
+ * one exists in both phrase banks, so a new branch cannot ship without its wording.
+ */
+export const REASON_CODES = [
+  "common.no_pattern",
+  "p1.deferred", "p1.bare_fee_no_service", "p1.states_unit_price", "p1.states_amount",
+  "p1.declared_fixed", "p1.declared_not_fixed", "p1.unknown",
+  "p2.agreed", "p2.not_agreed", "p2.unknown",
+  "p3.no_band", "p3.insufficient_context", "p3.measured",
+  "p4.no_performance", "p4.disclaims_without_assent", "p4.fails_p1_p2",
+  "p4.valid_override", "p4.depends_on_p1_p2",
+] as const;
+export type ReasonCode = (typeof REASON_CODES)[number];
 
 export function scoreProngs(args: {
   code: TokuyakuCode;
@@ -427,72 +447,81 @@ export function scoreProngs(args: {
   const { code, signals, placement, band } = args;
   const declared = args.declared ?? { amount_fixed_in_contract: null };
   const pattern = TOKUYAKU_PATTERNS[code];
-  const reasons: Record<ProngId, string> = { P1: "", P2: "", P3: "", P4: "" };
+  const reasons: Record<ProngId, ReasonRef> = {
+    P1: { code: "" }, P2: { code: "" }, P3: { code: "" }, P4: { code: "" },
+  };
 
   // P1 明確性 — scope and amount determinable at signing.
   let P1: ProngScore;
   if (signals.defersScopeOrAmount) {
     P1 = false;
-    reasons.P1 = "Scope or amount is left for the landlord to fix later, so the burden was not determinable at signing.";
+    reasons.P1 = { code: "p1.deferred" };
   } else if (FEE_PATTERNS.has(code) && signals.statesAmount && !signals.namesServiceAct) {
     P1 = false;
-    reasons.P1 = "Names a sum but no service. P1 asks for scope as well as amount, and a bare fee identifies nothing the money buys.";
+    reasons.P1 = { code: "p1.bare_fee_no_service" };
   } else if (signals.statesAmount || signals.statesUnitPrice) {
     P1 = true;
-    reasons.P1 = signals.statesUnitPrice ? "States a per-unit rate." : "States a fixed sum.";
+    reasons.P1 = { code: signals.statesUnitPrice ? "p1.states_unit_price" : "p1.states_amount" };
   } else if (declared.amount_fixed_in_contract === true) {
     P1 = true;
-    reasons.P1 = "The clause names no figure, but the user confirms the contract or an attached schedule fixes one.";
+    reasons.P1 = { code: "p1.declared_fixed" };
   } else if (declared.amount_fixed_in_contract === false) {
     P1 = false;
-    reasons.P1 = "No figure in the clause, and the user confirms none is fixed anywhere in the contract. The burden was not determinable at signing.";
+    reasons.P1 = { code: "p1.declared_not_fixed" };
   } else {
     P1 = "unknown";
-    reasons.P1 = "No figure or rate found in the clause. An incorporated schedule may still fix one — ask before deciding.";
+    reasons.P1 = { code: "p1.unknown" };
   }
 
   // P2 所在 — supplied by the caller; the clause text cannot answer it.
   let P2: ProngScore;
   if (AGREED.has(placement)) {
     P2 = true;
-    reasons.P2 = `Recorded as appearing in ${placement}, which is contract-level.`;
+    reasons.P2 = { code: "p2.agreed", params: { placement } };
   } else if (NOT_AGREED.has(placement)) {
     P2 = false;
-    reasons.P2 = `Recorded as appearing only in ${placement}, which is not a contractual burden.`;
+    reasons.P2 = { code: "p2.not_agreed", params: { placement } };
   } else {
     P2 = "unknown";
-    reasons.P2 = "Placement not supplied. Ask where in the paperwork the term appears.";
+    reasons.P2 = { code: "p2.unknown" };
   }
 
   // P3 相当性 — the one prong that is arithmetic.
   let P3: ProngScore;
   if (band === null || band.level === "not_computable") {
     P3 = "unknown";
-    reasons.P3 = pattern.bandKey === null
-      ? "This pattern has no numeric band; proportionality is not the operative question."
-      : "Not enough context to place the amount in its band (need rent, charged amount, layout or unit price).";
+    reasons.P3 = { code: pattern.bandKey === null ? "p3.no_band" : "p3.insufficient_context" };
   } else {
     P3 = band.level !== "excessive";
-    reasons.P3 = `Measured ${band.measured?.toFixed(2)} against the ${band.key} band (supported ≤ ${band.supportedMax}, elevated ≤ ${band.elevatedMax}): ${band.level}.`;
+    reasons.P3 = {
+      code: "p3.measured",
+      params: {
+        measured: band.measured?.toFixed(2) ?? "-",
+        band: band.key,
+        supported: band.supportedMax,
+        elevated: band.elevatedMax,
+        level: band.level,
+      },
+    };
   }
 
   // P4 621条 — the 最判平成17年12月16日 rule.
   let P4: ProngScore;
   if (signals.chargeIrrespectiveOfPerformance) {
     P4 = false;
-    reasons.P4 = "The charge accrues whether or not the work is performed, so nothing is being bought. A payment with no service behind it is not a restoration cost and cannot displace the statutory allocation.";
+    reasons.P4 = { code: "p4.no_performance" };
   } else if (pattern.depreciationSensitive && signals.disclaimsDepreciation && !signals.recordsAssent) {
     P4 = false;
-    reasons.P4 = "Shifts cost irrespective of occupancy, age or degree of wear, with no explanation or assent recorded. Under 最判平成17年12月16日 it cannot displace art. 621.";
+    reasons.P4 = { code: "p4.disclaims_without_assent" };
   } else if (P1 === false || P2 === false) {
     P4 = false;
-    reasons.P4 = "Fails the specificity or assent that a valid override depends on.";
+    reasons.P4 = { code: "p4.fails_p1_p2" };
   } else if (P1 === true && P2 === true) {
     P4 = true;
-    reasons.P4 = "Specific and agreed at contract level, with no unqualified disclaimer of depreciation.";
+    reasons.P4 = { code: "p4.valid_override" };
   } else {
     P4 = "unknown";
-    reasons.P4 = "Turns on P1/P2, which are not yet settled.";
+    reasons.P4 = { code: "p4.depends_on_p1_p2" };
   }
 
   return { scores: { P1, P2, P3, P4 }, reasons };
@@ -608,8 +637,8 @@ export function evaluateClause(raw: EvaluateInput): ClauseEvaluation {
       signals,
       prongs: { P1: "unknown", P2: "unknown", P3: "unknown", P4: "unknown" },
       reasons: {
-        P1: "No pattern recognised.", P2: "No pattern recognised.",
-        P3: "No pattern recognised.", P4: "No pattern recognised.",
+        P1: { code: "common.no_pattern" }, P2: { code: "common.no_pattern" },
+        P3: { code: "common.no_pattern" }, P4: { code: "common.no_pattern" },
       },
       band: null,
       verdict: "needs_review",

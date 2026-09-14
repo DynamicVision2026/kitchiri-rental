@@ -1,0 +1,56 @@
+# 原状回復 evaluation engine — English phrase bank.
+# Key set must match ja.yaml exactly; npm run validate:phrases enforces it.
+
+common:
+  no_pattern: No Tokuyaku pattern could be recognised.
+
+p1:
+  deferred: Scope or amount is left for the landlord to fix later, so the burden was not determinable at signing.
+  bare_fee_no_service: Names a sum but no service. P1 asks for scope as well as amount, and a bare fee identifies nothing the money buys.
+  states_unit_price: States a per-unit rate.
+  states_amount: States a fixed sum.
+  declared_fixed: The clause names no figure, but the user confirms the contract or an attached schedule fixes one.
+  declared_not_fixed: No figure in the clause, and the user confirms none is fixed anywhere in the contract. The burden was not determinable at signing.
+  unknown: No figure or rate found in the clause. An incorporated schedule may still fix one — ask before deciding.
+
+p2:
+  agreed: "Recorded as appearing in {placement}, which is contract-level."
+  not_agreed: "Recorded as appearing only in {placement}, which is not a contractual burden."
+  unknown: Placement not supplied. Ask where in the paperwork the term appears.
+
+p3:
+  no_band: This pattern has no numeric band; proportionality is not the operative question.
+  insufficient_context: Not enough context to place the amount in its band (need rent, charged amount, layout or unit price).
+  measured: "Measured {measured} against the {band} band (supported <= {supported}, elevated <= {elevated}): {level}."
+
+p4:
+  no_performance: The charge accrues whether or not the work is performed, so nothing is being bought. A payment with no service behind it is not a restoration cost and cannot displace the statutory allocation.
+  disclaims_without_assent: Shifts cost irrespective of occupancy, age or degree of wear, with no explanation or assent recorded. Under 最判平成17年12月16日 it cannot displace art. 621.
+  fails_p1_p2: Fails the specificity or assent that a valid override depends on.
+  valid_override: Specific and agreed at contract level, with no unqualified disclaimer of depreciation.
+  depends_on_p1_p2: Turns on P1/P2, which are not yet settled.
+
+# Interpolated vocabulary for {placement} / {band} / {level}.
+placement:
+  lease_body: the lease itself
+  signed_rider: a signed rider
+  explanatory_document: the explanatory document only
+  house_rules: house rules / handbook only
+  unknown: an unconfirmed document
+
+band:
+  shikibiki: deposit retention
+  koshinryo: renewal fee
+  cleaning: cleaning
+  tatami: tatami unit price
+  cross: wall-covering unit price
+  flooring: flooring unit price
+  kagi: lock replacement
+  shoudoku: disinfection
+  tanki_kaiyaku: early-termination penalty
+
+level:
+  supported: within the supported range
+  elevated: elevated
+  excessive: excessive
+  not_computable: not computable

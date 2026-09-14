@@ -10,6 +10,12 @@ import type { FactRequest } from "@/lib/modules/taikyo/questions.ts";
 
 export type { ClauseEvaluation, EvaluateInput, FactRequest, Placement };
 
+/** Reason text resolved server-side from lib/phrases, in both locales. */
+export type LocalizedReasons = Record<"P1" | "P2" | "P3" | "P4", { ja: string; en: string }>;
+
+/** What the API actually returns: the evaluation plus resolved reason text. */
+export type EvaluationResponse = ClauseEvaluation & { reasonsText: LocalizedReasons };
+
 export type AnswerValue = string | number | boolean;
 
 export class EvaluateError extends Error {
@@ -19,7 +25,7 @@ export class EvaluateError extends Error {
   }
 }
 
-export async function evaluateClause(input: EvaluateInput, signal?: AbortSignal): Promise<ClauseEvaluation> {
+export async function evaluateClause(input: EvaluateInput, signal?: AbortSignal): Promise<EvaluationResponse> {
   const res = await fetch("/api/taikyo/evaluate", {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -34,7 +40,7 @@ export async function evaluateClause(input: EvaluateInput, signal?: AbortSignal)
       body?.issues,
     );
   }
-  return body.result as ClauseEvaluation;
+  return body.result as EvaluationResponse;
 }
 
 /**
