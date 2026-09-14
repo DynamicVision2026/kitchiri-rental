@@ -12,7 +12,8 @@
     "validate:corpus": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/golden-set/validate-corpus.ts",
     "audit:citations": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/citation-audit.ts",
     "eval:corpus": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/golden-set/evaluate-corpus.ts",
-    "eval:holdout": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/holdout/classify-holdout.ts"
+    "eval:holdout": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/holdout/classify-holdout.ts",
+    "eval:factloop": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/golden-set/factloop-corpus.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

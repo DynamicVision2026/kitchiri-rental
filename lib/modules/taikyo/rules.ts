@@ -50,6 +50,7 @@ import {
   evaluateTankiKaiyaku,
   type BandResult,
 } from "./bands.ts";
+import { deriveFactRequests, type FactRequest } from "./questions.ts";
 
 /* ------------------------------------------------------------------ *
  * Where the term was found
@@ -99,6 +100,13 @@ export interface ClauseSignals {
    * they appear in blanket clauses that have no identifiable core.
    */
   identifiesDamagePhenomena: boolean;
+  /**
+   * The clause names an actual act the money buys (attendance, drafting, cleaning,
+   * replacement...). P1 asks for scope AND amount, so a bare "administration fee of
+   * 30,000 yen" fails it however precise the figure is: nothing identifies what is
+   * being charged for.
+   */
+  namesServiceAct: boolean;
 }
 
 const RE = {
@@ -111,6 +119,7 @@ const RE = {
   preserve: /(経過年数に応じ|減価を行|(通常損耗|経年変化)[^。]{0,24}(賃貸人|貸主)の負担)/,
   noPerformance: /(実施・不実施|実施の有無|施工の有無|履行の有無|作業の有無)[^。]{0,16}(かかわらず|関わらず|問わず)/,
   damagePhenomena: /(キズ|傷|へこみ|凹み|変色|日焼け|画鋲|落書き|ヤニ|しみ|シミ|汚損|焦げ|カビ)/,
+  serviceAct: /(立会|書類|精算|作成|清掃|消毒|除菌|抗菌|交換|張替え|張り替え|補修|クリーニング|施工|表替え|リフォーム|コーティング)/,
 } as const;
 
 export function detectSignals(clauseText: string): ClauseSignals {
@@ -123,6 +132,7 @@ export function detectSignals(clauseText: string): ClauseSignals {
     preservesDepreciation: RE.preserve.test(clauseText),
     chargeIrrespectiveOfPerformance: RE.noPerformance.test(clauseText),
     identifiesDamagePhenomena: RE.damagePhenomena.test(clauseText),
+    namesServiceAct: RE.serviceAct.test(clauseText),
   };
 }
 
@@ -259,6 +269,9 @@ const ITEM_CODES = ["TK_CLEAN", "TK_CROSS", "TK_FLOOR", "TK_TATAMI"] as const;
  * more specific than any scope pattern: a deposit-retention or renewal-fee clause
  * that happens to mention 通常損耗 is still about the deposit.
  */
+/** Patterns that are a charge rather than a physical restoration act. */
+const FEE_PATTERNS: ReadonlySet<TokuyakuCode> = new Set<TokuyakuCode>(["TK_TAIKYO_FEE"]);
+
 const MECHANISM_CODES = [
   "TK_SHIKIBIKI", "TK_SHOUKYAKU", "TK_KOSHIN", "TK_TANKI", "TK_TAIKYO_FEE", "TK_KAGI", "TK_SHOUDOKU",
 ] as const;
@@ -409,8 +422,10 @@ export function scoreProngs(args: {
   signals: ClauseSignals;
   placement: Placement;
   band: BandResult | null;
+  declared?: DeclaredFacts;
 }): { scores: ProngScores; reasons: ProngReasons } {
   const { code, signals, placement, band } = args;
+  const declared = args.declared ?? { amount_fixed_in_contract: null };
   const pattern = TOKUYAKU_PATTERNS[code];
   const reasons: Record<ProngId, string> = { P1: "", P2: "", P3: "", P4: "" };
 
@@ -419,12 +434,21 @@ export function scoreProngs(args: {
   if (signals.defersScopeOrAmount) {
     P1 = false;
     reasons.P1 = "Scope or amount is left for the landlord to fix later, so the burden was not determinable at signing.";
+  } else if (FEE_PATTERNS.has(code) && signals.statesAmount && !signals.namesServiceAct) {
+    P1 = false;
+    reasons.P1 = "Names a sum but no service. P1 asks for scope as well as amount, and a bare fee identifies nothing the money buys.";
   } else if (signals.statesAmount || signals.statesUnitPrice) {
     P1 = true;
     reasons.P1 = signals.statesUnitPrice ? "States a per-unit rate." : "States a fixed sum.";
+  } else if (declared.amount_fixed_in_contract === true) {
+    P1 = true;
+    reasons.P1 = "The clause names no figure, but the user confirms the contract or an attached schedule fixes one.";
+  } else if (declared.amount_fixed_in_contract === false) {
+    P1 = false;
+    reasons.P1 = "No figure in the clause, and the user confirms none is fixed anywhere in the contract. The burden was not determinable at signing.";
   } else {
     P1 = "unknown";
-    reasons.P1 = "No figure or rate found in the clause. Specificity may still be met by an incorporated schedule — needs a human.";
+    reasons.P1 = "No figure or rate found in the clause. An incorporated schedule may still fix one — ask before deciding.";
   }
 
   // P2 所在 — supplied by the caller; the clause text cannot answer it.
@@ -491,7 +515,10 @@ export function scoreProngs(args: {
  * Severability is only reachable where P1 and P2 have not themselves failed. A clause
  * that never fixed its scope, or was never agreed, has no core to fall back to.
  */
-export function deriveVerdict(scores: ProngScores, opts?: { severableCore?: boolean }): Verdict {
+export function deriveVerdict(
+  scores: ProngScores,
+  opts?: { severableCore?: boolean; p3Applicable?: boolean },
+): Verdict {
   const { P1, P2, P3, P4 } = scores;
   if (P1 === false || P2 === false) return "unenforceable";
   if (P4 === false) {
@@ -500,6 +527,11 @@ export function deriveVerdict(scores: ProngScores, opts?: { severableCore?: bool
   if (P1 === true && P2 === true && P4 === true) {
     if (P3 === false) return "reducible";
     if (P3 === true) return "enforceable";
+    // A pattern with no numeric band has no proportionality question to answer, so
+    // an unknown P3 must not hold the verdict open. Leaving it open sent clauses like
+    // a blanket 原状回復 term to needs_review with NOTHING left to ask, which is a
+    // dead end for the user: the flow asks nothing and still refuses to conclude.
+    if (P3 === "unknown" && opts?.p3Applicable === false) return "enforceable";
   }
   return "needs_review";
 }
@@ -508,14 +540,31 @@ export function deriveVerdict(scores: ProngScores, opts?: { severableCore?: bool
  * Public entry point
  * ------------------------------------------------------------------ */
 
+/**
+ * Facts the user supplies that the clause text cannot reveal. Kept separate from
+ * `context` (which is figures) and from `placement` (which is a document), so that
+ * an engine answer is never confused with a user assertion.
+ */
+export const declaredFactsSchema = z.object({
+  /**
+   * Does the contract or an attached schedule fix an amount or unit price for this
+   * item? Resolves P1 where the clause itself names no figure.
+   */
+  amount_fixed_in_contract: z.boolean().nullable().default(null),
+});
+export type DeclaredFacts = z.infer<typeof declaredFactsSchema>;
+
 export const evaluateRequestSchema = z.object({
   clause_text: z.string().min(1).max(4000),
   placement: z.enum(PLACEMENTS).default("unknown"),
   context: clauseContextSchema.nullable().default(null),
   /** Override the classifier when the caller already knows the pattern. */
   code: z.enum(TOKUYAKU_CODES).nullable().default(null),
+  declared: declaredFactsSchema.default({ amount_fixed_in_contract: null }),
 });
 export type EvaluateRequest = z.infer<typeof evaluateRequestSchema>;
+/** What a caller may pass: defaults are filled in by `evaluateClause` itself. */
+export type EvaluateInput = z.input<typeof evaluateRequestSchema>;
 
 export interface ClauseEvaluation {
   code: TokuyakuCode | null;
@@ -530,6 +579,11 @@ export interface ClauseEvaluation {
   /** True when any prong is unknown, or the classifier was not confident. */
   reviewRequired: boolean;
   authorities: readonly string[];
+  /**
+   * The specific facts still missing, in the order worth asking. Empty when the
+   * verdict is decisive, or when nothing further would change it.
+   */
+  missingFacts: FactRequest[];
   advisory: string;
 }
 
@@ -538,7 +592,10 @@ const ADVISORY =
   "The rule set is calibrated against a golden set whose citations are NOT yet primary-source verified " +
   "(see docs/citation-audit-checklist.md). Not legal advice, and not fit to be shown to a tenant as a conclusion.";
 
-export function evaluateClause(input: EvaluateRequest): ClauseEvaluation {
+export function evaluateClause(raw: EvaluateInput): ClauseEvaluation {
+  // Parse here rather than trusting the caller, so defaults are always applied and
+  // every entry point — API route, scorecard, test — behaves identically.
+  const input = evaluateRequestSchema.parse(raw);
   const signals = detectSignals(input.clause_text);
   const candidates = classifyClause(input.clause_text);
   const chosen = input.code ?? candidates[0]?.code ?? null;
@@ -559,13 +616,19 @@ export function evaluateClause(input: EvaluateRequest): ClauseEvaluation {
       remedy: VERDICT_MEANINGS.needs_review,
       reviewRequired: true,
       authorities: [],
+      missingFacts: [],
       advisory: ADVISORY,
     };
   }
 
   const band = input.context ? computeBand(chosen, input.context) : null;
-  const { scores, reasons } = scoreProngs({ code: chosen, signals, placement: input.placement, band });
-  const verdict = deriveVerdict(scores, { severableCore: signals.identifiesDamagePhenomena });
+  const { scores, reasons } = scoreProngs({
+    code: chosen, signals, placement: input.placement, band, declared: input.declared,
+  });
+  const verdict = deriveVerdict(scores, {
+    severableCore: signals.identifiesDamagePhenomena,
+    p3Applicable: TOKUYAKU_PATTERNS[chosen].bandKey !== null,
+  });
   const anyUnknown = PRONG_IDS.some((id) => scores[id] === "unknown");
 
   return {
@@ -579,6 +642,13 @@ export function evaluateClause(input: EvaluateRequest): ClauseEvaluation {
     remedy: VERDICT_MEANINGS[verdict],
     reviewRequired: anyUnknown || !confident,
     authorities: TOKUYAKU_PATTERNS[chosen].authority,
+    missingFacts: deriveFactRequests({
+      code: chosen,
+      prongs: scores,
+      context: input.context,
+      placementKnown: input.placement !== "unknown",
+      amountDeclared: input.declared.amount_fixed_in_contract !== null,
+    }),
     advisory: ADVISORY,
   };
 }

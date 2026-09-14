@@ -326,7 +326,8 @@
         "rent_monthly_jpy": 76000,
         "deposit_jpy": 152000,
         "charged_amount_jpy": 76000,
-        "tenancy_months": 24
+        "tenancy_months": 24,
+        "renewal_interval_years": 2
       },
       "expected_prongs": {
         "P1": true,
@@ -357,7 +358,8 @@
         "rent_monthly_jpy": 38000,
         "deposit_jpy": 76000,
         "charged_amount_jpy": 100000,
-        "tenancy_months": 12
+        "tenancy_months": 12,
+        "renewal_interval_years": 1
       },
       "expected_prongs": {
         "P1": true,
@@ -388,7 +390,8 @@
         "rent_monthly_jpy": 72000,
         "deposit_jpy": 144000,
         "charged_amount_jpy": 288000,
-        "tenancy_months": 12
+        "tenancy_months": 12,
+        "renewal_interval_years": 1
       },
       "expected_prongs": {
         "P1": true,
@@ -419,7 +422,8 @@
         "rent_monthly_jpy": 64000,
         "deposit_jpy": 128000,
         "charged_amount_jpy": 33000,
-        "tenancy_months": 36
+        "tenancy_months": 36,
+        "unit_price_jpy": 5500
       },
       "expected_prongs": {
         "P1": true,
@@ -512,7 +516,8 @@
         "rent_monthly_jpy": 105000,
         "deposit_jpy": 210000,
         "charged_amount_jpy": 14300,
-        "tenancy_months": 30
+        "tenancy_months": 30,
+        "unit_price_jpy": 1100
       },
       "expected_prongs": {
         "P1": true,
