@@ -12,7 +12,7 @@
       "context": {
         "prefecture": "大阪府",
         "layout": "2DK/2LDK",
-        "area_sqm": 48.0,
+        "area_sqm": 48,
         "rent_monthly_jpy": 82000,
         "deposit_jpy": 246000,
         "charged_amount_jpy": 210000,
@@ -25,6 +25,7 @@
         "P4": false
       },
       "expected_verdict": "unenforceable",
+      "verdict_ja": null,
       "source": {
         "type": "supreme_court",
         "reference": "最判平成17年12月16日",
@@ -32,8 +33,7 @@
         "verification_status": "unverified",
         "note": "The blanket 原状回復 formulation. Names no item and no amount, so the tenant was never on notice of a burden beyond the statutory default."
       },
-      "rationale": "P1 fails outright: neither scope nor amount is identified. P2 holds because the term is in the executed lease. P4 therefore fails and the art. 621 default stands.",
-      "verdict_ja": null
+      "rationale": "P1 fails outright: neither scope nor amount is identified. P2 holds because the term is in the executed lease. P4 therefore fails and the art. 621 default stands."
     },
     {
       "id": "TK-0002",
@@ -56,6 +56,7 @@
         "P4": true
       },
       "expected_verdict": "enforceable",
+      "verdict_ja": null,
       "source": {
         "type": "synthetic",
         "reference": "Constructed as the positive control for TK_TSUJO",
@@ -63,8 +64,7 @@
         "verification_status": "not_applicable_synthetic",
         "note": "Itemised scope, unit prices, depreciation preserved, ordinary wear expressly left with the landlord. Should score clean on all four prongs."
       },
-      "rationale": "Positive control. If the engine ever scores this below 'enforceable', the P1 or P4 logic is over-firing.",
-      "verdict_ja": null
+      "rationale": "Positive control. If the engine ever scores this below 'enforceable', the P1 or P4 logic is over-firing."
     },
     {
       "id": "TK-0003",
@@ -74,7 +74,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1R/1K",
-        "area_sqm": 21.0,
+        "area_sqm": 21,
         "rent_monthly_jpy": 68000,
         "deposit_jpy": 68000,
         "charged_amount_jpy": 33000,
@@ -87,15 +87,15 @@
         "P4": true
       },
       "expected_verdict": "enforceable",
+      "verdict_ja": null,
       "source": {
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
-        "verification_status": "unverified",
-        "note": "Fixed sum stated in the lease body and inside the market band for a single-room unit."
+        "verification_status": "secondary_source_checked",
+        "note": "Fixed sum stated in the lease body and inside the market band for a single-room unit. Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 経過年数モデルを二次資料で照合（2026-09-14）: クロス6年・流し台5年・設備機器(エアコン等)6年・便器/洗面台15年・耐用年数経過時の残存価値1円、フローリング部分補修と畳表は経過年数を考慮しない。bands.ts の DEPRECIATION_YEARS と一致。ガイドラインPDF本体は未読。"
       },
-      "rationale": "A named fixed sum satisfies P1; the amount sits under the 1R/1K supported ceiling so P3 holds.",
-      "verdict_ja": null
+      "rationale": "A named fixed sum satisfies P1; the amount sits under the 1R/1K supported ceiling so P3 holds."
     },
     {
       "id": "TK-0004",
@@ -118,15 +118,15 @@
         "P4": false
       },
       "expected_verdict": "unenforceable",
+      "verdict_ja": null,
       "source": {
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
-        "verification_status": "unverified",
-        "note": "No sum stated, and the amount actually billed exceeds the band for the unit size."
+        "verification_status": "secondary_source_checked",
+        "note": "No sum stated, and the amount actually billed exceeds the band for the unit size. Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 経過年数モデルを二次資料で照合（2026-09-14）: クロス6年・流し台5年・設備機器(エアコン等)6年・便器/洗面台15年・耐用年数経過時の残存価値1円、フローリング部分補修と畳表は経過年数を考慮しない。bands.ts の DEPRECIATION_YEARS と一致。ガイドラインPDF本体は未読。"
       },
-      "rationale": "Open-ended cleaning clauses fail P1: with no sum in the lease the tenant cannot know the burden. Routine cleaning is the landlord's cost under the guidelines, so P4 fails with it.",
-      "verdict_ja": null
+      "rationale": "Open-ended cleaning clauses fail P1: with no sum in the lease the tenant cannot know the burden. Routine cleaning is the landlord's cost under the guidelines, so P4 fails with it."
     },
     {
       "id": "TK-0005",
@@ -149,6 +149,7 @@
         "P4": true
       },
       "expected_verdict": "reducible",
+      "verdict_ja": null,
       "source": {
         "type": "synthetic",
         "reference": "Constructed as the P3-only failure for TK_CLEAN",
@@ -156,8 +157,7 @@
         "verification_status": "not_applicable_synthetic",
         "note": "Clause is specific and properly agreed; only the amount is an outlier for a 1R/1K unit."
       },
-      "rationale": "Isolates P3. The clause survives, but the charge is far outside the band for the unit size, so the recoverable amount is cut back rather than voided.",
-      "verdict_ja": null
+      "rationale": "Isolates P3. The clause survives, but the charge is far outside the band for the unit size, so the recoverable amount is cut back rather than voided."
     },
     {
       "id": "TK-0006",
@@ -167,7 +167,7 @@
       "context": {
         "prefecture": "兵庫県",
         "layout": "1DK/1LDK",
-        "area_sqm": 34.0,
+        "area_sqm": 34,
         "rent_monthly_jpy": 90000,
         "deposit_jpy": 360000,
         "charged_amount_jpy": 180000,
@@ -180,15 +180,15 @@
         "P4": true
       },
       "expected_verdict": "enforceable",
+      "verdict_ja": null,
       "source": {
         "type": "supreme_court",
         "reference": "最判平成23年3月24日",
         "verified": false,
         "verification_status": "secondary_source_checked",
-        "note": "Retention of 2.0x monthly rent, inside the supported band."
+        "note": "Retention of 2.0x monthly rent, inside the supported band. Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 二次資料で照合（2026-09-14）: 第一小法廷。敷引特約は消費者契約法10条により当然無効ではなく、敷引金が高額に過ぎる場合に無効。事案は賃料96,000円・控除210,000円（約2.19倍）で有効。なお2倍〜3.5倍の範囲は平成23年7月12日判決（第三小法廷）に由来し、本判決ではない。民集65巻2号903頁は未読。"
       },
-      "rationale": "Amount and mechanism are explicit, so P1 and P2 hold. At 2.0x rent the retention is inside the supported band.",
-      "verdict_ja": null
+      "rationale": "Amount and mechanism are explicit, so P1 and P2 hold. At 2.0x rent the retention is inside the supported band."
     },
     {
       "id": "TK-0007",
@@ -211,15 +211,15 @@
         "P4": true
       },
       "expected_verdict": "enforceable",
+      "verdict_ja": null,
       "source": {
         "type": "supreme_court",
         "reference": "最判平成23年3月24日",
         "verified": false,
         "verification_status": "secondary_source_checked",
-        "note": "3.5x monthly rent — the outer edge of what that decision tolerated on its facts. Band level 'elevated', prong still satisfied. CITATION CORRECTED 2026-09-14: the 2x-3.5x range this entry calibrates comes from 最判平成23年7月12日 (第三小法廷), not 平成23年3月24日, which was reported at roughly 2.19x. Re-point this reference once the primary texts are pulled."
+        "note": "3.5x monthly rent — the outer edge of what that decision tolerated on its facts. Band level 'elevated', prong still satisfied. CITATION CORRECTED 2026-09-14: the 2x-3.5x range this entry calibrates comes from 最判平成23年7月12日 (第三小法廷), not 平成23年3月24日, which was reported at roughly 2.19x. Re-point this reference once the primary texts are pulled. Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 二次資料で照合（2026-09-14）: 第一小法廷。敷引特約は消費者契約法10条により当然無効ではなく、敷引金が高額に過ぎる場合に無効。事案は賃料96,000円・控除210,000円（約2.19倍）で有効。なお2倍〜3.5倍の範囲は平成23年7月12日判決（第三小法廷）に由来し、本判決ではない。民集65巻2号903頁は未読。"
       },
-      "rationale": "Calibration case for the elevated band. P3 should remain true at 3.5x, but the report must show the charge as elevated rather than clean.",
-      "verdict_ja": null
+      "rationale": "Calibration case for the elevated band. P3 should remain true at 3.5x, but the report must show the charge as elevated rather than clean."
     },
     {
       "id": "TK-0008",
@@ -229,7 +229,7 @@
       "context": {
         "prefecture": "兵庫県",
         "layout": "2DK/2LDK",
-        "area_sqm": 44.0,
+        "area_sqm": 44,
         "rent_monthly_jpy": 100000,
         "deposit_jpy": 700000,
         "charged_amount_jpy": 600000,
@@ -242,6 +242,7 @@
         "P4": true
       },
       "expected_verdict": "reducible",
+      "verdict_ja": null,
       "source": {
         "type": "synthetic",
         "reference": "Constructed as the P3 failure for TK_SHIKIBIKI",
@@ -249,8 +250,7 @@
         "verification_status": "not_applicable_synthetic",
         "note": "6.0x monthly rent, well beyond any ratio a reported decision has tolerated."
       },
-      "rationale": "Clear and agreed, so P1/P2/P4 hold, but 6x rent is 高額に過ぎる territory under 消費者契約法10条.",
-      "verdict_ja": null
+      "rationale": "Clear and agreed, so P1/P2/P4 hold, but 6x rent is 高額に過ぎる territory under 消費者契約法10条."
     },
     {
       "id": "TK-0009",
@@ -273,15 +273,15 @@
         "P4": true
       },
       "expected_verdict": "enforceable",
+      "verdict_ja": null,
       "source": {
         "type": "supreme_court",
         "reference": "最判平成23年3月24日",
         "verified": false,
         "verification_status": "secondary_source_checked",
-        "note": "Kanto-style amortisation scored against the shikibiki band; 1.0x rent."
+        "note": "Kanto-style amortisation scored against the shikibiki band; 1.0x rent. Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 二次資料で照合（2026-09-14）: 第一小法廷。敷引特約は消費者契約法10条により当然無効ではなく、敷引金が高額に過ぎる場合に無効。事案は賃料96,000円・控除210,000円（約2.19倍）で有効。なお2倍〜3.5倍の範囲は平成23年7月12日判決（第三小法廷）に由来し、本判決ではない。民集65巻2号903頁は未読。"
       },
-      "rationale": "Confirms TK_SHOUKYAKU routes to the shikibiki band. At 1.0x rent the amount is comfortably supported.",
-      "verdict_ja": null
+      "rationale": "Confirms TK_SHOUKYAKU routes to the shikibiki band. At 1.0x rent the amount is comfortably supported."
     },
     {
       "id": "TK-0010",
@@ -304,6 +304,7 @@
         "P4": false
       },
       "expected_verdict": "unenforceable",
+      "verdict_ja": null,
       "source": {
         "type": "synthetic",
         "reference": "Constructed as the P1 failure for TK_SHOUKYAKU",
@@ -311,8 +312,7 @@
         "verification_status": "not_applicable_synthetic",
         "note": "'A portion' fixes no amount, so the tenant cannot know the burden at signing."
       },
-      "rationale": "An amortisation clause with no stated sum or formula fails P1. The sum actually withheld happens to sit inside the shikibiki band, so P3 is satisfied on the numbers and P1 alone carries the entry.",
-      "verdict_ja": null
+      "rationale": "An amortisation clause with no stated sum or formula fails P1. The sum actually withheld happens to sit inside the shikibiki band, so P3 is satisfied on the numbers and P1 alone carries the entry."
     },
     {
       "id": "TK-0011",
@@ -322,7 +322,7 @@
       "context": {
         "prefecture": "京都府",
         "layout": "1R/1K",
-        "area_sqm": 24.0,
+        "area_sqm": 24,
         "rent_monthly_jpy": 76000,
         "deposit_jpy": 152000,
         "charged_amount_jpy": 76000,
@@ -336,15 +336,15 @@
         "P4": true
       },
       "expected_verdict": "enforceable",
+      "verdict_ja": null,
       "source": {
         "type": "supreme_court",
         "reference": "最判平成23年7月15日",
         "verified": false,
         "verification_status": "secondary_source_checked",
-        "note": "0.5 months of rent per renewal year — well inside the supported band."
+        "note": "0.5 months of rent per renewal year — well inside the supported band. Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 二次資料で照合（2026-09-14）: 更新料条項は賃料・更新料額・更新期間に照らし高額に過ぎるなどの特段の事情がない限り有効。ただし併合事件の事実関係について二次資料の記述が割れており、KOSHINRYO_BAND.elevatedMax=2.7 は高い方の読みに依存。民集65巻5号2269頁は未読で、争点は未解決のまま。"
       },
-      "rationale": "Amount and renewal interval both stated. Normalising to a 2-year cycle gives 0.5 months per year.",
-      "verdict_ja": null
+      "rationale": "Amount and renewal interval both stated. Normalising to a 2-year cycle gives 0.5 months per year."
     },
     {
       "id": "TK-0012",
@@ -368,15 +368,15 @@
         "P4": true
       },
       "expected_verdict": "enforceable",
+      "verdict_ja": null,
       "source": {
         "type": "supreme_court",
         "reference": "最判平成23年7月15日",
         "verified": false,
         "verification_status": "secondary_source_checked",
-        "note": "Roughly 2.6 months of rent per renewal year — the calibration point for the elevated band. CONTESTED FIGURE 2026-09-14: secondary summaries disagree on the facts of 最判平成23年7月15日 — two months' rent per year on rent of ¥38,000 under one reading, ¥100,000 (about 2.63) under another. This entry assumes the higher reading. If the lower one is right, its band level and P3 both change."
+        "note": "Roughly 2.6 months of rent per renewal year — the calibration point for the elevated band. CONTESTED FIGURE 2026-09-14: secondary summaries disagree on the facts of 最判平成23年7月15日 — two months' rent per year on rent of ¥38,000 under one reading, ¥100,000 (about 2.63) under another. This entry assumes the higher reading. If the lower one is right, its band level and P3 both change. Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 二次資料で照合（2026-09-14）: 更新料条項は賃料・更新料額・更新期間に照らし高額に過ぎるなどの特段の事情がない限り有効。ただし併合事件の事実関係について二次資料の記述が割れており、KOSHINRYO_BAND.elevatedMax=2.7 は高い方の読みに依存。民集65巻5号2269頁は未読で、争点は未解決のまま。"
       },
-      "rationale": "Boundary case. Should score P3 true but surface as elevated, matching the facts the decision upheld.",
-      "verdict_ja": null
+      "rationale": "Boundary case. Should score P3 true but surface as elevated, matching the facts the decision upheld."
     },
     {
       "id": "TK-0013",
@@ -386,7 +386,7 @@
       "context": {
         "prefecture": "大阪府",
         "layout": "1DK/1LDK",
-        "area_sqm": 29.0,
+        "area_sqm": 29,
         "rent_monthly_jpy": 72000,
         "deposit_jpy": 144000,
         "charged_amount_jpy": 288000,
@@ -400,6 +400,7 @@
         "P4": true
       },
       "expected_verdict": "reducible",
+      "verdict_ja": null,
       "source": {
         "type": "synthetic",
         "reference": "Constructed as the P3 failure for TK_KOSHIN",
@@ -407,8 +408,7 @@
         "verification_status": "not_applicable_synthetic",
         "note": "4.0 months per renewal year, far beyond the upheld facts."
       },
-      "rationale": "Specific and agreed, but the annualised burden is well past the elevated ceiling.",
-      "verdict_ja": null
+      "rationale": "Specific and agreed, but the annualised burden is well past the elevated ceiling."
     },
     {
       "id": "TK-0014",
@@ -418,7 +418,7 @@
       "context": {
         "prefecture": "愛知県",
         "layout": "2DK/2LDK",
-        "area_sqm": 42.0,
+        "area_sqm": 42,
         "rent_monthly_jpy": 64000,
         "deposit_jpy": 128000,
         "charged_amount_jpy": 33000,
@@ -432,15 +432,15 @@
         "P4": true
       },
       "expected_verdict": "enforceable",
+      "verdict_ja": null,
       "source": {
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
-        "verification_status": "unverified",
-        "note": "畳表 is treated as a consumable with no 経過年数 depreciation, so P3 turns on unit price alone."
+        "verification_status": "secondary_source_checked",
+        "note": "畳表 is treated as a consumable with no 経過年数 depreciation, so P3 turns on unit price alone. Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 経過年数モデルを二次資料で照合（2026-09-14）: クロス6年・流し台5年・設備機器(エアコン等)6年・便器/洗面台15年・耐用年数経過時の残存価値1円、フローリング部分補修と畳表は経過年数を考慮しない。bands.ts の DEPRECIATION_YEARS と一致。ガイドラインPDF本体は未読。"
       },
-      "rationale": "Unit price and mat count are both fixed. Confirms the engine applies no depreciation to 畳表.",
-      "verdict_ja": null
+      "rationale": "Unit price and mat count are both fixed. Confirms the engine applies no depreciation to 畳表."
     },
     {
       "id": "TK-0015",
@@ -450,7 +450,7 @@
       "context": {
         "prefecture": "愛知県",
         "layout": "2DK/2LDK",
-        "area_sqm": 40.0,
+        "area_sqm": 40,
         "rent_monthly_jpy": 60000,
         "deposit_jpy": 120000,
         "charged_amount_jpy": 72000,
@@ -463,6 +463,7 @@
         "P4": false
       },
       "expected_verdict": "unenforceable",
+      "verdict_ja": null,
       "source": {
         "type": "synthetic",
         "reference": "Constructed as the P1 failure for TK_TATAMI",
@@ -470,8 +471,7 @@
         "verification_status": "not_applicable_synthetic",
         "note": "Neither unit price nor mat count stated; the billed sum implies an inflated per-mat rate."
       },
-      "rationale": "Without a unit price the tenant cannot size the obligation, so P1 fails and the statutory default survives.",
-      "verdict_ja": null
+      "rationale": "Without a unit price the tenant cannot size the obligation, so P1 fails and the statutory default survives."
     },
     {
       "id": "TK-0016",
@@ -481,7 +481,7 @@
       "context": {
         "prefecture": "埼玉県",
         "layout": "2DK/2LDK",
-        "area_sqm": 46.0,
+        "area_sqm": 46,
         "rent_monthly_jpy": 78000,
         "deposit_jpy": 156000,
         "charged_amount_jpy": 165000,
@@ -494,15 +494,15 @@
         "P4": false
       },
       "expected_verdict": "unenforceable",
+      "verdict_ja": null,
       "source": {
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
-        "verification_status": "unverified",
-        "note": "クロス carries a 6-year useful life; at 84 months the tenant's residual share is nil, and the clause expressly disclaims depreciation."
+        "verification_status": "secondary_source_checked",
+        "note": "クロス carries a 6-year useful life; at 84 months the tenant's residual share is nil, and the clause expressly disclaims depreciation. Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 経過年数モデルを二次資料で照合（2026-09-14）: クロス6年・流し台5年・設備機器(エアコン等)6年・便器/洗面台15年・耐用年数経過時の残存価値1円、フローリング部分補修と畳表は経過年数を考慮しない。bands.ts の DEPRECIATION_YEARS と一致。ガイドラインPDF本体は未読。"
       },
-      "rationale": "Key depreciation case. 'Regardless of length of occupancy' is a direct assault on 経年変化, so P4 fails; residualBurdenRatio('cross', 84) is 0, so P3 fails too.",
-      "verdict_ja": null
+      "rationale": "Key depreciation case. 'Regardless of length of occupancy' is a direct assault on 経年変化, so P4 fails; residualBurdenRatio('cross', 84) is 0, so P3 fails too."
     },
     {
       "id": "TK-0017",
@@ -512,7 +512,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1DK/1LDK",
-        "area_sqm": 33.0,
+        "area_sqm": 33,
         "rent_monthly_jpy": 105000,
         "deposit_jpy": 210000,
         "charged_amount_jpy": 14300,
@@ -526,15 +526,15 @@
         "P4": true
       },
       "expected_verdict": "enforceable",
+      "verdict_ja": null,
       "source": {
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
-        "verification_status": "unverified",
-        "note": "Damaged-portion accounting with depreciation preserved — the guideline-compliant shape of this clause."
+        "verification_status": "secondary_source_checked",
+        "note": "Damaged-portion accounting with depreciation preserved — the guideline-compliant shape of this clause. Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 経過年数モデルを二次資料で照合（2026-09-14）: クロス6年・流し台5年・設備機器(エアコン等)6年・便器/洗面台15年・耐用年数経過時の残存価値1円、フローリング部分補修と畳表は経過年数を考慮しない。bands.ts の DEPRECIATION_YEARS と一致。ガイドラインPDF本体は未読。"
       },
-      "rationale": "Positive control for TK_CROSS. Scoped to tenant-caused damage, priced per unit, depreciation retained.",
-      "verdict_ja": null
+      "rationale": "Positive control for TK_CROSS. Scoped to tenant-caused damage, priced per unit, depreciation retained."
     },
     {
       "id": "TK-0018",
@@ -544,7 +544,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "2DK/2LDK",
-        "area_sqm": 52.0,
+        "area_sqm": 52,
         "rent_monthly_jpy": 145000,
         "deposit_jpy": 290000,
         "charged_amount_jpy": 280000,
@@ -557,15 +557,15 @@
         "P4": false
       },
       "expected_verdict": "unenforceable",
+      "verdict_ja": null,
       "source": {
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
-        "verification_status": "unverified",
-        "note": "Full replacement charged irrespective of damage; the guidelines account for flooring by damaged portion."
+        "verification_status": "secondary_source_checked",
+        "note": "Full replacement charged irrespective of damage; the guidelines account for flooring by damaged portion. Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 経過年数モデルを二次資料で照合（2026-09-14）: クロス6年・流し台5年・設備機器(エアコン等)6年・便器/洗面台15年・耐用年数経過時の残存価値1円、フローリング部分補修と畳表は経過年数を考慮しない。bands.ts の DEPRECIATION_YEARS と一致。ガイドラインPDF本体は未読。"
       },
-      "rationale": "The amount is stated, so P1 holds, but charging full replacement with no damage requirement defeats P4 and blows the band.",
-      "verdict_ja": null
+      "rationale": "The amount is stated, so P1 holds, but charging full replacement with no damage requirement defeats P4 and blows the band."
     },
     {
       "id": "TK-0019",
@@ -575,7 +575,7 @@
       "context": {
         "prefecture": "福岡県",
         "layout": "1DK/1LDK",
-        "area_sqm": 31.0,
+        "area_sqm": 31,
         "rent_monthly_jpy": 67000,
         "deposit_jpy": 134000,
         "charged_amount_jpy": 143000,
@@ -588,6 +588,7 @@
         "P4": false
       },
       "expected_verdict": "unenforceable",
+      "verdict_ja": null,
       "source": {
         "type": "statute",
         "reference": "民法621条",
@@ -595,8 +596,7 @@
         "verification_status": "unverified",
         "note": "Names the two categories art. 621 expressly carves out, with no itemisation or amount."
       },
-      "rationale": "The clearest P4 failure in the set: it targets exactly what the statute excludes, and names neither items nor sums.",
-      "verdict_ja": null
+      "rationale": "The clearest P4 failure in the set: it targets exactly what the statute excludes, and names neither items nor sums."
     },
     {
       "id": "TK-0020",
@@ -606,7 +606,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1R/1K",
-        "area_sqm": 20.0,
+        "area_sqm": 20,
         "rent_monthly_jpy": 74000,
         "deposit_jpy": 74000,
         "charged_amount_jpy": 16500,
@@ -619,15 +619,15 @@
         "P4": true
       },
       "expected_verdict": "enforceable",
+      "verdict_ja": null,
       "source": {
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
-        "verification_status": "unverified",
-        "note": "The guidelines allocate re-keying done for the next tenant's benefit to the landlord, so this pattern depends entirely on a clear, agreed clause."
+        "verification_status": "secondary_source_checked",
+        "note": "The guidelines allocate re-keying done for the next tenant's benefit to the landlord, so this pattern depends entirely on a clear, agreed clause. Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 経過年数モデルを二次資料で照合（2026-09-14）: クロス6年・流し台5年・設備機器(エアコン等)6年・便器/洗面台15年・耐用年数経過時の残存価値1円、フローリング部分補修と畳表は経過年数を考慮しない。bands.ts の DEPRECIATION_YEARS と一致。ガイドラインPDF本体は未読。"
       },
-      "rationale": "Fixed sum in the lease body and inside the band. Tests that a specific clause can shift a cost the guidelines otherwise place on the landlord.",
-      "verdict_ja": null
+      "rationale": "Fixed sum in the lease body and inside the band. Tests that a specific clause can shift a cost the guidelines otherwise place on the landlord."
     },
     {
       "id": "TK-0021",
@@ -637,7 +637,7 @@
       "context": {
         "prefecture": "大阪府",
         "layout": "1R/1K",
-        "area_sqm": 22.0,
+        "area_sqm": 22,
         "rent_monthly_jpy": 63000,
         "deposit_jpy": 63000,
         "charged_amount_jpy": 45000,
@@ -650,6 +650,7 @@
         "P4": true
       },
       "expected_verdict": "reducible",
+      "verdict_ja": null,
       "source": {
         "type": "synthetic",
         "reference": "Constructed as the P3 failure for TK_KAGI",
@@ -657,8 +658,7 @@
         "verification_status": "not_applicable_synthetic",
         "note": "Above the elevated ceiling for a standard cylinder change."
       },
-      "rationale": "Isolates P3 for TK_KAGI: the clause is sound but the sum is an outlier.",
-      "verdict_ja": null
+      "rationale": "Isolates P3 for TK_KAGI: the clause is sound but the sum is an outlier."
     },
     {
       "id": "TK-0022",
@@ -668,7 +668,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1R/1K",
-        "area_sqm": 25.0,
+        "area_sqm": 25,
         "rent_monthly_jpy": 88000,
         "deposit_jpy": 88000,
         "charged_amount_jpy": 30000,
@@ -681,6 +681,7 @@
         "P4": false
       },
       "expected_verdict": "unenforceable",
+      "verdict_ja": null,
       "source": {
         "type": "synthetic",
         "reference": "Constructed for TK_TAIKYO_FEE",
@@ -688,8 +689,7 @@
         "verification_status": "not_applicable_synthetic",
         "note": "A sum with no identified service behind it. P1 asks for scope AND amount; only the amount is present."
       },
-      "rationale": "Tests that P1 requires scope as well as amount. A bare fee with no corresponding service fails even though the number is specific.",
-      "verdict_ja": null
+      "rationale": "Tests that P1 requires scope as well as amount. A bare fee with no corresponding service fails even though the number is specific."
     },
     {
       "id": "TK-0023",
@@ -712,6 +712,7 @@
         "P4": true
       },
       "expected_verdict": "enforceable",
+      "verdict_ja": null,
       "source": {
         "type": "synthetic",
         "reference": "Constructed as the positive control for TK_SHOUDOKU",
@@ -719,8 +720,7 @@
         "verification_status": "not_applicable_synthetic",
         "note": "Stated in the lease body with a fixed sum and inside the band."
       },
-      "rationale": "Positive control. The pattern is frequently contested in practice, but a specific, agreed, in-band charge should pass all four prongs.",
-      "verdict_ja": null
+      "rationale": "Positive control. The pattern is frequently contested in practice, but a specific, agreed, in-band charge should pass all four prongs."
     },
     {
       "id": "TK-0024",
@@ -730,7 +730,7 @@
       "context": {
         "prefecture": "神奈川県",
         "layout": "1R/1K",
-        "area_sqm": 23.0,
+        "area_sqm": 23,
         "rent_monthly_jpy": 72000,
         "deposit_jpy": 72000,
         "charged_amount_jpy": 22000,
@@ -743,6 +743,7 @@
         "P4": false
       },
       "expected_verdict": "unenforceable",
+      "verdict_ja": null,
       "source": {
         "type": "synthetic",
         "reference": "Constructed as the P2 failure for the set",
@@ -750,8 +751,7 @@
         "verification_status": "not_applicable_synthetic",
         "note": "Appears only in the 重要事項説明書, never in the executed lease."
       },
-      "rationale": "The one entry that isolates P2. The amount is specific and in-band, but a term living only in the explanatory document was never agreed as a contractual burden.",
-      "verdict_ja": null
+      "rationale": "The one entry that isolates P2. The amount is specific and in-band, but a term living only in the explanatory document was never agreed as a contractual burden."
     },
     {
       "id": "TK-0025",
@@ -761,7 +761,7 @@
       "context": {
         "prefecture": "北海道",
         "layout": "1DK/1LDK",
-        "area_sqm": 35.0,
+        "area_sqm": 35,
         "rent_monthly_jpy": 56000,
         "deposit_jpy": 112000,
         "charged_amount_jpy": 98000,
@@ -774,15 +774,15 @@
         "P4": false
       },
       "expected_verdict": "unenforceable",
+      "verdict_ja": null,
       "source": {
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
-        "verification_status": "unverified",
-        "note": "Room-unit accounting conflicts with the guidelines' 毀損部分 unit, and no depreciation is applied at 48 months."
+        "verification_status": "secondary_source_checked",
+        "note": "Room-unit accounting conflicts with the guidelines' 毀損部分 unit, and no depreciation is applied at 48 months. Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 経過年数モデルを二次資料で照合（2026-09-14）: クロス6年・流し台5年・設備機器(エアコン等)6年・便器/洗面台15年・耐用年数経過時の残存価値1円、フローリング部分補修と畳表は経過年数を考慮しない。bands.ts の DEPRECIATION_YEARS と一致。ガイドラインPDF本体は未読。"
       },
-      "rationale": "Tests the ZENMEN pattern independently of CROSS: the defect is the unit of accounting, not the unit price.",
-      "verdict_ja": null
+      "rationale": "Tests the ZENMEN pattern independently of CROSS: the defect is the unit of accounting, not the unit price."
     },
     {
       "id": "TK-0026",
@@ -805,6 +805,7 @@
         "P4": true
       },
       "expected_verdict": "enforceable",
+      "verdict_ja": null,
       "source": {
         "type": "synthetic",
         "reference": "Constructed as the positive control for TK_TANKI",
@@ -812,8 +813,7 @@
         "verification_status": "not_applicable_synthetic",
         "note": "1.0x rent within a 1-year lock-in — the common market shape."
       },
-      "rationale": "Trigger, duration and amount are all stated, and the penalty is at the supported ceiling.",
-      "verdict_ja": null
+      "rationale": "Trigger, duration and amount are all stated, and the penalty is at the supported ceiling."
     },
     {
       "id": "TK-0027",
@@ -823,7 +823,7 @@
       "context": {
         "prefecture": "大阪府",
         "layout": "1DK/1LDK",
-        "area_sqm": 30.0,
+        "area_sqm": 30,
         "rent_monthly_jpy": 84000,
         "deposit_jpy": 168000,
         "charged_amount_jpy": 252000,
@@ -836,6 +836,7 @@
         "P4": true
       },
       "expected_verdict": "reducible",
+      "verdict_ja": null,
       "source": {
         "type": "synthetic",
         "reference": "Constructed as the P3 failure for TK_TANKI",
@@ -843,8 +844,7 @@
         "verification_status": "not_applicable_synthetic",
         "note": "3.0x rent over a 2-year lock-in, above the elevated ceiling. 消費者契約法9条 caps a penalty at average expected loss."
       },
-      "rationale": "Specific and agreed, but the penalty exceeds the band and is exposed under 消費者契約法9条.",
-      "verdict_ja": null
+      "rationale": "Specific and agreed, but the penalty exceeds the band and is exposed under 消費者契約法9条."
     },
     {
       "id": "TK-0028",
@@ -854,7 +854,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1R/1K",
-        "area_sqm": 22.0,
+        "area_sqm": 22,
         "rent_monthly_jpy": 76000,
         "deposit_jpy": 76000,
         "charged_amount_jpy": 35000,
@@ -885,7 +885,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1R/1K",
-        "area_sqm": 20.0,
+        "area_sqm": 20,
         "rent_monthly_jpy": 70000,
         "deposit_jpy": 70000,
         "charged_amount_jpy": 26250,
@@ -916,7 +916,7 @@
       "context": {
         "prefecture": "兵庫県",
         "layout": "1DK/1LDK",
-        "area_sqm": 33.0,
+        "area_sqm": 33,
         "rent_monthly_jpy": 90000,
         "deposit_jpy": 360000,
         "charged_amount_jpy": 180000,
@@ -935,7 +935,7 @@
         "reference": "最高裁判所第一小法廷平成23年3月24日判決",
         "verified": false,
         "verification_status": "secondary_source_checked",
-        "note": null
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 二次資料で照合（2026-09-14）: 第一小法廷。敷引特約は消費者契約法10条により当然無効ではなく、敷引金が高額に過ぎる場合に無効。事案は賃料96,000円・控除210,000円（約2.19倍）で有効。なお2倍〜3.5倍の範囲は平成23年7月12日判決（第三小法廷）に由来し、本判決ではない。民集65巻2号903頁は未読。"
       },
       "rationale": null
     },
@@ -947,7 +947,7 @@
       "context": {
         "prefecture": "大阪府",
         "layout": "1DK/1LDK",
-        "area_sqm": 30.0,
+        "area_sqm": 30,
         "rent_monthly_jpy": 80000,
         "deposit_jpy": 480000,
         "charged_amount_jpy": 480000,
@@ -966,7 +966,7 @@
         "reference": "最高裁判所第一小法廷平成23年3月24日判決",
         "verified": false,
         "verification_status": "secondary_source_checked",
-        "note": null
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 二次資料で照合（2026-09-14）: 第一小法廷。敷引特約は消費者契約法10条により当然無効ではなく、敷引金が高額に過ぎる場合に無効。事案は賃料96,000円・控除210,000円（約2.19倍）で有効。なお2倍〜3.5倍の範囲は平成23年7月12日判決（第三小法廷）に由来し、本判決ではない。民集65巻2号903頁は未読。"
       },
       "rationale": null
     },
@@ -1001,7 +1001,7 @@
       "context": {
         "prefecture": "京都府",
         "layout": "1R/1K",
-        "area_sqm": 23.0,
+        "area_sqm": 23,
         "rent_monthly_jpy": 80000,
         "deposit_jpy": 160000,
         "charged_amount_jpy": 160000,
@@ -1021,7 +1021,7 @@
         "reference": "最高裁判所第二小法廷平成23年7月15日判決",
         "verified": false,
         "verification_status": "secondary_source_checked",
-        "note": null
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 二次資料で照合（2026-09-14）: 更新料条項は賃料・更新料額・更新期間に照らし高額に過ぎるなどの特段の事情がない限り有効。ただし併合事件の事実関係について二次資料の記述が割れており、KOSHINRYO_BAND.elevatedMax=2.7 は高い方の読みに依存。民集65巻5号2269頁は未読で、争点は未解決のまま。"
       },
       "rationale": null
     },
@@ -1056,7 +1056,7 @@
       "context": {
         "prefecture": "愛知県",
         "layout": "2DK/2LDK",
-        "area_sqm": 43.0,
+        "area_sqm": 43,
         "rent_monthly_jpy": 62000,
         "deposit_jpy": 124000,
         "charged_amount_jpy": 24000,
@@ -1075,8 +1075,8 @@
         "type": "guideline",
         "reference": "国土交通省ガイドライン及び国民生活センター公表事例",
         "verified": false,
-        "verification_status": "unverified",
-        "note": "P3 corrected to true on ingest review: P3 measures PROPORTIONALITY only and this amount sits inside its band. The defect this entry records is real but belongs to another prong — see expected_prongs."
+        "verification_status": "secondary_source_checked",
+        "note": "P3 corrected to true on ingest review: P3 measures PROPORTIONALITY only and this amount sits inside its band. The defect this entry records is real but belongs to another prong — see expected_prongs. Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 経過年数モデルを二次資料で照合（2026-09-14）: クロス6年・流し台5年・設備機器(エアコン等)6年・便器/洗面台15年・耐用年数経過時の残存価値1円、フローリング部分補修と畳表は経過年数を考慮しない。bands.ts の DEPRECIATION_YEARS と一致。ガイドラインPDF本体は未読。"
       },
       "rationale": null
     },
@@ -1111,7 +1111,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1DK/1LDK",
-        "area_sqm": 34.0,
+        "area_sqm": 34,
         "rent_monthly_jpy": 112000,
         "deposit_jpy": 224000,
         "charged_amount_jpy": 138000,
@@ -1165,7 +1165,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1DK/1LDK",
-        "area_sqm": 32.0,
+        "area_sqm": 32,
         "rent_monthly_jpy": 118000,
         "deposit_jpy": 236000,
         "charged_amount_jpy": 96000,
@@ -1184,8 +1184,8 @@
         "type": "guideline",
         "reference": "国土交通省ガイドラインフローリング損耗事例",
         "verified": false,
-        "verification_status": "unverified",
-        "note": "P3 corrected to true on ingest review: P3 measures PROPORTIONALITY only and this amount sits inside its band. The defect this entry records is real but belongs to another prong — see expected_prongs. Reclassified reducible -> severable 2026-09-14: its 一部無効 is a cut in SCOPE (void as to 通常損耗, alive for the damage the clause names), not a cut in AMOUNT. The prong vector alone cannot tell those apart, which is why the enum gained a fifth state."
+        "verification_status": "secondary_source_checked",
+        "note": "P3 corrected to true on ingest review: P3 measures PROPORTIONALITY only and this amount sits inside its band. The defect this entry records is real but belongs to another prong — see expected_prongs. Reclassified reducible -> severable 2026-09-14: its 一部無効 is a cut in SCOPE (void as to 通常損耗, alive for the damage the clause names), not a cut in AMOUNT. The prong vector alone cannot tell those apart, which is why the enum gained a fifth state. Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 経過年数モデルを二次資料で照合（2026-09-14）: クロス6年・流し台5年・設備機器(エアコン等)6年・便器/洗面台15年・耐用年数経過時の残存価値1円、フローリング部分補修と畳表は経過年数を考慮しない。bands.ts の DEPRECIATION_YEARS と一致。ガイドラインPDF本体は未読。"
       },
       "rationale": null
     },
@@ -1266,7 +1266,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1DK/1LDK",
-        "area_sqm": 31.0,
+        "area_sqm": 31,
         "rent_monthly_jpy": 86000,
         "deposit_jpy": 172000,
         "charged_amount_jpy": 148000,
@@ -1307,8 +1307,8 @@
         "type": "guideline",
         "reference": "国交省ガイドライン経年変化考慮原則",
         "verified": false,
-        "verification_status": "unverified",
-        "note": null
+        "verification_status": "secondary_source_checked",
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 経過年数モデルを二次資料で照合（2026-09-14）: クロス6年・流し台5年・設備機器(エアコン等)6年・便器/洗面台15年・耐用年数経過時の残存価値1円、フローリング部分補修と畳表は経過年数を考慮しない。bands.ts の DEPRECIATION_YEARS と一致。ガイドラインPDF本体は未読。"
       },
       "rationale": null
     },
@@ -1343,7 +1343,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1R/1K",
-        "area_sqm": 21.0,
+        "area_sqm": 21,
         "rent_monthly_jpy": 78000,
         "deposit_jpy": 78000,
         "charged_amount_jpy": 12600,
@@ -1362,7 +1362,7 @@
         "reference": "東京地方裁判所平成21年9月18日判決（ガイドライン事例36）",
         "verified": false,
         "verification_status": "secondary_source_checked",
-        "note": "CITATION CONFIRMED against secondary summaries: 東京地裁平成21年9月18日 (MLIT ガイドライン事例36) addressed BOTH charges in one case — rent ¥56,000/month, house cleaning ¥25,000+tax (¥26,250 incl. 5%) and key change ¥12,600 — and held NEITHER violated 消費者契約法10条. So one judgment legitimately backing two entries was never a contradiction. Secondary summaries only; the MLIT PDF itself was not reachable. The ¥12,600 here is that case's key-change figure and the enforceable label matches its holding."
+        "note": "CITATION CONFIRMED against secondary summaries: 東京地裁平成21年9月18日 (MLIT ガイドライン事例36) addressed BOTH charges in one case — rent ¥56,000/month, house cleaning ¥25,000+tax (¥26,250 incl. 5%) and key change ¥12,600 — and held NEITHER violated 消費者契約法10条. So one judgment legitimately backing two entries was never a contradiction. Secondary summaries only; the MLIT PDF itself was not reachable. The ¥12,600 here is that case's key-change figure and the enforceable label matches its holding. Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 二次資料で照合（2026-09-14）: 賃料月額56,000円の事案で、ハウスクリーニング費用25,000円+税（税込26,250円）と鍵交換費用12,600円の双方について消費者契約法10条違反を否定。1判決が2エントリを支える構成は矛盾ではない。ガイドライン事例36本文は未読。"
       },
       "rationale": null
     },
@@ -1397,7 +1397,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1DK/1LDK",
-        "area_sqm": 32.0,
+        "area_sqm": 32,
         "rent_monthly_jpy": 90000,
         "deposit_jpy": 270000,
         "charged_amount_jpy": 189000,
@@ -1416,7 +1416,7 @@
         "reference": "最高裁判所第一小法廷平成23年3月24日判決",
         "verified": false,
         "verification_status": "secondary_source_checked",
-        "note": null
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 二次資料で照合（2026-09-14）: 第一小法廷。敷引特約は消費者契約法10条により当然無効ではなく、敷引金が高額に過ぎる場合に無効。事案は賃料96,000円・控除210,000円（約2.19倍）で有効。なお2倍〜3.5倍の範囲は平成23年7月12日判決（第三小法廷）に由来し、本判決ではない。民集65巻2号903頁は未読。"
       },
       "rationale": null
     },
@@ -1428,7 +1428,7 @@
       "context": {
         "prefecture": "千葉県",
         "layout": "1R/1K",
-        "area_sqm": 24.0,
+        "area_sqm": 24,
         "rent_monthly_jpy": 75000,
         "deposit_jpy": 300000,
         "charged_amount_jpy": 300000,
@@ -1459,7 +1459,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1R/1K",
-        "area_sqm": 22.0,
+        "area_sqm": 22,
         "rent_monthly_jpy": 82000,
         "deposit_jpy": 82000,
         "charged_amount_jpy": 15000,
@@ -1513,7 +1513,7 @@
       "context": {
         "prefecture": "神奈川県",
         "layout": "1R/1K",
-        "area_sqm": 23.0,
+        "area_sqm": 23,
         "rent_monthly_jpy": 71000,
         "deposit_jpy": 71000,
         "charged_amount_jpy": 18000,
@@ -1544,7 +1544,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1R/1K",
-        "area_sqm": 21.0,
+        "area_sqm": 21,
         "rent_monthly_jpy": 77000,
         "deposit_jpy": 77000,
         "charged_amount_jpy": 12000,
@@ -1621,7 +1621,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1R/1K",
-        "area_sqm": 25.0,
+        "area_sqm": 25,
         "rent_monthly_jpy": 95000,
         "deposit_jpy": 95000,
         "charged_amount_jpy": 95000,
@@ -1652,7 +1652,7 @@
       "context": {
         "prefecture": "大阪府",
         "layout": "1DK/1LDK",
-        "area_sqm": 30.0,
+        "area_sqm": 30,
         "rent_monthly_jpy": 90000,
         "deposit_jpy": 180000,
         "charged_amount_jpy": 90000,
@@ -1684,7 +1684,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "2DK/2LDK",
-        "area_sqm": 52.0,
+        "area_sqm": 52,
         "rent_monthly_jpy": 138000,
         "deposit_jpy": 276000,
         "charged_amount_jpy": 60000,
@@ -1702,8 +1702,8 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
-        "verification_status": "unverified",
-        "note": null
+        "verification_status": "secondary_source_checked",
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 経過年数モデルを二次資料で照合（2026-09-14）: クロス6年・流し台5年・設備機器(エアコン等)6年・便器/洗面台15年・耐用年数経過時の残存価値1円、フローリング部分補修と畳表は経過年数を考慮しない。bands.ts の DEPRECIATION_YEARS と一致。ガイドラインPDF本体は未読。"
       },
       "rationale": "Fixed sum, explained and separately signed. At ¥60,000 for a 2DK/2LDK the charge is elevated rather than clean, so the report should show the band even while the clause holds."
     },
@@ -1715,7 +1715,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1DK/1LDK",
-        "area_sqm": 33.0,
+        "area_sqm": 33,
         "rent_monthly_jpy": 96000,
         "deposit_jpy": 192000,
         "charged_amount_jpy": 19800,
@@ -1734,8 +1734,8 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
-        "verification_status": "unverified",
-        "note": null
+        "verification_status": "secondary_source_checked",
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 経過年数モデルを二次資料で照合（2026-09-14）: クロス6年・流し台5年・設備機器(エアコン等)6年・便器/洗面台15年・耐用年数経過時の残存価値1円、フローリング部分補修と畳表は経過年数を考慮しない。bands.ts の DEPRECIATION_YEARS と一致。ガイドラインPDF本体は未読。"
       },
       "rationale": "Guideline-shaped positive control: damaged-face scope, stated unit price inside the band, depreciation preserved, ordinary wear left with the landlord."
     },
@@ -1747,7 +1747,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1R/1K",
-        "area_sqm": 24.0,
+        "area_sqm": 24,
         "rent_monthly_jpy": 84000,
         "deposit_jpy": 84000,
         "charged_amount_jpy": 52800,
@@ -1779,7 +1779,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1DK/1LDK",
-        "area_sqm": 36.0,
+        "area_sqm": 36,
         "rent_monthly_jpy": 124000,
         "deposit_jpy": 248000,
         "charged_amount_jpy": 27000,
@@ -1798,8 +1798,8 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
-        "verification_status": "unverified",
-        "note": null
+        "verification_status": "secondary_source_checked",
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 経過年数モデルを二次資料で照合（2026-09-14）: クロス6年・流し台5年・設備機器(エアコン等)6年・便器/洗面台15年・耐用年数経過時の残存価値1円、フローリング部分補修と畳表は経過年数を考慮しない。bands.ts の DEPRECIATION_YEARS と一致。ガイドラインPDF本体は未読。"
       },
       "rationale": "Partial-repair accounting with ordinary wear expressly excluded, priced inside the band."
     },
@@ -1811,7 +1811,7 @@
       "context": {
         "prefecture": "神奈川県",
         "layout": "1DK/1LDK",
-        "area_sqm": 34.0,
+        "area_sqm": 34,
         "rent_monthly_jpy": 105000,
         "deposit_jpy": 210000,
         "charged_amount_jpy": 72000,
@@ -1843,7 +1843,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1R/1K",
-        "area_sqm": 22.0,
+        "area_sqm": 22,
         "rent_monthly_jpy": 80000,
         "deposit_jpy": 80000,
         "charged_amount_jpy": 18000,
@@ -1861,8 +1861,8 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
-        "verification_status": "unverified",
-        "note": null
+        "verification_status": "secondary_source_checked",
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 経過年数モデルを二次資料で照合（2026-09-14）: クロス6年・流し台5年・設備機器(エアコン等)6年・便器/洗面台15年・耐用年数経過時の残存価値1円、フローリング部分補修と畳表は経過年数を考慮しない。bands.ts の DEPRECIATION_YEARS と一致。ガイドラインPDF本体は未読。"
       },
       "rationale": "Fixed sum inside the band. The guidelines place re-keying for the next tenant on the landlord, so this pattern depends entirely on a specific clause of this shape."
     },
@@ -1874,7 +1874,7 @@
       "context": {
         "prefecture": "大阪府",
         "layout": "1R/1K",
-        "area_sqm": 23.0,
+        "area_sqm": 23,
         "rent_monthly_jpy": 68000,
         "deposit_jpy": 68000,
         "charged_amount_jpy": 48000,
@@ -1905,7 +1905,7 @@
       "context": {
         "prefecture": "福岡県",
         "layout": "1DK/1LDK",
-        "area_sqm": 31.0,
+        "area_sqm": 31,
         "rent_monthly_jpy": 68000,
         "deposit_jpy": 136000,
         "charged_amount_jpy": null,
@@ -1936,7 +1936,7 @@
       "context": {
         "prefecture": "埼玉県",
         "layout": "2DK/2LDK",
-        "area_sqm": 48.0,
+        "area_sqm": 48,
         "rent_monthly_jpy": 74000,
         "deposit_jpy": 148000,
         "charged_amount_jpy": 95000,
@@ -1954,8 +1954,8 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
-        "verification_status": "unverified",
-        "note": null
+        "verification_status": "secondary_source_checked",
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 経過年数モデルを二次資料で照合（2026-09-14）: クロス6年・流し台5年・設備機器(エアコン等)6年・便器/洗面台15年・耐用年数経過時の残存価値1円、フローリング部分補修と畳表は経過年数を考慮しない。bands.ts の DEPRECIATION_YEARS と一致。ガイドラインPDF本体は未読。"
       },
       "rationale": "Equipment carries a six-year useful life, so at 76 months the tenant's residual share is nil. Charging the full new-unit price is both disproportionate and a direct override of the aging rule."
     },
@@ -1967,7 +1967,7 @@
       "context": {
         "prefecture": "京都府",
         "layout": "1DK/1LDK",
-        "area_sqm": 30.0,
+        "area_sqm": 30,
         "rent_monthly_jpy": 88000,
         "deposit_jpy": 176000,
         "charged_amount_jpy": 132000,
@@ -1987,7 +1987,7 @@
         "reference": "最判平成23年7月15日",
         "verified": false,
         "verification_status": "secondary_source_checked",
-        "note": null
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 二次資料で照合（2026-09-14）: 更新料条項は賃料・更新料額・更新期間に照らし高額に過ぎるなどの特段の事情がない限り有効。ただし併合事件の事実関係について二次資料の記述が割れており、KOSHINRYO_BAND.elevatedMax=2.7 は高い方の読みに依存。民集65巻5号2269頁は未読で、争点は未解決のまま。"
       },
       "rationale": "Normalised to 0.75 months of rent per renewal year, comfortably inside the band the 2011 renewal-fee decision calibrates."
     },
@@ -1999,7 +1999,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1R/1K",
-        "area_sqm": 21.0,
+        "area_sqm": 21,
         "rent_monthly_jpy": 75000,
         "deposit_jpy": 75000,
         "charged_amount_jpy": 14000,
@@ -2030,7 +2030,7 @@
       "context": {
         "prefecture": "神奈川県",
         "layout": "1R/1K",
-        "area_sqm": 22.0,
+        "area_sqm": 22,
         "rent_monthly_jpy": 70000,
         "deposit_jpy": 70000,
         "charged_amount_jpy": 42000,
@@ -2061,7 +2061,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1DK/1LDK",
-        "area_sqm": 31.0,
+        "area_sqm": 31,
         "rent_monthly_jpy": 70000,
         "deposit_jpy": 210000,
         "charged_amount_jpy": 105000,
@@ -2080,7 +2080,7 @@
         "reference": "最判平成23年3月24日",
         "verified": false,
         "verification_status": "secondary_source_checked",
-        "note": null
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 二次資料で照合（2026-09-14）: 第一小法廷。敷引特約は消費者契約法10条により当然無効ではなく、敷引金が高額に過ぎる場合に無効。事案は賃料96,000円・控除210,000円（約2.19倍）で有効。なお2倍〜3.5倍の範囲は平成23年7月12日判決（第三小法廷）に由来し、本判決ではない。民集65巻2号903頁は未読。"
       },
       "rationale": "At 1.5x monthly rent the retention is inside the supported band. Confirms TK_SHOUKYAKU routes to the shikibiki band."
     },
@@ -2092,7 +2092,7 @@
       "context": {
         "prefecture": "兵庫県",
         "layout": "2DK/2LDK",
-        "area_sqm": 45.0,
+        "area_sqm": 45,
         "rent_monthly_jpy": 70000,
         "deposit_jpy": 420000,
         "charged_amount_jpy": 315000,
@@ -2123,7 +2123,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1R/1K",
-        "area_sqm": 23.0,
+        "area_sqm": 23,
         "rent_monthly_jpy": 79000,
         "deposit_jpy": 79000,
         "charged_amount_jpy": 8000,
@@ -2154,7 +2154,7 @@
       "context": {
         "prefecture": "千葉県",
         "layout": "1R/1K",
-        "area_sqm": 21.0,
+        "area_sqm": 21,
         "rent_monthly_jpy": 64000,
         "deposit_jpy": 64000,
         "charged_amount_jpy": null,
@@ -2185,7 +2185,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1DK/1LDK",
-        "area_sqm": 33.0,
+        "area_sqm": 33,
         "rent_monthly_jpy": 105000,
         "deposit_jpy": 105000,
         "charged_amount_jpy": 105000,
@@ -2216,7 +2216,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1DK/1LDK",
-        "area_sqm": 33.0,
+        "area_sqm": 33,
         "rent_monthly_jpy": 105000,
         "deposit_jpy": 105000,
         "charged_amount_jpy": 315000,
@@ -2247,7 +2247,7 @@
       "context": {
         "prefecture": "愛知県",
         "layout": "2DK/2LDK",
-        "area_sqm": 44.0,
+        "area_sqm": 44,
         "rent_monthly_jpy": 66000,
         "deposit_jpy": 132000,
         "charged_amount_jpy": 30000,
@@ -2266,8 +2266,8 @@
         "type": "guideline",
         "reference": "国土交通省 原状回復をめぐるトラブルとガイドライン（再改訂版, 平成23年8月）",
         "verified": false,
-        "verification_status": "unverified",
-        "note": null
+        "verification_status": "secondary_source_checked",
+        "note": "Cross-read against secondary sources 2026-09-14 — NOT primary-source verified. Evidence: 経過年数モデルを二次資料で照合（2026-09-14）: クロス6年・流し台5年・設備機器(エアコン等)6年・便器/洗面台15年・耐用年数経過時の残存価値1円、フローリング部分補修と畳表は経過年数を考慮しない。bands.ts の DEPRECIATION_YEARS と一致。ガイドラインPDF本体は未読。"
       },
       "rationale": "Scoped to tenant-caused soiling with a stated unit price inside the band. 畳表 is a consumable under the guidelines, so no depreciation is expected here."
     },
@@ -2279,7 +2279,7 @@
       "context": {
         "prefecture": "愛知県",
         "layout": "2DK/2LDK",
-        "area_sqm": 42.0,
+        "area_sqm": 42,
         "rent_monthly_jpy": 61000,
         "deposit_jpy": 122000,
         "charged_amount_jpy": 78000,
@@ -2311,7 +2311,7 @@
       "context": {
         "prefecture": "東京都",
         "layout": "1DK/1LDK",
-        "area_sqm": 34.0,
+        "area_sqm": 34,
         "rent_monthly_jpy": 102000,
         "deposit_jpy": 204000,
         "charged_amount_jpy": 48000,
@@ -2342,7 +2342,7 @@
       "context": {
         "prefecture": "大阪府",
         "layout": "1DK/1LDK",
-        "area_sqm": 32.0,
+        "area_sqm": 32,
         "rent_monthly_jpy": 92000,
         "deposit_jpy": 184000,
         "charged_amount_jpy": 38400,
@@ -2373,7 +2373,7 @@
       "context": {
         "prefecture": "北海道",
         "layout": "1DK/1LDK",
-        "area_sqm": 33.0,
+        "area_sqm": 33,
         "rent_monthly_jpy": 58000,
         "deposit_jpy": 116000,
         "charged_amount_jpy": 124000,

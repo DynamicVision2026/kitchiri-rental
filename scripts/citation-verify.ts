@@ -1,9 +1,19 @@
 /**
  * Citation verification CLI — sign off one authority at a time.
  *
- *   npm run audit:status                         # progress board
- *   npm run audit:verify -- --group "<key>" --evidence "<what you read>"
- *   npm run audit:verify -- --group "<key>" --evidence "..." --apply
+ *   npm run audit:status
+ *   npm run audit:verify -- --group "<key>" --status <level> --evidence "<what you read>"
+ *   npm run audit:verify -- --group "<key>" --status <level> --evidence "..." --apply
+ *
+ * `--status` is REQUIRED and has no default. The two levels are not
+ * interchangeable, and which one you are claiming should be a decision you typed,
+ * not a default you inherited:
+ *
+ *   secondary_source_checked — cross-read against reputable secondary summaries.
+ *     Enough to catch a misattribution; NOT enough to put a number in front of a
+ *     tenant. Leaves `verified` false.
+ *   primary_source_verified — you read the primary text itself (民集, the guideline
+ *     PDF, the RETIO issue). Only this sets `verified: true`.
  *
  * Why a CLI: an authority backs up to 17 entries, and clearing it by hand means 17
  * identical JSON edits with 17 chances to set `verified: true` on the wrong one. This
@@ -74,7 +84,8 @@ function board(): void {
   }
   console.log("\n  ✔ cleared   ~ cross-read against secondary sources only, still unverified");
   console.log("\n  Clear one with:");
-  console.log('    npm run audit:verify -- --group "<authority>" --evidence "<what you read>" --apply');
+  console.log('    npm run audit:verify -- --group "<authority>" --status <level> --evidence "<what you read>" --apply');
+  console.log("    levels: secondary_source_checked | primary_source_verified");
 }
 
 if (has("list") || (!arg("group") && !has("apply"))) {
@@ -84,7 +95,22 @@ if (has("list") || (!arg("group") && !has("apply"))) {
 
 const key = arg("group");
 const evidence = arg("evidence");
+const status = arg("status");
 const apply = has("apply");
+
+const LEVELS = ["secondary_source_checked", "primary_source_verified"] as const;
+type Level = (typeof LEVELS)[number];
+
+if (!status || !(LEVELS as readonly string[]).includes(status)) {
+  console.error(
+    `Missing or unknown --status.\n` +
+      `  --status secondary_source_checked   cross-read against secondary summaries (verified stays false)\n` +
+      `  --status primary_source_verified    you read the primary text itself (sets verified: true)\n` +
+      `There is no default: claiming primary verification should be something you typed.`,
+  );
+  process.exit(1);
+}
+const level = status as Level;
 
 if (!key) { console.error('Missing --group. Run with --list to see the authorities.'); process.exit(1); }
 const group = groups.find((g) => g.key === key);
@@ -103,9 +129,13 @@ if (!evidence || evidence.trim().length < 12) {
 }
 
 const questions = OPEN_QUESTIONS[key] ?? [];
-console.log(`${apply ? "Applying" : "DRY RUN"} — ${key}`);
+if (level === "secondary_source_checked" && questions.length > 0) {
+  console.log("  NOTE: a secondary cross-read does NOT settle the open questions below.");
+  console.log("        They stay on the checklist until someone reads the primary text.");
+}
+console.log(`${apply ? "Applying" : "DRY RUN"} — ${key}  [${level}]`);
 console.log(`  where: ${group.where}`);
-if (questions.length) {
+if (questions.length && level === "primary_source_verified") {
   console.log("  open questions this sign-off asserts are settled:");
   for (const q of questions) console.log(`    - ${q}`);
 }
@@ -117,11 +147,17 @@ const ids = new Set(group.entries.map((e) => e.id));
 for (const entry of corpus.cases) {
   if (!ids.has(entry.id)) continue;
   const before = entry.source.verification_status;
-  console.log(`    ${entry.id}  ${before} -> primary_source_verified`);
+  if (before === "primary_source_verified" && level === "secondary_source_checked") {
+    console.log(`    ${entry.id}  already primary_source_verified — left alone (never downgrade)`);
+    continue;
+  }
+  console.log(`    ${entry.id}  ${before} -> ${level}`);
   if (!apply) continue;
-  entry.source.verification_status = "primary_source_verified";
-  entry.source.verified = true;
-  const note = `Primary source verified ${stamp}. Evidence: ${evidence}`;
+  entry.source.verification_status = level;
+  entry.source.verified = level === "primary_source_verified";
+  const note = level === "primary_source_verified"
+    ? `Primary source verified ${stamp}. Evidence: ${evidence}`
+    : `Cross-read against secondary sources ${stamp} — NOT primary-source verified. Evidence: ${evidence}`;
   entry.source.note = entry.source.note ? `${entry.source.note} ${note}` : note;
 }
 
