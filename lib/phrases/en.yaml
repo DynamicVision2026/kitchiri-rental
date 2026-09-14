@@ -9,6 +9,7 @@ p1:
   bare_fee_no_service: Names a sum but no service. P1 asks for scope as well as amount, and a bare fee identifies nothing the money buys.
   states_unit_price: States a per-unit rate.
   states_amount: States a fixed sum.
+  states_rent_multiple: States the burden as a multiple of rent, so the figure is computable from the lease.
   declared_fixed: The clause names no figure, but the user confirms the contract or an attached schedule fixes one.
   declared_not_fixed: No figure in the clause, and the user confirms none is fixed anywhere in the contract. The burden was not determinable at signing.
   unknown: No figure or rate found in the clause. An incorporated schedule may still fix one — ask before deciding.
@@ -29,6 +30,8 @@ p4:
   fails_p1_p2: Fails the specificity or assent that a valid override depends on.
   valid_override: Specific and agreed at contract level, with no unqualified disclaimer of depreciation.
   depends_on_p1_p2: Turns on P1/P2, which are not yet settled.
+  notice_stacked_on_penalty: A cancellation penalty runs alongside a notice period, so the tenant bears the cost twice for one early exit. 消費者契約法9条 caps a penalty at the average loss actually suffered.
+  shifts_ordinary_wear: Assigns ordinary wear and aging to the tenant in terms, with no explanation or assent recorded. Art. 621 expressly excludes both from the tenant’s burden.
 
 # Interpolated vocabulary for {placement} / {band} / {level}.
 placement:

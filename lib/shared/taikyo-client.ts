@@ -18,6 +18,34 @@ export type EvaluationResponse = ClauseEvaluation & { reasonsText: LocalizedReas
 
 export type AnswerValue = string | number | boolean;
 
+/* ---------------------------------------------------------------- *
+ * Batch contract scan
+ * ---------------------------------------------------------------- */
+
+export type { BatchReport, ClauseFinding, FinancialExposure, RiskLevel } from "@/lib/modules/taikyo/batch.ts";
+
+import type { BatchReport, ClauseFinding } from "@/lib/modules/taikyo/batch.ts";
+
+export type BatchFinding = ClauseFinding & { reasonsText: LocalizedReasons };
+export type BatchReportResponse = Omit<BatchReport, "findings"> & { findings: BatchFinding[] };
+
+export async function evaluateContractText(
+  contractText: string,
+  signal?: AbortSignal,
+): Promise<BatchReportResponse> {
+  const res = await fetch("/api/taikyo/batch-evaluate", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ contract_text: contractText }),
+    signal,
+  });
+  const body = await res.json().catch(() => null);
+  if (!res.ok) {
+    throw new EvaluateError(body?.message ?? body?.error ?? `Request failed (${res.status})`, res.status, body?.issues);
+  }
+  return body.report as BatchReportResponse;
+}
+
 export class EvaluateError extends Error {
   constructor(message: string, readonly status: number, readonly issues?: { path: string; message: string }[]) {
     super(message);

@@ -16,7 +16,9 @@
     "eval:factloop": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/golden-set/factloop-corpus.ts",
     "validate:phrases": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/validate-phrases.ts",
     "audit:status": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/citation-verify.ts --list",
-    "audit:verify": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/citation-verify.ts"
+    "audit:verify": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/citation-verify.ts",
+    "eval:segment": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/segment-check.ts",
+    "eval:batch": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/batch-check.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

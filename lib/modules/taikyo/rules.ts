@@ -108,6 +108,29 @@ export interface ClauseSignals {
    * being charged for.
    */
   namesServiceAct: boolean;
+  /**
+   * The burden is expressed as a multiple of rent (「賃料2か月分」). P1 accepts a
+   * determinate FORMULA as well as a fixed sum — the tenant can compute the figure
+   * from the lease — so this counts as specificity even with no 円 amount present.
+   */
+  statesRentMultiple: boolean;
+  /**
+   * A cancellation penalty running ALONGSIDE a notice period. The tenant pays the
+   * penalty and keeps paying rent through the notice window for the same early exit,
+   * so the landlord is compensated twice over for one loss — which is what
+   * 消費者契約法9条 caps. Detected from the clause text, so it works on a raw contract
+   * scan where no structured context exists.
+   */
+  stacksNoticeOnPenalty: boolean;
+  /**
+   * Puts 通常損耗 or 経年変化 on the tenant in so many words, rather than through an
+   * "irrespective of occupancy/age" formula. This is the most direct assault on
+   * art. 621 there is, and the disclaimer regex misses it entirely because there is
+   * nothing to disclaim — the clause simply assigns the cost. Clauses that RESERVE
+   * ordinary wear to the landlord are excluded: they use the same nouns to say the
+   * opposite thing.
+   */
+  shiftsOrdinaryWearExpressly: boolean;
 }
 
 const RE = {
@@ -116,11 +139,17 @@ const RE = {
   assent: /(説明|読み上げ|署名|記名|押印|同意|承諾)/,
   disclaim:
     /(経過年数|耐用年数|経年|減価|残存価値|居住年数|居住期間|入居期間|使用年数|使用状況|損耗の程度|毀損の有無|破損の有無|原因|故意過失).{0,14}(かかわらず|関わらず|問わず|問わない|考慮せず|考慮しない)/,
-  defer: /((貸主|賃貸人)が(指定|決定|定め)|別途定め|後日|事後に|明渡し後に|実費を請求|管理規約による)/,
+  defer: /((貸主|賃貸人)(が|の)(指定|決定|定め)|別途定め|後日|事後に|明渡し後に|実費を請求|管理規約による)/,
   preserve: /(経過年数に応じ|減価を行|(通常損耗|経年変化)[^。]{0,24}(賃貸人|貸主)の負担)/,
   noPerformance: /(実施・不実施|実施の有無|施工の有無|履行の有無|作業の有無)[^。]{0,16}(かかわらず|関わらず|問わず)/,
   damagePhenomena: /(キズ|傷|へこみ|凹み|変色|日焼け|画鋲|落書き|ヤニ|しみ|シミ|汚損|焦げ|カビ)/,
   serviceAct: /(立会|書類|精算|作成|清掃|消毒|除菌|抗菌|交換|張替え|張り替え|補修|クリーニング|施工|表替え|リフォーム|コーティング)/,
+  rentMultiple: /賃料(?:及び[^\s]{0,8})?[^。]{0,10}(?:か|ヶ|ケ|箇)?月分/,
+  penalty: /違約金/,
+  noticePeriod: /(予告|申出|申し出|通知)[^。]{0,16}(?:か|ヶ|ケ|箇)?月前/,
+  wearTerm: /(通常損耗|経年変化|経年劣化|自然損耗|通常の使用により生じた損耗|通常の使用による損耗)/,
+  tenantBears: /(賃借人|借主)[^。]{0,40}負担/,
+  landlordCarveOut: /(通常損耗|経年変化|自然損耗)[^。]{0,24}(賃貸人|貸主)の負担/,
 } as const;
 
 export function detectSignals(clauseText: string): ClauseSignals {
@@ -134,6 +163,12 @@ export function detectSignals(clauseText: string): ClauseSignals {
     chargeIrrespectiveOfPerformance: RE.noPerformance.test(clauseText),
     identifiesDamagePhenomena: RE.damagePhenomena.test(clauseText),
     namesServiceAct: RE.serviceAct.test(clauseText),
+    statesRentMultiple: RE.rentMultiple.test(clauseText),
+    stacksNoticeOnPenalty: RE.penalty.test(clauseText) && RE.noticePeriod.test(clauseText),
+    shiftsOrdinaryWearExpressly:
+      RE.wearTerm.test(clauseText) &&
+      RE.tenantBears.test(clauseText) &&
+      !RE.landlordCarveOut.test(clauseText),
   };
 }
 
@@ -429,11 +464,11 @@ export type ProngReasons = Readonly<Record<ProngId, ReasonRef>>;
 export const REASON_CODES = [
   "common.no_pattern",
   "p1.deferred", "p1.bare_fee_no_service", "p1.states_unit_price", "p1.states_amount",
-  "p1.declared_fixed", "p1.declared_not_fixed", "p1.unknown",
+  "p1.states_rent_multiple", "p1.declared_fixed", "p1.declared_not_fixed", "p1.unknown",
   "p2.agreed", "p2.not_agreed", "p2.unknown",
   "p3.no_band", "p3.insufficient_context", "p3.measured",
   "p4.no_performance", "p4.disclaims_without_assent", "p4.fails_p1_p2",
-  "p4.valid_override", "p4.depends_on_p1_p2",
+  "p4.valid_override", "p4.depends_on_p1_p2", "p4.notice_stacked_on_penalty", "p4.shifts_ordinary_wear",
 ] as const;
 export type ReasonCode = (typeof REASON_CODES)[number];
 
@@ -459,9 +494,15 @@ export function scoreProngs(args: {
   } else if (FEE_PATTERNS.has(code) && signals.statesAmount && !signals.namesServiceAct) {
     P1 = false;
     reasons.P1 = { code: "p1.bare_fee_no_service" };
-  } else if (signals.statesAmount || signals.statesUnitPrice) {
+  } else if (signals.statesAmount || signals.statesUnitPrice || signals.statesRentMultiple) {
     P1 = true;
-    reasons.P1 = { code: signals.statesUnitPrice ? "p1.states_unit_price" : "p1.states_amount" };
+    reasons.P1 = {
+      code: signals.statesUnitPrice
+        ? "p1.states_unit_price"
+        : signals.statesAmount
+          ? "p1.states_amount"
+          : "p1.states_rent_multiple",
+    };
   } else if (declared.amount_fixed_in_contract === true) {
     P1 = true;
     reasons.P1 = { code: "p1.declared_fixed" };
@@ -507,12 +548,21 @@ export function scoreProngs(args: {
 
   // P4 621条 — the 最判平成17年12月16日 rule.
   let P4: ProngScore;
-  if (signals.chargeIrrespectiveOfPerformance) {
+  if (signals.stacksNoticeOnPenalty) {
+    P4 = false;
+    reasons.P4 = { code: "p4.notice_stacked_on_penalty" };
+  } else if (signals.chargeIrrespectiveOfPerformance) {
     P4 = false;
     reasons.P4 = { code: "p4.no_performance" };
-  } else if (pattern.depreciationSensitive && signals.disclaimsDepreciation && !signals.recordsAssent) {
+  } else if (
+    pattern.depreciationSensitive &&
+    (signals.disclaimsDepreciation || signals.shiftsOrdinaryWearExpressly) &&
+    !signals.recordsAssent
+  ) {
     P4 = false;
-    reasons.P4 = { code: "p4.disclaims_without_assent" };
+    reasons.P4 = {
+      code: signals.disclaimsDepreciation ? "p4.disclaims_without_assent" : "p4.shifts_ordinary_wear",
+    };
   } else if (P1 === false || P2 === false) {
     P4 = false;
     reasons.P4 = { code: "p4.fails_p1_p2" };

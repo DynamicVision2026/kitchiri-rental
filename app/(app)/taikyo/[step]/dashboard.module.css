@@ -1,0 +1,104 @@
+/* Contract Health Dashboard.
+   Verdicts are STATUS, not categories, so they use the fixed status palette and are
+   always paired with a glyph and a label — a status colour never carries meaning on
+   its own. Dark mode is a selected set of steps, declared under both the OS media
+   query and the explicit theme scope, not an automatic flip. */
+
+.root {
+  --surface: #fcfcfb;
+  --surface-2: #ffffff;
+  --border: #e4e4e0;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --ink-3: #7b7a74;
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --neutral: #9a9a93;
+  --accent: #1b3a6b;
+  color-scheme: light;
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+  color: var(--ink);
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .root {
+    color-scheme: dark;
+    --surface: #1a1a19; --surface-2: #202021; --border: #33332f;
+    --ink: #ffffff; --ink-2: #c3c2b7; --ink-3: #8f8e85;
+    --good: #2fb92f; --warning: #fab219; --serious: #ec835a; --critical: #e05656;
+    --neutral: #7c7b74; --accent: #9dc2f0;
+  }
+}
+:root[data-theme="dark"] .root {
+  color-scheme: dark;
+  --surface: #1a1a19; --surface-2: #202021; --border: #33332f;
+  --ink: #ffffff; --ink-2: #c3c2b7; --ink-3: #8f8e85;
+  --good: #2fb92f; --warning: #fab219; --serious: #ec835a; --critical: #e05656;
+  --neutral: #7c7b74; --accent: #9dc2f0;
+}
+
+.h1 { font-size: 1.55rem; margin: 0 0 .3rem; }
+.sub { color: var(--ink-2); font-size: .88rem; line-height: 1.7; margin: 0 0 1.5rem; }
+.sectionTitle { font-size: 1rem; margin: 2rem 0 .75rem; }
+
+.card { border: 1px solid var(--border); border-radius: .6rem; background: var(--surface-2); padding: 1.15rem; }
+.textarea { width: 100%; min-height: 15rem; padding: .8rem; border: 1px solid var(--border); border-radius: .4rem;
+  font: inherit; line-height: 1.75; box-sizing: border-box; background: var(--surface); color: var(--ink); resize: vertical; }
+.row { display: flex; gap: .75rem; align-items: center; margin-top: 1rem; flex-wrap: wrap; }
+.btn { background: var(--accent); color: #fff; border: 0; border-radius: .4rem; padding: .65rem 1.3rem;
+  font: inherit; font-weight: 600; cursor: pointer; }
+.btn:disabled { background: var(--neutral); cursor: not-allowed; }
+.btnGhost { background: transparent; color: var(--accent); border: 1px solid var(--border); border-radius: .4rem;
+  padding: .55rem 1rem; font: inherit; cursor: pointer; }
+.help { color: var(--ink-3); font-size: .8rem; line-height: 1.7; margin: .5rem 0 0; }
+.error { margin-top: 1rem; padding: .7rem .9rem; background: #fdecea; color: #8d2018; border-radius: .4rem; font-size: .85rem; }
+
+/* hero */
+.hero { display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: flex-start;
+  border: 1px solid var(--border); border-radius: .6rem; background: var(--surface-2); padding: 1.25rem; }
+.heroMain { flex: 1 1 15rem; }
+.riskLabel { display: inline-flex; align-items: center; gap: .45rem; font-weight: 700; font-size: 1.05rem; }
+.riskDot { width: .7rem; height: .7rem; border-radius: 50%; flex: none; }
+.heroNumber { font-size: 2.1rem; font-weight: 700; letter-spacing: -.01em; margin: .5rem 0 .2rem; font-variant-numeric: tabular-nums; }
+.heroCaption { color: var(--ink-3); font-size: .78rem; line-height: 1.65; }
+
+/* KPI row */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .75rem; margin-top: 1rem; }
+.kpi { border: 1px solid var(--border); border-radius: .5rem; padding: .75rem .85rem; background: var(--surface-2); }
+.kpiValue { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.kpiLabel { color: var(--ink-3); font-size: .74rem; margin-top: .15rem; }
+
+/* proportion bar — 2px surface gaps between fills */
+.bar { display: flex; gap: 2px; height: .85rem; margin: 1rem 0 .65rem; }
+.barSeg { border-radius: 2px; min-width: 6px; }
+.legend { display: flex; flex-wrap: wrap; gap: .4rem 1.1rem; font-size: .8rem; }
+.legendItem { display: inline-flex; align-items: center; gap: .4rem; color: var(--ink-2); }
+.swatch { width: .62rem; height: .62rem; border-radius: 2px; flex: none; }
+.legendCount { font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 600; }
+
+/* clause cards */
+.finding { border: 1px solid var(--border); border-left-width: 3px; border-radius: .5rem;
+  background: var(--surface-2); padding: .95rem 1.1rem; margin-bottom: .7rem; }
+.findingHead { display: flex; gap: .6rem; align-items: baseline; flex-wrap: wrap; }
+.loc { font-weight: 700; font-size: .88rem; }
+.badge { display: inline-flex; align-items: center; gap: .35rem; font-size: .76rem; font-weight: 700;
+  padding: .15rem .5rem; border-radius: .25rem; border: 1px solid currentColor; }
+.tag { font-size: .7rem; color: var(--ink-3); border: 1px solid var(--border); border-radius: .25rem; padding: .1rem .4rem; }
+.clauseText { font-size: .85rem; line-height: 1.85; margin: .6rem 0 0; color: var(--ink-2);
+  border-left: 2px solid var(--border); padding-left: .75rem; }
+.remedy { font-size: .87rem; line-height: 1.8; margin: .7rem 0 0; }
+.details { margin-top: .6rem; font-size: .8rem; }
+.details summary { cursor: pointer; color: var(--accent); }
+.prongTable { width: 100%; border-collapse: collapse; margin-top: .5rem; font-size: .78rem; }
+.prongTable th, .prongTable td { text-align: left; padding: .35rem .45rem; border-bottom: 1px solid var(--border);
+  vertical-align: top; color: var(--ink-2); }
+.prongTable th { white-space: nowrap; color: var(--ink-3); font-weight: 600; }
+.amount { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+.advisory { margin-top: 1.75rem; padding: .85rem 1rem; border-left: 3px solid var(--warning);
+  background: color-mix(in srgb, var(--warning) 9%, transparent); font-size: .79rem; line-height: 1.75;
+  color: var(--ink-2); border-radius: 0 .3rem .3rem 0; }
+.caveats { margin: .6rem 0 0; padding-left: 1.1rem; font-size: .78rem; color: var(--ink-3); line-height: 1.75; }
