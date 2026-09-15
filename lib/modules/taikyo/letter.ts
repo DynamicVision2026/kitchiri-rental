@@ -58,8 +58,34 @@ export const CITATION_REGISTRY: readonly RegisteredCitation[] = [
   { key: "cite.shikibiki", tier: "secondary_source_checked", codes: ["TK_SHIKIBIKI", "TK_SHOUKYAKU"] },
 ];
 
-/** Verdicts that justify writing to a landlord at all. */
-export const LETTERABLE_VERDICTS: readonly Verdict[] = ["unenforceable", "severable", "reducible"];
+/**
+ * Verdicts that justify writing at all, and the stance each takes.
+ *
+ * Three stances, not one. A clause we cannot judge is not a clause with nothing to
+ * say about it: under art. 621 the burden of showing damage beyond ordinary wear —
+ * and what the repair actually cost — sits with the party asserting it. Most 管理会社
+ * cannot meet that burden, which makes 立証を求める the section most likely to produce
+ * a reduction without escalation. Returning a refusal there, as this builder
+ * previously did, threw away the strongest and least confrontational ask available.
+ */
+export const LETTER_STANCES = ["dispute", "conditional", "demand"] as const;
+export type LetterStance = (typeof LETTER_STANCES)[number];
+
+const STANCE_OF: Partial<Record<Verdict, LetterStance>> = {
+  unenforceable: "dispute",
+  severable: "dispute",
+  reducible: "conditional",
+  needs_review: "demand",
+};
+
+export const LETTERABLE_VERDICTS: readonly Verdict[] =
+  (Object.keys(STANCE_OF) as Verdict[]).filter((v) => STANCE_OF[v] !== undefined);
+
+const STANCE_HEADING: Record<LetterStance, string> = {
+  dispute: "letter.stance_dispute",
+  conditional: "letter.stance_conditional",
+  demand: "letter.stance_demand",
+};
 
 /** Every phrase key the builder can reference — validate:phrases checks each exists. */
 export const LETTER_KEYS: readonly string[] = [
@@ -69,7 +95,9 @@ export const LETTER_KEYS: readonly string[] = [
   "letter.request_reconsider", "letter.request_reply", "letter.closing",
   "letter.complimentary_close", "letter.placeholder_landlord", "letter.placeholder_address",
   "letter.placeholder_name", "letter.placeholder_property", "letter.footer_note",
-  "position.unenforceable", "position.severable", "position.reducible",
+  "position.unenforceable", "position.severable", "position.reducible", "position.needs_review",
+  "letter.stance_dispute", "letter.stance_conditional", "letter.stance_demand",
+  "letter.request_evidence",
   ...CITATION_REGISTRY.map((c) => c.key),
 ];
 
@@ -101,6 +129,8 @@ export interface LetterInput {
 export interface LetterResult {
   ok: true;
   text: string;
+  /** Which stances the letter actually contains. */
+  stances: LetterStance[];
   /** Citations actually included, so the UI can show what the letter leans on. */
   citations: string[];
   /** True while any cited authority is below primary verification. */
@@ -150,8 +180,8 @@ export function buildNegotiationLetter(input: LetterInput): LetterResult | Lette
       ok: false,
       reason:
         locale === "ja"
-          ? "争点となる条項がありません。判定が「有効の可能性」または「要確認」の条項については、交渉文面を作成しません。根拠のない申入れは、かえって不利に働くことがあります。"
-          : "No disputable clause. Letters are not generated for clauses judged enforceable or needing review: writing without a basis can leave the tenant worse off than not writing.",
+          ? "争点となる条項がありません。判定が「有効の可能性が高い」条項のみの場合、交渉文面は作成しません。根拠のない申入れは、かえって不利に働くことがあります。"
+          : "No clause to write about. Where every clause is judged enforceable, no letter is generated: writing without a basis can leave the tenant worse off than not writing.",
       rejected,
     };
   }
@@ -181,21 +211,35 @@ export function buildNegotiationLetter(input: LetterInput): LetterResult | Lette
   L.push(`　　${input.propertyName ?? p("letter.placeholder_property", locale)}`);
   L.push("");
 
-  usable.forEach((clause, i) => {
-    L.push(`${i + 2}. ${p("letter.section_clause", locale)}（${clause.label}）`);
-    L.push(`　　「${clause.clauseText.replace(/\n/g, " ")}」`);
-    if (clause.amountJpy != null) L.push(`　　ご請求額（記載額）：${yen(clause.amountJpy)}`);
-    L.push("");
-    L.push(`　　${p("letter.section_position", locale)}`);
-    L.push(`　　${p(`position.${clause.verdict}`, locale)}`);
-    L.push("");
-  });
+  // Grouped by stance so the landlord reads three distinct asks, not one undifferentiated
+  // list: where we disagree, where we want the figure checked, and where we want the
+  // records produced.
+  const byStance = LETTER_STANCES
+    .map((stance) => ({ stance, clauses: usable.filter((c) => STANCE_OF[c.verdict] === stance) }))
+    .filter((g) => g.clauses.length > 0);
 
-  const requestNo = usable.length + 2;
+  let item = 2;
+  for (const group of byStance) {
+    L.push(`${item}. ${p(STANCE_HEADING[group.stance], locale)}`);
+    L.push("");
+    group.clauses.forEach((clause, i) => {
+      L.push(`　　(${i + 1}) ${p("letter.section_clause", locale)}（${clause.label}）`);
+      L.push(`　　　　「${clause.clauseText.replace(/\n/g, " ")}」`);
+      if (clause.amountJpy != null) L.push(`　　　　ご請求額（記載額）：${yen(clause.amountJpy)}`);
+      L.push(`　　　　${p(`position.${clause.verdict}`, locale)}`);
+      L.push("");
+    });
+    item += 1;
+  }
+
+  const requestNo = item;
   L.push(`${requestNo}. ${p("letter.section_request", locale)}`);
-  L.push(`　　(1) ${p("letter.request_itemise", locale)}`);
-  L.push(`　　(2) ${p("letter.request_reconsider", locale)}`);
-  L.push(`　　(3) ${p("letter.request_reply", locale)}`);
+  const asks: string[] = [];
+  if (byStance.some((g) => g.stance === "demand")) asks.push(p("letter.request_evidence", locale));
+  asks.push(p("letter.request_itemise", locale));
+  if (byStance.some((g) => g.stance !== "demand")) asks.push(p("letter.request_reconsider", locale));
+  asks.push(p("letter.request_reply", locale));
+  asks.forEach((a, i) => L.push(`　　(${i + 1}) ${a}`));
   L.push("");
 
   if (citations.length > 0) {
@@ -214,6 +258,7 @@ export function buildNegotiationLetter(input: LetterInput): LetterResult | Lette
   return {
     ok: true,
     text: L.join("\n"),
+    stances: byStance.map((g) => g.stance),
     citations: citations.map((c) => c.key),
     containsUnverifiedCitations: citations.some((c) => c.tier !== "primary_source_verified"),
     clauseCount: usable.length,

@@ -21,6 +21,34 @@ const corpus = corpusSchema.parse(
   JSON.parse(readFileSync(fileURLToPath(new URL("./taikyo-corpus.json", import.meta.url)), "utf8")),
 );
 
+/**
+ * The two failure directions are not equally bad, so they are never summed.
+ *
+ *   false_valid   — we said 有効 where the corpus says the clause is contestable.
+ *                   The tenant pays something they need not have paid. Their money.
+ *   false_adverse — we said 争う where the corpus says the clause holds. A wrong
+ *                   assertion goes into a letter handed to a 管理会社. Our
+ *                   credibility, the tenant's position, our legal exposure.
+ *
+ * needs_review is neither: abstention is the designed safe answer and is counted
+ * separately rather than punished as an error.
+ *
+ * The composite weights false_adverse 5x, because the cost is not the tenant's to
+ * bear and is not recoverable by them. The weight is a judgement, stated here so it
+ * can be argued with rather than buried in an average.
+ */
+const W_FALSE_VALID = 1;
+const W_FALSE_ADVERSE = 5;
+const ADVERSE = new Set(["unenforceable", "severable", "reducible"]);
+
+let falseValid = 0;
+let falseAdverse = 0;
+let abstained = 0;
+let overconfident = 0;
+const overconfidentCases: string[] = [];
+const falseValidCases: string[] = [];
+const falseAdverseCases: string[] = [];
+
 let classifiedTop = 0;
 let classifiedInTop3 = 0;
 let verdictExact = 0;
@@ -58,6 +86,25 @@ for (const entry of corpus.cases) {
   if (withCode.verdict === entry.expected_verdict) verdictExact += 1;
   else if (withCode.verdict === "needs_review") verdictSafe += 1;
   else misses.push(`${entry.id} ${entry.expected_code}: expected ${entry.expected_verdict}, engine said ${withCode.verdict}`);
+
+  // Direction of failure, which is the number that actually matters.
+  const truthAdverse = ADVERSE.has(entry.expected_verdict);
+  const saidAdverse = ADVERSE.has(withCode.verdict);
+  if (withCode.verdict === "needs_review") {
+    if (entry.expected_verdict !== "needs_review") abstained += 1;
+  } else if (truthAdverse && !saidAdverse) {
+    falseValid += 1;
+    falseValidCases.push(`${entry.id} ${entry.expected_code}: truth ${entry.expected_verdict}, engine 有効 — tenant would pay`);
+  } else if (entry.expected_verdict === "needs_review") {
+    // The corpus itself abstains — an unresolved citation, or facts too thin. The
+    // engine deciding anyway is overconfidence, but it is NOT the same failure as
+    // calling a sound clause contestable, and folding them together would hide both.
+    overconfident += 1;
+    overconfidentCases.push(`${entry.id} ${entry.expected_code}: corpus abstains, engine said ${withCode.verdict}`);
+  } else if (!truthAdverse && saidAdverse) {
+    falseAdverse += 1;
+    falseAdverseCases.push(`${entry.id} ${entry.expected_code}: truth ${entry.expected_verdict}, engine ${withCode.verdict} — would enter a letter`);
+  }
 }
 
 const n = corpus.cases.length;
@@ -80,4 +127,29 @@ if (misses.length > 0) {
   console.log("\ndecisive disagreements:");
   for (const m of misses) console.log(`  ${m}`);
 }
+console.log("\nfailure direction  (these are not summed; they cost different things)");
+console.log(`  false_valid        ${pct(falseValid)}  (${falseValid}/${n})   said 有効, truth contestable — costs the tenant money`);
+console.log(`  false_adverse      ${pct(falseAdverse)}  (${falseAdverse}/${n})   said 争う, truth holds — costs credibility and exposure`);
+console.log(`  abstained          ${pct(abstained)}  (${abstained}/${n})   said 要確認 on a decidable clause — safe, not free`);
+console.log(`  overconfident      ${pct(overconfident)}  (${overconfident}/${n})   decided where the corpus itself abstains`);
+
+const penalty = falseValid * W_FALSE_VALID + falseAdverse * W_FALSE_ADVERSE + overconfident * W_FALSE_ADVERSE;
+const safety = Math.max(0, 1 - penalty / n);
+console.log(`\n  weighted safety    ${(safety * 100).toFixed(1)}%   (false_adverse weighted ${W_FALSE_ADVERSE}x, false_valid ${W_FALSE_VALID}x)`);
+if (falseAdverseCases.length) {
+  console.log("\nfalse_adverse — a wrong assertion would reach a 管理会社:");
+  for (const c of falseAdverseCases) console.log(`  ${c}`);
+}
+if (falseValidCases.length) {
+  console.log("\nfalse_valid — a tenant would pay a contestable charge:");
+  for (const c of falseValidCases) console.log(`  ${c}`);
+}
+if (overconfidentCases.length) {
+  console.log("\noverconfident — decided a clause the corpus will not:");
+  for (const c of overconfidentCases) console.log(`  ${c}`);
+}
+if (!falseAdverseCases.length && !falseValidCases.length && !overconfidentCases.length) {
+  console.log("\n  no failures in either direction; every disagreement is an abstention.");
+}
+
 console.log("\nThis is a scaffold. Read lib/modules/taikyo/rules.ts before trusting any number above.");

@@ -1121,16 +1121,16 @@
         "P1": true,
         "P2": true,
         "P3": true,
-        "P4": false
+        "P4": "unknown"
       },
-      "expected_verdict": "unenforceable",
-      "verdict_ja": "無効の可能性が高い（説明・合意の記録なし）",
+      "expected_verdict": "needs_review",
+      "verdict_ja": "立証を求める（引用の整合が未確認）",
       "source": {
         "type": "lower_court",
         "reference": "東京地方裁判所平成28年12月20日判決（RETIO109号108頁）",
         "verified": false,
         "verification_status": "unverified",
-        "note": "P4 flipped from true to false to apply 最判平成17年12月16日 uniformly: the clause is written into the 特約事項欄 but records no explanation to, or assent from, the tenant, which is what TK-0055 has and this does not. NOTE: the cited 東京地裁平成28年12月20日 (RETIO109号108頁) was offered as authority for VALIDITY. Either the citation needs re-checking or the clause text under-describes what that court actually found — resolve before relying on this entry."
+        "note": "P4 flipped from true to false to apply 最判平成17年12月16日 uniformly: the clause is written into the 特約事項欄 but records no explanation to, or assent from, the tenant, which is what TK-0055 has and this does not. NOTE: the cited 東京地裁平成28年12月20日 (RETIO109号108頁) was offered as authority for VALIDITY. Either the citation needs re-checking or the clause text under-describes what that court actually found — resolve before relying on this entry. QUARANTINED 2026-09-15: this entry was asserting a verdict its own citation points away from. 東京地裁平成28年12月20日 (RETIO 109号108頁) was offered as authority for the clause being UPHELD, while the entry scored P4 false to keep the article 621 rule uniform. One of the two is wrong and the primary text is still unreachable, so P4 is forced to unknown and the verdict to needs_review — 立証を求める. It no longer asserts an outcome in either direction. Restore a decisive label only after reading RETIO 109号108頁."
       },
       "rationale": "Aligned with TK-0016: both disclaim 経過年数 for full-room cross replacement and neither records explanation or assent, so both fail P4. TK-0055 stays enforceable because it records both."
     },

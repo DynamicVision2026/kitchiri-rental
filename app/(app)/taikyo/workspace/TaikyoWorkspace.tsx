@@ -63,8 +63,10 @@ const RISK_STYLE = {
 const PRONG_LABELS = { P1: "P1 明確性", P2: "P2 所在", P3: "P3 相当性", P4: "P4 621条" } as const;
 
 /** Verdicts a letter may be written about. Mirrors LETTERABLE_VERDICTS on the server,
- *  which is the authority — this only decides whether to show the button. */
-const DISPUTABLE = new Set(["unenforceable", "severable", "reducible"]);
+ *  which is the authority — this only decides whether to show the button.
+ *  needs_review is included: an undecided clause gets a demand for the landlord's
+ *  records, which under art. 621 is their burden to produce. */
+const DISPUTABLE = new Set(["unenforceable", "severable", "reducible", "needs_review"]);
 
 const toLetterClause = (f: BatchFinding): LetterClause => ({
   label: f.label,
@@ -152,7 +154,7 @@ function FindingCard({ finding, onDraft, busy, answers, onAnswer, onApply, apply
             disabled={busy}
             onClick={() => onDraft([toLetterClause(finding)], `${finding.label} の交渉文面`)}
           >
-            交渉文面を作成
+            {verdict === "needs_review" ? "立証を求める文面を作成" : "交渉文面を作成"}
           </button>
         </div>
       )}
@@ -439,9 +441,9 @@ export default function TaikyoWorkspace() {
               <button
                 className={styles.letterBtn}
                 disabled={letterBusy}
-                onClick={() => void draftLetter(disputableFindings.map(toLetterClause), `問題のある${disputableFindings.length}条項をまとめた交渉文面`)}
+                onClick={() => void draftLetter(disputableFindings.map(toLetterClause), `${disputableFindings.length}条項をまとめた交渉文面`)}
               >
-                {letterBusy ? "作成中…" : `問題のある${disputableFindings.length}条項をまとめて交渉文面を作成`}
+                {letterBusy ? "作成中…" : `${disputableFindings.length}条項をまとめて交渉文面を作成`}
               </button>
             </div>
           )}

@@ -37,8 +37,47 @@ if (drafted.ok) {
   expect(drafted.text.includes("165,000円"), "the stated amount must appear");
 }
 
-// 2. A clause with nothing wrong produces a refusal, not a hedged draft.
-for (const verdict of ["enforceable", "needs_review"] as const) {
+// 2. An undecided clause produces a DEMAND, not a refusal. Under art. 621 the burden
+//    of evidencing damage beyond ordinary wear is the landlord's, so "we cannot tell"
+//    is an ask, not silence.
+const demanded = buildNegotiationLetter({
+  today: TODAY,
+  clauses: [{
+    label: "特約事項 1.",
+    clauseText: "退去時のハウスクリーニング費用として、賃借人は金120,000円を負担するものとする。",
+    verdict: "needs_review", code: "TK_CLEAN", amountJpy: 120000,
+  }],
+});
+expect(demanded.ok, "a needs_review clause must produce a demand letter, not a refusal");
+if (demanded.ok) {
+  expect(demanded.stances.includes("demand"), "the demand stance must be present");
+  expect(demanded.text.includes("入居時の物件状況確認書"), "must demand the move-in condition record");
+  expect(demanded.text.includes("施工内訳書"), "must demand the itemised work statement");
+  expect(demanded.text.includes("民法621条"), "must ground the demand in art. 621");
+  expect(!/無効です|支払いません/.test(demanded.text), "a demand must not assert invalidity");
+}
+
+// 2b. Three stances separate into three sections.
+const threeWay = buildNegotiationLetter({
+  today: TODAY,
+  clauses: [
+    { label: "A", clauseText: "経過年数にかかわらず全面張替えとする。", verdict: "unenforceable", code: "TK_CROSS", amountJpy: null },
+    { label: "B", clauseText: "室内消毒施工費として金42,000円を負担する。", verdict: "reducible", code: "TK_SHOUDOKU", amountJpy: 42000 },
+    { label: "C", clauseText: "ハウスクリーニング費用として金120,000円を負担する。", verdict: "needs_review", code: "TK_CLEAN", amountJpy: 120000 },
+  ],
+});
+expect(threeWay.ok && threeWay.stances.length === 3, "all three stances should appear");
+if (threeWay.ok) {
+  console.log("--- three-stance letter ---\n");
+  console.log(threeWay.text);
+  console.log("\n--- end ---\n");
+  expect(threeWay.text.includes("負担区分について見解の相違がある項目"), "dispute section missing");
+  expect(threeWay.text.includes("金額の相当性について確認をお願いする項目"), "conditional section missing");
+  expect(threeWay.text.includes("判断材料のご提示をお願いする項目"), "demand section missing");
+}
+
+// 3. Only a wholly sound clause produces a refusal.
+for (const verdict of ["enforceable"] as const) {
   const refused = buildNegotiationLetter({
     today: TODAY,
     clauses: [{ label: "特約事項 4.", clauseText: "鍵交換費用として金18,000円を負担する。", verdict, code: "TK_KAGI", amountJpy: 18000 }],
@@ -47,7 +86,7 @@ for (const verdict of ["enforceable", "needs_review"] as const) {
   if (!refused.ok) expect(refused.rejected.length === 1, `${verdict} refusal must name the rejected clause`);
 }
 
-// 3. Mixed input keeps only the disputable clauses.
+// 4. Mixed input keeps only the clauses worth writing about.
 const mixed = buildNegotiationLetter({
   today: TODAY,
   clauses: [
@@ -70,8 +109,8 @@ expect(drafted.ok && !drafted.citations.includes("cite.shikibiki"), "a cross cla
 // 5. Every registered citation is at least secondary-checked.
 expect(CITATION_REGISTRY.every((c) => c.tier === "primary_source_verified" || c.tier === "secondary_source_checked"),
   "an unverified authority is registered for outbound use");
-expect(!LETTERABLE_VERDICTS.includes("enforceable") && !LETTERABLE_VERDICTS.includes("needs_review"),
-  "only adverse verdicts may be letterable");
+expect(!LETTERABLE_VERDICTS.includes("enforceable"), "a sound clause is never letterable");
+expect(LETTERABLE_VERDICTS.includes("needs_review"), "an undecided clause must be letterable as a demand");
 
 if (failures.length) {
   for (const f of failures) console.error(`  FAIL: ${f}`);

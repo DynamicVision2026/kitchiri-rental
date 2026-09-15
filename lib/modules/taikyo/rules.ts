@@ -51,6 +51,14 @@ import {
   type BandResult,
 } from "./bands.ts";
 import { deriveFactRequests, type FactRequest } from "./questions.ts";
+import {
+  PRONG_KINDS,
+  hasNumeral,
+  verifyClaim,
+  verifySpan,
+  type ProngKind,
+  type VerifiedSpan,
+} from "./spans.ts";
 import type { ReasonRef } from "../../phrases/index.ts";
 
 /* ------------------------------------------------------------------ *
@@ -115,6 +123,11 @@ export interface ClauseSignals {
    */
   statesRentMultiple: boolean;
   /**
+   * The substring that triggered each signal, or null. An asserted prong must be
+   * able to point at one of these; a prong with no span is forced to unknown.
+   */
+  spans: Readonly<Record<string, string | null>>;
+  /**
    * A cancellation penalty running ALONGSIDE a notice period. The tenant pays the
    * penalty and keeps paying rent through the notice window for the same early exit,
    * so the landlord is compensated twice over for one loss — which is what
@@ -153,22 +166,41 @@ const RE = {
 } as const;
 
 export function detectSignals(clauseText: string): ClauseSignals {
+  // Captures the matched text, not just whether it matched, so every downstream
+  // assertion can be traced back to the words that produced it.
+  const hit = (re: RegExp): string | null => clauseText.match(re)?.[0] ?? null;
+
+  const spans = {
+    amount: hit(RE.amount),
+    unitPrice: hit(RE.unitPrice),
+    assent: hit(RE.assent),
+    disclaim: hit(RE.disclaim),
+    defer: hit(RE.defer),
+    preserve: hit(RE.preserve),
+    noPerformance: hit(RE.noPerformance),
+    damagePhenomena: hit(RE.damagePhenomena),
+    serviceAct: hit(RE.serviceAct),
+    rentMultiple: hit(RE.rentMultiple),
+    wearShift: RE.wearTerm.test(clauseText) && RE.tenantBears.test(clauseText) && !RE.landlordCarveOut.test(clauseText)
+      ? hit(RE.wearTerm)
+      : null,
+    noticeStack: RE.penalty.test(clauseText) && RE.noticePeriod.test(clauseText) ? hit(RE.noticePeriod) : null,
+  } as const;
+
   return {
-    statesAmount: RE.amount.test(clauseText),
-    statesUnitPrice: RE.unitPrice.test(clauseText),
-    recordsAssent: RE.assent.test(clauseText),
-    disclaimsDepreciation: RE.disclaim.test(clauseText),
-    defersScopeOrAmount: RE.defer.test(clauseText),
-    preservesDepreciation: RE.preserve.test(clauseText),
-    chargeIrrespectiveOfPerformance: RE.noPerformance.test(clauseText),
-    identifiesDamagePhenomena: RE.damagePhenomena.test(clauseText),
-    namesServiceAct: RE.serviceAct.test(clauseText),
-    statesRentMultiple: RE.rentMultiple.test(clauseText),
-    stacksNoticeOnPenalty: RE.penalty.test(clauseText) && RE.noticePeriod.test(clauseText),
-    shiftsOrdinaryWearExpressly:
-      RE.wearTerm.test(clauseText) &&
-      RE.tenantBears.test(clauseText) &&
-      !RE.landlordCarveOut.test(clauseText),
+    statesAmount: spans.amount !== null,
+    statesUnitPrice: spans.unitPrice !== null,
+    recordsAssent: spans.assent !== null,
+    disclaimsDepreciation: spans.disclaim !== null,
+    defersScopeOrAmount: spans.defer !== null,
+    preservesDepreciation: spans.preserve !== null,
+    chargeIrrespectiveOfPerformance: spans.noPerformance !== null,
+    identifiesDamagePhenomena: spans.damagePhenomena !== null,
+    namesServiceAct: spans.serviceAct !== null,
+    statesRentMultiple: spans.rentMultiple !== null,
+    stacksNoticeOnPenalty: spans.noticeStack !== null,
+    shiftsOrdinaryWearExpressly: spans.wearShift !== null,
+    spans,
   };
 }
 
@@ -458,6 +490,40 @@ export function computeBand(code: TokuyakuCode, ctx: ClauseContext): BandResult 
 export type ProngReasons = Readonly<Record<ProngId, ReasonRef>>;
 
 /**
+ * What a prong is grounded in. P1 and P4 are claims about the clause's wording and
+ * must carry a verified substring. P2 comes from the user naming a document and P3
+ * is arithmetic over supplied figures — neither is a claim about the text, so both
+ * are marked `not_text_derived` rather than being made to fake a span.
+ */
+export type ProngEvidence =
+  | { grounded: true; span: VerifiedSpan }
+  | { grounded: false; why: "not_text_derived" | "no_span" | "span_rejected" };
+
+export type ProngEvidenceMap = Readonly<Record<ProngId, ProngEvidence>>;
+
+const NOT_TEXT: ProngEvidence = { grounded: false, why: "not_text_derived" };
+
+/**
+ * Grounds an asserted prong in a substring, or refuses it.
+ *
+ * Returns the value the prong should actually take: the asserted value when the span
+ * verifies, and "unknown" when it does not. Never the asserted value on a failed
+ * span — that is the whole point.
+ */
+function ground(
+  asserted: ProngScore,
+  span: string | null,
+  kind: ProngKind,
+  clause: string,
+): { value: ProngScore; evidence: ProngEvidence } {
+  if (asserted === "unknown") return { value: "unknown", evidence: { grounded: false, why: "no_span" } };
+  if (span === null) return { value: "unknown", evidence: { grounded: false, why: "no_span" } };
+  const verified = verifySpan(span, clause, kind);
+  if (verified === null) return { value: "unknown", evidence: { grounded: false, why: "span_rejected" } };
+  return { value: asserted, evidence: { grounded: true, span: verified } };
+}
+
+/**
  * Every reason code this engine can emit. `npm run validate:phrases` checks that each
  * one exists in both phrase banks, so a new branch cannot ship without its wording.
  */
@@ -478,9 +544,14 @@ export function scoreProngs(args: {
   placement: Placement;
   band: BandResult | null;
   declared?: DeclaredFacts;
-}): { scores: ProngScores; reasons: ProngReasons } {
-  const { code, signals, placement, band } = args;
+  clauseText: string;
+}): { scores: ProngScores; reasons: ProngReasons; evidence: ProngEvidenceMap } {
+  const { code, signals, placement, band, clauseText } = args;
   const declared = args.declared ?? { amount_fixed_in_contract: null };
+  const evidence: Record<ProngId, ProngEvidence> = {
+    P1: { grounded: false, why: "no_span" }, P2: NOT_TEXT, P3: NOT_TEXT,
+    P4: { grounded: false, why: "no_span" },
+  };
   const pattern = TOKUYAKU_PATTERNS[code];
   const reasons: Record<ProngId, ReasonRef> = {
     P1: { code: "" }, P2: { code: "" }, P3: { code: "" }, P4: { code: "" },
@@ -574,7 +645,61 @@ export function scoreProngs(args: {
     reasons.P4 = { code: "p4.depends_on_p1_p2" };
   }
 
-  return { scores: { P1, P2, P3, P4 }, reasons };
+  // ---- span grounding -------------------------------------------------------
+  // P1 and P4 are assertions about what the clause SAYS, so each must survive a
+  // re-check against the substring that produced it. A prong that cannot is
+  // downgraded to unknown, which routes the clause to 要確認 rather than letting an
+  // unbacked claim reach a verdict — and, eventually, a letter.
+  if (P1 === true) {
+    if (!signals.statesAmount && !signals.statesUnitPrice && !signals.statesRentMultiple) {
+      // P1 true because the USER said a schedule fixes the amount. That is an
+      // assertion about a different document, so there is no span in this clause to
+      // demand — the same footing as P2.
+      evidence.P1 = NOT_TEXT;
+    } else {
+      // Prefer the span that actually carries the figure. The unit-price pattern
+      // matches only the marker (「あたり」), so grounding on it would reject a
+      // perfectly specific 「1平方メートルあたり金1,100円」 for having no numeral.
+      const span = signals.spans.amount ?? signals.spans.rentMultiple ?? signals.spans.unitPrice;
+      const kind: ProngKind = span !== null && hasNumeral(span) ? "amount" : "scope";
+      const g = ground(P1, span, kind, clauseText);
+      if (g.value !== P1) reasons.P1 = { code: "p1.unknown" };
+      P1 = g.value;
+      evidence.P1 = g.evidence;
+    }
+  } else if (P1 === false && signals.defersScopeOrAmount) {
+    const g = ground(false, signals.spans.defer, "deferral", clauseText);
+    P1 = g.value;
+    evidence.P1 = g.evidence;
+  }
+
+  if (P4 === false) {
+    // A P4 failure is the finding that voids a clause, so it carries the heaviest
+    // burden of proof of any prong here. Each route to it has its own evidence kind:
+    // they are different assertions and must not be checked against one lexicon.
+    const route: { span: string | null; kind: ProngKind } =
+      signals.chargeIrrespectiveOfPerformance ? { span: signals.spans.noPerformance, kind: "performance" }
+      : signals.stacksNoticeOnPenalty ? { span: signals.spans.noticeStack, kind: "notice_period" }
+      : signals.disclaimsDepreciation ? { span: signals.spans.disclaim, kind: "disclaimer" }
+      : signals.shiftsOrdinaryWearExpressly ? { span: signals.spans.wearShift, kind: "wear_shift" }
+      : { span: null, kind: "disclaimer" };
+
+    if (route.span !== null) {
+      const g = ground(false, route.span, route.kind, clauseText);
+      P4 = g.value;
+      evidence.P4 = g.evidence;
+      if (g.value !== false) reasons.P4 = { code: "p4.depends_on_p1_p2" };
+    } else {
+      // P4 false derived from P1/P2 rather than from wording — no span to demand.
+      evidence.P4 = NOT_TEXT;
+    }
+  } else if (P4 === true && signals.recordsAssent) {
+    evidence.P4 = ground(true, signals.spans.assent, "assent", clauseText).evidence;
+  } else if (P4 === true) {
+    evidence.P4 = NOT_TEXT;
+  }
+
+  return { scores: { P1, P2, P3, P4 }, reasons, evidence };
 }
 
 /* ------------------------------------------------------------------ *
@@ -640,6 +765,16 @@ export const evaluateRequestSchema = z.object({
   /** Override the classifier when the caller already knows the pattern. */
   code: z.enum(TOKUYAKU_CODES).nullable().default(null),
   declared: declaredFactsSchema.default({ amount_fixed_in_contract: null }),
+  /**
+   * Prong assertions from an upstream extractor, each with the substring it claims
+   * as support. Untrusted by construction: verified here before it can affect a
+   * verdict. Absent today because nothing upstream produces them — present so that
+   * when something does, it arrives behind the gate rather than beside it.
+   */
+  claimed_spans: z.record(
+    z.enum(PRONG_IDS),
+    z.object({ kind: z.enum(PRONG_KINDS), span: z.string().min(1).max(600) }),
+  ).optional(),
 });
 export type EvaluateRequest = z.infer<typeof evaluateRequestSchema>;
 /** What a caller may pass: defaults are filled in by `evaluateClause` itself. */
@@ -653,6 +788,10 @@ export interface ClauseEvaluation {
   reasons: ProngReasons;
   band: BandResult | null;
   verdict: Verdict;
+  /** What each prong is grounded in. An asserted text prong carries a verified span. */
+  evidence: ProngEvidenceMap;
+  /** Outcome per upstream claim, when any were supplied. */
+  claimAudit: Readonly<Record<string, string>>;
   /** Labels and the plain-language line for this verdict, ja and en. */
   remedy: VerdictMeaning;
   /** True when any prong is unknown, or the classifier was not confident. */
@@ -692,6 +831,8 @@ export function evaluateClause(raw: EvaluateInput): ClauseEvaluation {
       },
       band: null,
       verdict: "needs_review",
+      evidence: { P1: NOT_TEXT, P2: NOT_TEXT, P3: NOT_TEXT, P4: NOT_TEXT },
+      claimAudit: {},
       remedy: VERDICT_MEANINGS.needs_review,
       reviewRequired: true,
       authorities: [],
@@ -701,29 +842,53 @@ export function evaluateClause(raw: EvaluateInput): ClauseEvaluation {
   }
 
   const band = input.context ? computeBand(chosen, input.context) : null;
-  const { scores, reasons } = scoreProngs({
+  const { scores, reasons, evidence } = scoreProngs({
     code: chosen, signals, placement: input.placement, band, declared: input.declared,
+    clauseText: input.clause_text,
   });
-  const verdict = deriveVerdict(scores, {
+
+  // An untrusted upstream assertion (a model, a parser, an OCR pass) arrives here and
+  // is re-checked against the clause before it can move anything. A claim whose span
+  // is absent from the text, or is the wrong kind for the prong it asserts, is
+  // discarded and the prong forced to unknown — never set to the claimed value.
+  const claimAudit: Record<string, string> = {};
+  const finalScores: Record<ProngId, ProngScore> = { ...scores };
+  const finalEvidence: Record<ProngId, ProngEvidence> = { ...evidence };
+  for (const id of PRONG_IDS) {
+    const claim = input.claimed_spans?.[id];
+    if (!claim) continue;
+    const { verified, rejectedBecause } = verifyClaim(claim, input.clause_text);
+    if (verified === null) {
+      finalScores[id] = "unknown";
+      finalEvidence[id] = { grounded: false, why: "span_rejected" };
+      claimAudit[id] = rejectedBecause ?? "rejected";
+    } else {
+      finalEvidence[id] = { grounded: true, span: verified };
+      claimAudit[id] = "verified";
+    }
+  }
+  const verdict = deriveVerdict(finalScores, {
     severableCore: signals.identifiesDamagePhenomena,
     p3Applicable: TOKUYAKU_PATTERNS[chosen].bandKey !== null,
   });
-  const anyUnknown = PRONG_IDS.some((id) => scores[id] === "unknown");
+  const anyUnknown = PRONG_IDS.some((id) => finalScores[id] === "unknown");
 
   return {
     code: chosen,
     classification: { chosen, confident, candidates },
     signals,
-    prongs: scores,
+    prongs: finalScores,
     reasons,
     band,
     verdict,
+    evidence: finalEvidence,
+    claimAudit,
     remedy: VERDICT_MEANINGS[verdict],
     reviewRequired: anyUnknown || !confident,
     authorities: TOKUYAKU_PATTERNS[chosen].authority,
     missingFacts: deriveFactRequests({
       code: chosen,
-      prongs: scores,
+      prongs: finalScores,
       context: input.context,
       placementKnown: input.placement !== "unknown",
       amountDeclared: input.declared.amount_fixed_in_contract !== null,

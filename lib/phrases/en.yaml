@@ -59,6 +59,10 @@ level:
   not_computable: not computable
 
 letter:
+  stance_dispute: "Items where we understand the allocation differently"
+  stance_conditional: "Items where we ask you to confirm the amount"
+  stance_demand: "Items where we ask you to produce the supporting records"
+  request_evidence: "Please provide the move-in condition record (checklist and photographs) and the itemised work statement for the repair concerned — areas, quantities, unit prices, and the basis on which depreciation for elapsed years was calculated. We will review the allocation again once we have seen them."
   subject: "Request for confirmation and reconsideration of restoration charges"
   greeting: "We hope this letter finds you well, and thank you for your continued assistance."
   intro: "Following the surrender of the property below, we have received your statement of restoration charges. We are writing to confirm how those costs are allocated."
@@ -80,6 +84,7 @@ letter:
   footer_note: "This letter is an automatically generated draft. Please review it before sending and seek professional advice if needed."
 
 position:
+  needs_review: "We are not presently able to determine what portion of this charge falls to us, because the supporting material has not been provided. Under art. 621 of the Civil Code, our understanding is that damage beyond ordinary wear and aging, and the cost of making it good, are matters for the party asserting them to evidence."
   unenforceable: "The clause appears to place ordinary wear and aging on the tenant. Art. 621 of the Civil Code excludes both from the tenant's restoration obligation, and our understanding is that shifting them requires a special clause that is validly formed."
   severable: "As to the portion corresponding to ordinary wear and aging, our understanding is that art. 621 places it outside the tenant's restoration obligation. We remain responsible for damage actually caused by our own fault."
   reducible: "We are not disputing the validity of the clause itself, but the amount charged appears to exceed what is generally regarded as reasonable for this type of work."
