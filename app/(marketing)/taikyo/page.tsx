@@ -1,64 +1,47 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import styles from "./landing.module.css";
+import "../../(app)/taikyo/_design/tokens.css";
+import s from "../../(app)/taikyo/_screens/screens.module.css";
 
 export const metadata: Metadata = {
-  title: "原状回復費用の診断 — 退去時の請求が妥当か、条項ごとに確認できます",
+  title: "退去費用の診断 — その請求、本当に払う必要がありますか",
   description:
-    "賃貸借契約書をアップロードすると、原状回復に関する特約を条項ごとに判定します。民法621条と国土交通省ガイドラインに基づき、通常損耗・経年変化の負担区分を確認できます。",
+    "退去時の原状回復費用について、契約書と精算書の内容から、貸主負担の可能性がある項目を判定します。民法621条と国土交通省ガイドラインに基づきます。",
 };
 
-const FEATURES = [
-  {
-    title: "契約書ごと読み込む",
-    body: "PDFをアップロードするか本文を貼り付けると、第◯条や特約事項の見出しを手がかりに条項へ分割し、まとめて判定します。",
-  },
-  {
-    title: "4つの観点で判定",
-    body: "明確性・所在・相当性・民法621条の4要件で評価します。判断できない点は推測せず、必要な情報をその場でお尋ねします。",
-  },
-  {
-    title: "交渉文面まで作成",
-    body: "争う余地のある条項については、条文と根拠を示した「確認・再検討のお願い」の文面を作成できます。",
-  },
-];
-
-/** Marketing & SEO landing page for move-out restoration audits. Route: /taikyo */
+/** S0 — landing. The problem in the tenant's words, then the action. No hero image. */
 export default function TaikyoLandingPage() {
   return (
-    <main className={styles.root}>
-      <h1 className={styles.h1}>退去時の原状回復費用、その請求は妥当ですか。</h1>
-      <p className={styles.lede}>
-        民法621条は、通常の使用による損耗と経年変化を賃借人の原状回復義務から除外しています。
-        それでも契約書の特約によって、本来は貸主が負担すべき費用が借主に請求されることがあります。
-        契約書を読み込むだけで、条項ごとにその負担区分を確認できます。
-      </p>
+    <main className="doc">
+      <div className={s.wrap}>
+        <h1 className={s.h1} style={{ fontSize: "1.75rem", lineHeight: 1.5 }}>
+          その退去費用、本当に払う<br />必要がありますか。
+        </h1>
 
-      <Link className={styles.cta} href="/taikyo/workspace">契約書を診断する（無料）</Link>
-      <p className={styles.ctaNote}>アップロードした契約書は判定のためにのみ使用します。</p>
+        <p className={s.lede}>
+          精算書と契約書の内容を入力するだけ。国土交通省のガイドラインと民法621条に照らして、
+          貸主負担の可能性がある項目を判定します。
+        </p>
 
-      <h2 className={styles.h2}>できること</h2>
-      <div className={styles.grid}>
-        {FEATURES.map((f) => (
-          <section key={f.title} className={styles.item}>
-            <h3 className={styles.itemTitle}>{f.title}</h3>
-            <p className={styles.itemBody}>{f.body}</p>
-          </section>
-        ))}
+        <Link className={s.btn} href="/taikyo/workspace">無料で診断する</Link>
+        <p className={s.tiny} style={{ marginTop: ".75rem" }}>
+          妥当な請求なら、そう伝えます。入力した内容は判定のためにのみ使用します。
+        </p>
+
+        <p className={s.notice}>
+          判定に用いる法令・判例のうち、一次資料（判例集・官公庁の原本）で確認できていないものがあります。
+          文面に引用する際は、内容をご自身でもご確認ください。
+        </p>
+
+        <ul className={s.linkList}>
+          <li><Link href="/taikyo/kijun">何を根拠に判定しているか<span aria-hidden="true">→</span></Link></li>
+          <li><Link href="/taikyo/preview">サンプルレポートを見る<span aria-hidden="true">→</span></Link></li>
+        </ul>
+
+        <p className={s.tiny} style={{ marginTop: "2rem" }}>
+          獨歩文化株式会社　/　特定商取引法に基づく表記
+        </p>
       </div>
-
-      <h2 className={styles.h2}>判定の根拠</h2>
-      <p className={styles.prose}>
-        判定は、民法621条、国土交通省「原状回復をめぐるトラブルとガイドライン（再改訂版）」、および
-        通常損耗補修特約の有効要件を示した最高裁平成17年12月16日判決の枠組みに沿って行います。
-        特約が有効に成立しているか、金額が相当な範囲にあるかを、条項ごとに分けて評価します。
-      </p>
-
-      <p className={styles.notice}>
-        本サービスは法的助言ではありません。判定結果は暫定的なものであり、引用している判例・ガイドラインは
-        一次資料での確認が未了です。実際のご対応にあたっては、内容をご自身でご確認のうえ、
-        必要に応じて弁護士等の専門家にご相談ください。
-      </p>
     </main>
   );
 }

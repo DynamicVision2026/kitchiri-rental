@@ -1,0 +1,78 @@
+/* ────────────────────────────────────────────────────────────────────────
+   退去費用診断 — design tokens.
+
+   Register: a 行政書士 office document, a 国民生活センター notice, a well-set
+   financial statement. The reader is frightened, on a phone, at 11pm, and will
+   hand the output to a company with a lawyer. Credibility, not delight.
+
+   PALETTE — six values, validated numerically before use:
+     accent #8C1F18 on paper .............. 8.81:1  (AAA)
+     white on accent ...................... 9.04:1  (AAA, usable as a fill)
+     ink-muted on paper ................... 5.19:1  (AA)
+     greyscale: ink 24 / accent 74 / muted 107 / paper 252
+   The greyscale row is why the accent is this dark. The first candidate
+   (#A3302A) tested identical to muted grey once desaturated — invisible on a
+   printed page, and tenants print this. Darkening it to #8C1F18 buys 33 points
+   of greyscale separation and reads as 朱書き rather than alarm.
+
+   The accent means ONE thing: contestable. It marks the adverse verdict and the
+   primary action, and appears nowhere else — so its presence is information.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.doc {
+  --paper:      #FCFCFC;  /* true near-white; a cream here reads "wellness brand" */
+  --paper-quiet:#F5F5F3;  /* masked regions and the letter sheet, barely there */
+  --ink:        #111111;  /* untinted near-black */
+  --ink-muted:  #6B6B6B;
+  --rule:       #DCDCDC;  /* hairlines only, never text */
+  --accent:     #8C1F18;
+
+  /* Japanese system stack. No webfont on the critical path: a 200KB JP face is
+     a real cost on a phone and buys nothing a system 角ゴシック does not. */
+  --font: -apple-system, "Hiragino Sans", "Hiragino Kaku Gothic ProN",
+          "Noto Sans JP", "Yu Gothic Medium", Meiryo, sans-serif;
+  /* The one serif moment: the letter. Japanese business correspondence is 明朝,
+     and seeing it set that way is what tells the tenant the document is real. */
+  --font-mincho: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "MS PMincho", serif;
+
+  --s1: .25rem; --s2: .5rem; --s3: .75rem; --s4: 1rem;
+  --s6: 1.5rem; --s8: 2rem; --s12: 3rem; --s16: 4rem;
+  --measure: 40rem;          /* ~640px: a document, not a dashboard */
+
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 1rem;
+  /* 1.8 for Japanese body. The 1.5 that suits Latin is too tight for kanji and
+     is the clearest tell that a JP page was set by someone who does not read it. */
+  line-height: 1.8;
+  letter-spacing: normal;    /* never track Japanese body text */
+  text-align: left;          /* never justify: no 禁則処理 in CSS */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Money is the content. Figures must align down a column so ¥142,000 and
+   ¥87,000 can be compared at a glance without reading them. */
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* One orchestrated moment in the whole product: the headline number arriving. */
+@keyframes revealFigure {
+  from { opacity: 0; transform: translateY(.35rem); }
+  to   { opacity: 1; transform: none; }
+}
+.reveal { animation: revealFigure .5s cubic-bezier(.2,.7,.3,1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { animation: none; }
+  * { transition: none !important; }
+}
+
+/* Tenants print the report and the letter. */
+@media print {
+  .doc { background: #fff; font-size: 10.5pt; }
+  .noPrint { display: none !important; }
+  .pageBreak { break-before: page; }
+  a[href]::after { content: " (" attr(href) ")"; font-size: 9pt; color: #444; }
+}

@@ -122,7 +122,7 @@ const CHARGED = numberQuestion(
 const UNIT_PRICE = numberQuestion(
   "unit_price_jpy", "unit_price_jpy",
   "単価はいくらと定められていますか？（1㎡あたり、または畳1枚あたり）", "What unit price is specified (per ㎡, or per tatami mat)?",
-  "クロス・床・畳は、請求総額ではなく単価で妥当性を判断します。広い部屋の高額な請求が、それだけで不当になるわけではないためです。",
+  "クロス・床・畳は、請求総額ではなく単価で妥当性を判断します。部屋が広ければ総額が大きくなるのは当然で、総額だけでは判断できないためです。",
   "円",
 );
 const RENEWAL = numberQuestion(

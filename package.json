@@ -20,7 +20,8 @@
     "eval:segment": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/segment-check.ts",
     "eval:batch": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/batch-check.ts",
     "eval:letter": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/letter-check.ts",
-    "eval:ingest": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/ingest-check.ts"
+    "eval:ingest": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/ingest-check.ts",
+    "validate:copy": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/copy-check.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",
