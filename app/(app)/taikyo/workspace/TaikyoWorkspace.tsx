@@ -1,509 +1,160 @@
 "use client";
 
 /**
- * 原状回復 workspace — the single surface: ingest, analyse, answer, negotiate.
+ * The real 原状回復 funnel — S1 ingest through S4 unlock, built from the same
+ * presentational components _screens/Screens.tsx mounts against fixtures at
+ * /taikyo/preview in V14. V15 retires that preview and wires these to the real
+ * engine (batch-evaluate, extract), persistence (POST /api/taikyo/audits) and
+ * Shopify Checkout (GET /api/taikyo/checkout) — the swap V14's own docstring
+ * anticipated.
  *
- * Ingestion (PDF or paste), the clause-by-clause verdict map, the questions the
- * engine still needs answered, and the negotiation letter all live here. They were
- * three screens and are now one, because they are one task: a user with a bill does
- * not think of "analysis" and "follow-up questions" as separate activities.
- *
- * Answering a question re-runs the WHOLE report server-side rather than patching a
- * card in place. Verdict counts, adverse totals, risk level and exposure all derive
- * from the findings, and recomputing them in the browser would let the summary drift
- * away from the list it summarises.
- *
- * Verdicts are STATUS values, so every one is rendered as colour + glyph + word. A
- * reader who cannot distinguish the hues still gets the finding from the label, and
- * the legend carries counts rather than relying on segment width.
- *
- * The exposure figure is presented as an upper bound with its caveats attached, and
- * money sitting behind an unanswered question is shown separately rather than folded
- * into the headline — a number a user might take to their landlord should never be
- * more confident than the analysis behind it.
+ * The paid side (S5 report, S6 letter) does NOT continue in this component: a buyer
+ * leaves for Shopify Checkout and receives their report link by email (see
+ * lib/server/mail.ts for why — there is no reliable redirect back into this session
+ * from a headless Shopify Checkout). That side lives at /taikyo/r/[id]
+ * (PaidReportView.tsx), reached from the emailed link, not from continuing this flow.
  */
 
-import { useCallback, useMemo, useRef, useState } from "react";
-import FactFieldset from "../_components/FactFieldset";
+import { useCallback, useState } from "react";
+import "../_design/tokens.css";
+import { S1Ingest, S2Confirm, S3Result, S4Unlock } from "../_screens/Screens";
+import s from "../_screens/screens.module.css";
+import { toDemoLine, recoverableTotal, sumsByTier } from "@/lib/shared/finding-view.ts";
+import {
+  DELIVERABLES, PAYMENT_METHODS, SKUS,
+} from "@/lib/fixtures/taikyo-demo.ts";
 import {
   EvaluateError,
   evaluateContractText,
   extractPdfText,
-  type ClauseOverride,
-  generateLetter,
-  type BatchFinding,
   type BatchReportResponse,
-  type LetterClause,
-  type LetterRefusal,
-  type LetterResult,
-  type IngestResult,
-  type AnswerValue,
-  isAnswered,
 } from "@/lib/shared/taikyo-client.ts";
-import styles from "./workspace.module.css";
 
-const VERDICT_ORDER = ["unenforceable", "severable", "reducible", "needs_review", "enforceable"] as const;
-type VerdictKey = (typeof VERDICT_ORDER)[number];
-
-/** Status role, glyph and label. Colour never carries the meaning on its own. */
-const VERDICT_STYLE: Record<VerdictKey, { varName: string; glyph: string; labelJa: string }> = {
-  unenforceable: { varName: "--critical", glyph: "✕", labelJa: "無効の可能性" },
-  severable: { varName: "--serious", glyph: "◑", labelJa: "一部無効（範囲）" },
-  reducible: { varName: "--warning", glyph: "▲", labelJa: "一部無効（金額）" },
-  needs_review: { varName: "--neutral", glyph: "？", labelJa: "要確認" },
-  enforceable: { varName: "--good", glyph: "✓", labelJa: "有効の可能性" },
-};
-
-const RISK_STYLE = {
-  high: { varName: "--critical", labelJa: "リスク：高", glyph: "✕" },
-  moderate: { varName: "--warning", labelJa: "リスク：中", glyph: "▲" },
-  low: { varName: "--good", labelJa: "リスク：低", glyph: "✓" },
-} as const;
-
-const PRONG_LABELS = { P1: "P1 明確性", P2: "P2 所在", P3: "P3 相当性", P4: "P4 621条" } as const;
-
-/** Verdicts a letter may be written about. Mirrors LETTERABLE_VERDICTS on the server,
- *  which is the authority — this only decides whether to show the button.
- *  needs_review is included: an undecided clause gets a demand for the landlord's
- *  records, which under art. 621 is their burden to produce. */
-const DISPUTABLE = new Set(["unenforceable", "severable", "reducible", "needs_review"]);
-
-const toLetterClause = (f: BatchFinding): LetterClause => ({
-  label: f.label,
-  clauseText: f.text,
-  verdict: f.evaluation.verdict,
-  code: f.evaluation.code,
-  amountJpy: f.amounts.headlineJpy,
-});
-
-const yen = (n: number) => `¥${n.toLocaleString("ja-JP")}`;
-
-function prongMark(value: boolean | "unknown") {
-  if (value === true) return "満たす";
-  if (value === false) return "満たさない";
-  return "不明";
-}
-
-function FindingCard({ finding, onDraft, busy, answers, onAnswer, onApply, applying }: {
-  finding: BatchFinding;
-  onDraft: (clauses: LetterClause[], title: string) => void;
-  busy: boolean;
-  answers: Record<string, AnswerValue>;
-  onAnswer: (path: string, value: AnswerValue) => void;
-  onApply: () => void;
-  applying: boolean;
-}) {
-  const verdict = finding.evaluation.verdict as VerdictKey;
-  const disputable = DISPUTABLE.has(verdict);
-  const style = VERDICT_STYLE[verdict];
-  return (
-    <article className={styles.finding} style={{ borderLeftColor: `var(${style.varName})` }}>
-      <div className={styles.findingHead}>
-        <span className={styles.loc}>{finding.label}</span>
-        <span className={styles.badge} style={{ color: `var(${style.varName})` }}>
-          <span aria-hidden="true">{style.glyph}</span>
-          {style.labelJa}
-        </span>
-        {finding.isTokuyakuSection && <span className={styles.tag}>特約</span>}
-        {finding.evaluation.code && <span className={styles.tag}>{finding.evaluation.code}</span>}
-        {finding.amounts.headlineJpy !== null && (
-          <span className={styles.tag}>
-            記載額 <span className={styles.amount}>{yen(finding.amounts.headlineJpy)}</span>
-            {finding.amounts.ambiguous && " ※複数記載"}
-          </span>
-        )}
-      </div>
-
-      <p className={styles.clauseText}>{finding.text}</p>
-      <p className={styles.remedy}>{finding.evaluation.remedy.tenantMessageJa}</p>
-
-      {/* Only an undecided clause gets the question form. A clause already judged
-          unenforceable has settled prongs that no further answer can move, so asking
-          for rent there is noise that buries the questions which would change something. */}
-      {finding.evaluation.verdict === "needs_review" && finding.evaluation.missingFacts.length > 0 && (
-        <div className={styles.factBox}>
-          <p className={styles.factLead}>この条項の判定にはあと{finding.evaluation.missingFacts.length}点の確認が必要です</p>
-          <p className={styles.factSub}>
-            契約書だけでは判断できない項目です。お手元の書類をご確認のうえご入力ください。分かる範囲だけでも構いません。
-          </p>
-          {finding.evaluation.missingFacts.map((fact) => (
-            <FactFieldset
-              key={fact.id}
-              fact={fact}
-              idPrefix={`c${finding.index}`}
-              value={answers[fact.id]}
-              onChange={(v) => onAnswer(fact.path, v)}
-            />
-          ))}
-          <div className={styles.letterActions}>
-            <button
-              className={styles.letterBtn}
-              disabled={applying || !finding.evaluation.missingFacts.some((f) => isAnswered(f.kind, answers[f.id]))}
-              onClick={onApply}
-            >
-              {applying ? "再判定中…" : "回答を反映して再判定"}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {disputable && (
-        <div className={styles.letterActions}>
-          <button
-            className={styles.letterBtn}
-            disabled={busy}
-            onClick={() => onDraft([toLetterClause(finding)], `${finding.label} の交渉文面`)}
-          >
-            {verdict === "needs_review" ? "立証を求める文面を作成" : "交渉文面を作成"}
-          </button>
-        </div>
-      )}
-
-      <details className={styles.details}>
-        <summary>4要件の判定を見る</summary>
-        <table className={styles.prongTable}>
-          <thead>
-            <tr><th>要件</th><th>判定</th><th>理由</th></tr>
-          </thead>
-          <tbody>
-            {(["P1", "P2", "P3", "P4"] as const).map((p) => (
-              <tr key={p}>
-                <th scope="row">{PRONG_LABELS[p]}</th>
-                <td>{prongMark(finding.evaluation.prongs[p])}</td>
-                <td>{finding.reasonsText[p].ja}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </details>
-    </article>
-  );
-}
+type Step = "ingest" | "confirm" | "result" | "unlock";
 
 export default function TaikyoWorkspace() {
+  const [step, setStep] = useState<Step>("ingest");
   const [text, setText] = useState("");
-  const [report, setReport] = useState<BatchReportResponse | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [letter, setLetter] = useState<{ title: string; result: LetterResult | LetterRefusal } | null>(null);
-  const [letterBusy, setLetterBusy] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [ingest, setIngest] = useState<IngestResult | null>(null);
-  const [answers, setAnswers] = useState<Record<number, Record<string, AnswerValue>>>({});
-  const [overrides, setOverrides] = useState<Record<number, ClauseOverride>>({});
-  const [reanalysing, setReanalysing] = useState<number | null>(null);
-  const [dragging, setDragging] = useState(false);
-  const fileInput = useRef<HTMLInputElement | null>(null);
+  const [refused, setRefused] = useState(false);
+  const [report, setReport] = useState<BatchReportResponse | null>(null);
+  const [auditId, setAuditId] = useState<string | null>(null);
+  const [persisting, setPersisting] = useState(false);
 
-  const analyze = useCallback(async () => {
+  const runAnalysis = useCallback(async (contractText: string) => {
     setBusy(true);
     setError(null);
-    setAnswers({});
-    setOverrides({});
-    setLetter(null);
     try {
-      setReport(await evaluateContractText(text.trim()));
+      const result = await evaluateContractText(contractText);
+      if (result.clausesEvaluated === 0) {
+        setError("原状回復に関する条項が見つかりませんでした。契約書の条文をそのまま貼り付けてください。");
+        return;
+      }
+      setReport(result);
+      setStep("confirm");
     } catch (e) {
       setError(e instanceof EvaluateError ? e.message : "診断に失敗しました。時間をおいて再度お試しください。");
     } finally {
       setBusy(false);
     }
-  }, [text]);
-
-  /** Folds one answer into that clause's override, using the dot path the engine gave. */
-  const recordAnswer = useCallback((index: number, path: string, value: AnswerValue) => {
-    setOverrides((prev) => {
-      const current: ClauseOverride = { ...(prev[index] ?? {}) };
-      if (path === "placement") {
-        current.placement = value as ClauseOverride["placement"];
-      } else if (path.startsWith("declared.")) {
-        current.declared = { ...(current.declared ?? {}), [path.slice("declared.".length)]: value } as ClauseOverride["declared"];
-      } else if (path.startsWith("context.")) {
-        current.context = { ...(current.context ?? {}), [path.slice("context.".length)]: value };
-      }
-      return { ...prev, [index]: current };
-    });
   }, []);
 
-  /** Re-runs the whole contract with the answers so far; the server owns aggregation. */
-  const applyAnswers = useCallback(async (index: number) => {
-    setReanalysing(index);
-    setError(null);
-    try {
-      setReport(await evaluateContractText(text.trim(), overrides));
-    } catch (e) {
-      setError(e instanceof EvaluateError ? e.message : "再判定に失敗しました。");
-    } finally {
-      setReanalysing(null);
-    }
-  }, [text, overrides]);
-
-  const takeFile = useCallback(async (file: File) => {
+  const handleFile = useCallback(async (file: File) => {
     setBusy(true);
     setError(null);
-    setIngest(null);
-    setReport(null);
+    setRefused(false);
     try {
       const result = await extractPdfText(file);
-      setIngest(result);
-      if (result.ok) {
-        // Show what was read before judging it. Extraction can mangle a document, and
-        // the user is the only one who can tell — so the text lands in the editable
-        // box and the analysis runs on exactly what they can see.
-        setText(result.text);
-        setReport(await evaluateContractText(result.text));
+      if (!result.ok) {
+        setRefused(true);
+        setError(result.messageJa);
+        return;
       }
+      setText(result.text);
+      await runAnalysis(result.text);
     } catch (e) {
       setError(e instanceof EvaluateError ? e.message : "ファイルの読み取りに失敗しました。");
-    } finally {
       setBusy(false);
     }
-  }, []);
+  }, [runAnalysis]);
 
-  const draftLetter = useCallback(async (clauses: LetterClause[], title: string) => {
-    setLetterBusy(true);
-    setCopied(false);
-    try {
-      setLetter({ title, result: await generateLetter(clauses) });
-    } catch (e) {
-      setError(e instanceof EvaluateError ? e.message : "文面の作成に失敗しました。");
-    } finally {
-      setLetterBusy(false);
+  const handleSubmitText = useCallback(() => {
+    void runAnalysis(text.trim());
+  }, [text, runAnalysis]);
+
+  const lines = report ? report.findings.map(toDemoLine) : [];
+  const sums = sumsByTier(lines);
+  const recoverable = recoverableTotal(sums);
+  const total = lines.reduce((n, l) => n + l.chargedJpy, 0);
+  const allSound = recoverable === 0;
+
+  const handleConfirm = useCallback(async () => {
+    if (!report) return;
+    // Nothing to sell when every clause is sound — skip persistence and the paywall
+    // entirely, matching S4's own promise: "争える項目がない場合、課金画面は表示されません。"
+    if (allSound) {
+      setStep("result");
+      return;
     }
-  }, []);
-
-  const copyLetter = useCallback(async (text: string) => {
+    setPersisting(true);
+    setError(null);
     try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
+      const res = await fetch("/api/taikyo/audits", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ contract_text: text.trim(), report }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body?.message ?? "保存に失敗しました。");
+      setAuditId(body.auditId as string);
+      setStep("result");
     } catch {
-      setError("クリップボードにコピーできませんでした。文面を選択して手動でコピーしてください。");
+      setError("保存に失敗しました。時間をおいて再度お試しください。");
+    } finally {
+      setPersisting(false);
     }
-  }, []);
-
-  const downloadLetter = useCallback((text: string) => {
-    const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "原状回復費用_確認再検討申入書.txt";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  }, []);
-
-  const risk = report ? RISK_STYLE[report.riskLevel] : null;
-  const disputableFindings = report ? report.findings.filter((f) => DISPUTABLE.has(f.evaluation.verdict)) : [];
-  const present = report ? VERDICT_ORDER.filter((v) => report.verdictCounts[v] > 0) : [];
+  }, [report, allSound, text]);
 
   return (
-    <div className={styles.root}>
-      <a className={styles.skipLink} href="#contract">本文入力へスキップ</a>
-      <h1 className={styles.h1}>原状回復 診断ワークスペース</h1>
-      <p className={styles.sub}>
-        賃貸借契約書をアップロード、または本文を貼り付けてください。条文ごとに分割し、原状回復に関する特約を
-        民法621条と国土交通省ガイドラインに基づく4要件（明確性・所在・相当性・621条）で判定します。
-        判定に情報が足りない条項はその場でお尋ねし、争う余地のある条項については交渉文面まで作成できます。
-      </p>
-
-      <ol className={styles.steps}>
-        {["契約書を読み込む", "条項ごとの判定を見る", "不足情報に答える", "交渉文面を作成する"].map((label, i) => (
-          <li key={label}><span className={styles.stepNum} aria-hidden="true">{i + 1}</span>{label}</li>
-        ))}
-      </ol>
-
-      <div className={styles.card}>
-        <div
-          className={`${styles.dropZone} ${dragging ? styles.dropZoneActive : ""} ${busy ? styles.dropZoneBusy : ""}`}
-          onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDragging(false);
-            const file = e.dataTransfer.files?.[0];
-            if (file && !busy) void takeFile(file);
-          }}
-          onClick={() => !busy && fileInput.current?.click()}
-          onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && !busy) fileInput.current?.click(); }}
-          role="button"
-          tabIndex={0}
-          aria-label="契約書のPDFをアップロード"
-          aria-busy={busy}
-        >
-          <div className={styles.dropTitle}>{busy ? "読み取り中…" : "契約書のPDFをここにドロップ、またはクリックして選択"}</div>
-          <div className={styles.dropHint}>
-            文字情報を含むPDFに対応しています（最大12MB）。スキャン画像のみのPDFは読み取れないため、その場合は本文を貼り付けてください。
-          </div>
-          <input
-            ref={fileInput}
-            className={styles.hiddenInput}
-            type="file"
-            accept="application/pdf,.pdf"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) void takeFile(file);
-              e.target.value = "";
-            }}
+    <main className="doc">
+      <div className={s.wrap}>
+        {step === "ingest" && (
+          <S1Ingest
+            refused={refused}
+            text={text}
+            onTextChange={(v) => { setText(v); if (refused) setRefused(false); }}
+            onFile={(f) => void handleFile(f)}
+            onSubmit={handleSubmitText}
+            busy={busy}
+            error={error}
           />
-        </div>
-
-        {ingest && !ingest.ok && <p className={styles.ingestNote} role="alert">{ingest.messageJa}</p>}
-        {ingest?.ok && (
-          <p className={styles.ingestOk} role="status" aria-live="polite">
-            PDF から {ingest.pages} ページ・{ingest.text.length.toLocaleString()} 文字を読み取りました。内容をご確認ください。
-          </p>
         )}
 
-        <div className={styles.divider}>または本文を貼り付け</div>
+        {step === "confirm" && report && (
+          <S2Confirm lines={lines} onConfirm={() => void handleConfirm()} busy={persisting} />
+        )}
 
-        <label className={styles.loc} htmlFor="contract">契約書全文</label>
-        <textarea
-          id="contract"
-          className={styles.textarea}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder={"第1条（契約の目的）\n　…\n\n特約事項\n　1. 退去時のハウスクリーニング費用として…"}
-          style={{ marginTop: ".5rem" }}
-        />
-        <p className={styles.help}>第○条・項番号・特約事項の見出しを手がかりに自動で条項へ分割します。</p>
-        <div className={styles.row}>
-          <button className={styles.btn} disabled={text.trim().length === 0 || busy} onClick={() => void analyze()}>
-            {busy ? "診断中…" : "契約書を診断する"}
-          </button>
-          {report && <button className={styles.btnGhost} onClick={() => { setReport(null); setText(""); setIngest(null); setLetter(null); }}>別の契約書を診断する</button>}
-        </div>
-        {error && <p className={styles.error} role="alert">{error}</p>}
+        {step === "result" && report && (
+          <S3Result
+            lines={lines}
+            total={total}
+            recoverable={recoverable}
+            sums={sums}
+            masked={!allSound}
+            onUnlock={() => setStep("unlock")}
+          />
+        )}
+
+        {step === "unlock" && auditId && (
+          <S4Unlock
+            skus={SKUS}
+            deliverables={DELIVERABLES}
+            methods={PAYMENT_METHODS}
+            checkoutHref={`/api/taikyo/checkout?audit_id=${auditId}`}
+          />
+        )}
       </div>
-
-      {report && (
-        <>
-          <h2 className={styles.sectionTitle} id="summary-heading">診断サマリー</h2>
-          <p className={styles.srOnly} role="status" aria-live="polite">
-            診断が完了しました。{report.clausesEvaluated}件の特約を判定し、うち{report.adverseCount}件に問題の可能性があります。
-            リスク評価は{risk!.labelJa.replace("リスク：", "")}です。
-          </p>
-          <div className={styles.hero} aria-labelledby="summary-heading">
-            <div className={styles.heroMain}>
-              <span className={styles.riskLabel} style={{ color: `var(${risk!.varName})` }}>
-                <span className={styles.riskDot} style={{ background: `var(${risk!.varName})` }} aria-hidden="true" />
-                <span aria-hidden="true">{risk!.glyph}</span>
-                {risk!.labelJa}
-              </span>
-              <div className={styles.heroNumber}>{yen(report.exposure.statedJpy)}</div>
-              <div className={styles.heroCaption}>
-                争い得る金額の上限（契約書に記載された金額の合計）
-                {report.exposure.rentMonths > 0 && ` ＋ 賃料${report.exposure.rentMonths}か月分`}
-              </div>
-              {report.exposure.unresolvedJpy > 0 && (
-                <div className={styles.heroCaption} style={{ marginTop: ".4rem" }}>
-                  別途 <strong>{yen(report.exposure.unresolvedJpy)}</strong>（{report.exposure.unresolvedCount}件）は情報不足のため未判定です。
-                </div>
-              )}
-            </div>
-
-            <div style={{ flex: "1 1 18rem" }}>
-              <div className={styles.bar} role="img" aria-label={present.map((v) => `${VERDICT_STYLE[v].labelJa} ${report.verdictCounts[v]}件`).join("、")}>
-                {present.map((v) => (
-                  <div
-                    key={v}
-                    className={styles.barSeg}
-                    style={{ flexGrow: report.verdictCounts[v], background: `var(${VERDICT_STYLE[v].varName})` }}
-                  />
-                ))}
-              </div>
-              <div className={styles.legend}>
-                {present.map((v) => (
-                  <span key={v} className={styles.legendItem}>
-                    <span className={styles.swatch} style={{ background: `var(${VERDICT_STYLE[v].varName})` }} aria-hidden="true" />
-                    <span aria-hidden="true">{VERDICT_STYLE[v].glyph}</span>
-                    {VERDICT_STYLE[v].labelJa}
-                    <span className={styles.legendCount}>{report.verdictCounts[v]}</span>
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.kpis}>
-            <div className={styles.kpi}><div className={styles.kpiValue}>{report.totalSegments}</div><div className={styles.kpiLabel}>分割された条項</div></div>
-            <div className={styles.kpi}><div className={styles.kpiValue}>{report.clausesEvaluated}</div><div className={styles.kpiLabel}>特約として判定</div></div>
-            <div className={styles.kpi}><div className={styles.kpiValue}>{report.adverseCount}</div><div className={styles.kpiLabel}>問題のある条項</div></div>
-            <div className={styles.kpi}><div className={styles.kpiValue}>{report.clausesSkipped}</div><div className={styles.kpiLabel}>通常条項（対象外）</div></div>
-          </div>
-
-          <ul className={styles.caveats}>
-            {report.exposure.caveats.map((c) => <li key={c}>{c}</li>)}
-          </ul>
-
-          <h2 className={styles.sectionTitle}>条項ごとの判定（{report.findings.length}件）</h2>
-          {disputableFindings.length > 0 && (
-            <div className={styles.letterActions} style={{ marginBottom: "1rem" }}>
-              <button
-                className={styles.letterBtn}
-                disabled={letterBusy}
-                onClick={() => void draftLetter(disputableFindings.map(toLetterClause), `${disputableFindings.length}条項をまとめた交渉文面`)}
-              >
-                {letterBusy ? "作成中…" : `${disputableFindings.length}条項をまとめて交渉文面を作成`}
-              </button>
-            </div>
-          )}
-
-          {letter && (
-            <section className={styles.letterPanel}>
-              <div className={styles.letterHead}>
-                <strong>{letter.title}</strong>
-                <div className={styles.letterActions} style={{ marginTop: 0 }}>
-                  {letter.result.ok && (
-                    <>
-                      <button className={styles.letterBtn} onClick={() => void copyLetter((letter.result as LetterResult).text)}>
-                        {copied ? "コピーしました" : "コピー"}
-                      </button>
-                      <button className={styles.letterBtn} onClick={() => downloadLetter((letter.result as LetterResult).text)}>
-                        テキストで保存
-                      </button>
-                    </>
-                  )}
-                  <button className={styles.letterBtn} onClick={() => setLetter(null)}>閉じる</button>
-                </div>
-              </div>
-
-              {letter.result.ok ? (
-                <>
-                  <p className={styles.letterWarn}>
-                    この文面は草案です。引用している判例・ガイドラインは一次資料での確認が未了のため、
-                    送付前に内容をご確認のうえ、必要に応じて専門家にご相談ください。
-                  </p>
-                  <pre className={styles.letterText}>{letter.result.text}</pre>
-                </>
-              ) : (
-                <p className={styles.letterRefusal}>{letter.result.reason}</p>
-              )}
-            </section>
-          )}
-          {[...report.findings]
-            .sort((a, b) =>
-              VERDICT_ORDER.indexOf(a.evaluation.verdict as VerdictKey) -
-                VERDICT_ORDER.indexOf(b.evaluation.verdict as VerdictKey) || a.index - b.index)
-            .map((f) => (
-              <FindingCard
-                key={f.index}
-                finding={f}
-                onDraft={(c, t) => void draftLetter(c, t)}
-                busy={letterBusy}
-                answers={answers[f.index] ?? {}}
-                onAnswer={(path, value) => {
-                  const fact = f.evaluation.missingFacts.find((q) => q.path === path);
-                  if (fact) setAnswers((prev) => ({ ...prev, [f.index]: { ...(prev[f.index] ?? {}), [fact.id]: value } }));
-                  recordAnswer(f.index, path, value);
-                }}
-                onApply={() => void applyAnswers(f.index)}
-                applying={reanalysing === f.index}
-              />
-            ))}
-
-          <p className={styles.advisory}>{report.advisory}</p>
-        </>
-      )}
-    </div>
+    </main>
   );
 }

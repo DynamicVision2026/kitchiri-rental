@@ -5,15 +5,29 @@
  *   npm run audit:verify -- --group "<key>" --status <level> --evidence "<what you read>"
  *   npm run audit:verify -- --group "<key>" --status <level> --evidence "..." --apply
  *
- * `--status` is REQUIRED and has no default. The two levels are not
- * interchangeable, and which one you are claiming should be a decision you typed,
- * not a default you inherited:
+ * `--status` is REQUIRED and has no default. `primary` / `primary_source_verified`
+ * and `secondary` / `secondary_source_checked` are accepted (the short forms are
+ * aliases, not a separate level) and are not interchangeable — which one you are
+ * claiming should be a decision you typed, not a default you inherited:
  *
  *   secondary_source_checked — cross-read against reputable secondary summaries.
  *     Enough to catch a misattribution; NOT enough to put a number in front of a
  *     tenant. Leaves `verified` false.
  *   primary_source_verified — you read the primary text itself (民集, the guideline
- *     PDF, the RETIO issue). Only this sets `verified: true`.
+ *     PDF, the RETIO issue). Only this sets `verified: true`, and ONLY when backed
+ *     by a `legal/` file reference and a quoted passage — see below.
+ *
+ * PRIMARY CLAIMS ARE BACKED BY A FILE, NOT JUST A SENTENCE OF EVIDENCE
+ * ---------------------------------------------------------------------
+ * `--status primary` additionally requires `--legal-id <id>` and `--quote "<exact
+ * passage>"`. The id must name an entry in `legal/manifest.json`, and the quoted
+ * passage must appear verbatim in that entry's `legal/texts/*.md` file — checked
+ * programmatically, not taken on trust. This is what "backed by file references and
+ * quoted passages" means in practice: a primary claim without a corresponding bundled
+ * text and an exact quotation from it is refused before `--apply` ever runs.
+ * `--status secondary` does not require this — the whole legal/ corpus is currently
+ * at `secondary_source_checked` or below (see `npm run audit:status`), and this CLI
+ * should not make that easier to skip past by accident.
  *
  * Why a CLI: an authority backs up to 17 entries, and clearing it by hand means 17
  * identical JSON edits with 17 chances to set `verified: true` on the wrong one. This
@@ -25,8 +39,20 @@
  * the flag worth having.
  */
 
-import { writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { CORPUS_PATH, OPEN_QUESTIONS, groupCorpus, readCorpus } from "./lib/citation-groups.ts";
+import { LEGAL_DIR, MANIFEST_PATH, regenerateLegalManifest, updateLegalVerification } from "./lib/legal-manifest.ts";
+
+interface LegalManifestEntry {
+  id: string;
+  file: string;
+  citation_group_key: string;
+}
+
+function readLegalManifest(): LegalManifestEntry[] {
+  if (!existsSync(MANIFEST_PATH)) return [];
+  return (JSON.parse(readFileSync(MANIFEST_PATH, "utf8")).entries ?? []) as LegalManifestEntry[];
+}
 
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(`--${name}`);
@@ -84,8 +110,11 @@ function board(): void {
   }
   console.log("\n  ✔ cleared   ~ cross-read against secondary sources only, still unverified");
   console.log("\n  Clear one with:");
-  console.log('    npm run audit:verify -- --group "<authority>" --status <level> --evidence "<what you read>" --apply');
-  console.log("    levels: secondary_source_checked | primary_source_verified");
+  console.log('    npm run audit:verify -- --group "<authority>" --status secondary --evidence "<what you read>" --apply');
+  console.log(
+    '    npm run audit:verify -- --group "<authority>" --status primary --legal-id <id> --quote "<passage>" --evidence "..." --apply',
+  );
+  console.log(`    legal/ corpus: ${readLegalManifest().length} bundled source files — see legal/manifest.json`);
 }
 
 if (has("list") || (!arg("group") && !has("apply"))) {
@@ -95,22 +124,94 @@ if (has("list") || (!arg("group") && !has("apply"))) {
 
 const key = arg("group");
 const evidence = arg("evidence");
-const status = arg("status");
+const statusArg = arg("status");
 const apply = has("apply");
 
 const LEVELS = ["secondary_source_checked", "primary_source_verified"] as const;
 type Level = (typeof LEVELS)[number];
 
-if (!status || !(LEVELS as readonly string[]).includes(status)) {
+/** Short forms accepted alongside the full level names — aliases, not a third level. */
+const STATUS_ALIASES: Record<string, Level> = {
+  primary: "primary_source_verified",
+  primary_source_verified: "primary_source_verified",
+  secondary: "secondary_source_checked",
+  secondary_source_checked: "secondary_source_checked",
+};
+
+if (!statusArg || !(statusArg in STATUS_ALIASES)) {
   console.error(
     `Missing or unknown --status.\n` +
-      `  --status secondary_source_checked   cross-read against secondary summaries (verified stays false)\n` +
-      `  --status primary_source_verified    you read the primary text itself (sets verified: true)\n` +
+      `  --status secondary   (or secondary_source_checked)   cross-read against secondary summaries (verified stays false)\n` +
+      `  --status primary     (or primary_source_verified)    you read the primary text AND can name the legal/ file and\n` +
+      `                                                        quote the passage that backs it (sets verified: true)\n` +
       `There is no default: claiming primary verification should be something you typed.`,
   );
   process.exit(1);
 }
-const level = status as Level;
+const level = STATUS_ALIASES[statusArg];
+
+/*
+ * A primary claim must be backed by a bundled legal/ file and an exact quotation
+ * from it — checked here, not taken on the strength of --evidence text alone.
+ */
+let verifiedLegalId: string | null = null;
+if (level === "primary_source_verified") {
+  const legalId = arg("legal-id");
+  const quote = arg("quote");
+  const manifest = readLegalManifest();
+
+  if (manifest.length === 0) {
+    console.error(
+      "No legal/manifest.json found (or it has no entries).\n" +
+        "A primary_source_verified claim needs a bundled source file to point at — see legal/README.md.",
+    );
+    process.exit(1);
+  }
+  if (!legalId) {
+    console.error(
+      "Missing --legal-id.\n" +
+        "primary_source_verified must name the legal/ corpus entry it is backed by.\n" +
+        `Known ids: ${manifest.map((e) => e.id).join(", ")}`,
+    );
+    process.exit(1);
+  }
+  const entry = manifest.find((e) => e.id === legalId);
+  if (!entry) {
+    console.error(`No legal/ entry with id "${legalId}".\nKnown ids: ${manifest.map((e) => e.id).join(", ")}`);
+    process.exit(1);
+  }
+  if (!quote || quote.trim().length < 8) {
+    console.error(
+      "Missing --quote, or too short.\n" +
+        `Quote the exact passage in ${entry.file} that supports this sign-off — it is checked\n` +
+        "against the file's actual contents, not taken on trust.",
+    );
+    process.exit(1);
+  }
+  const filePath = `${LEGAL_DIR}${entry.file}`;
+  if (!existsSync(filePath)) {
+    console.error(`legal/manifest.json points "${legalId}" at ${entry.file}, which does not exist.`);
+    process.exit(1);
+  }
+  const fileText = readFileSync(filePath, "utf8");
+  // The bundled .md files hard-wrap long quoted passages across multiple `> ` lines
+  // for readability, and a genuine verbatim substring can straddle one of those
+  // wraps. Strip markdown blockquote markers and collapse all whitespace (including
+  // the wrap-inserted newlines) before comparing, on both sides, so the check tests
+  // for the actual characters in sequence — not for our own manual line-wrapping.
+  const normalize = (s: string) => s.replace(/^>\s?/gm, "").replace(/\s+/g, "");
+  if (!normalize(fileText).includes(normalize(quote))) {
+    console.error(
+      `The --quote text does not appear verbatim in ${entry.file}.\n` +
+        "primary_source_verified is refused: either the quote has a typo, or it is not actually in the bundled text\n" +
+        "(in which case the file needs updating BEFORE this claim can be made, not after).",
+    );
+    process.exit(1);
+  }
+  console.log(`  legal/ backing: ${entry.file}  [${entry.citation_group_key}]`);
+  console.log(`  quoted passage confirmed present in the file.`);
+  verifiedLegalId = legalId;
+}
 
 if (!key) { console.error('Missing --group. Run with --list to see the authorities.'); process.exit(1); }
 const group = groups.find((g) => g.key === key);
@@ -168,4 +269,14 @@ if (!apply) {
 
 writeFileSync(CORPUS_PATH, `${JSON.stringify(corpus, null, 2)}\n`);
 console.log(`\nWrote ${group.entries.length} entries.`);
+
+// A primary claim moves the legal/ source file's own frontmatter in the same
+// operation, then regenerates the manifest — corpus and legal/ never drift apart,
+// because there is no window where one is updated and the other is not.
+if (verifiedLegalId) {
+  const file = updateLegalVerification(verifiedLegalId, "primary_source_verified", true);
+  regenerateLegalManifest();
+  console.log(`Updated legal/texts/${file} and regenerated legal/manifest.json.`);
+}
+
 console.log("Now run:  npm run validate:corpus && npm run audit:citations");

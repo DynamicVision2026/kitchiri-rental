@@ -1,0 +1,68 @@
+/* Print routes — A4 output for Playwright to rasterize into a PDF (V15 Task 4).
+   Screen rendering matters too: this is also what a reviewer sees if they open the
+   route directly in a browser before printing. Report is gothic (--font, the
+   product's own body face); the letter is mincho (--font-mincho), matching
+   correspondence register — both tokens already exist in _design/tokens.css. */
+
+.page {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: var(--s8) var(--s6) var(--s16);
+}
+
+.letterPage {
+  composes: page;
+  font-family: var(--font-mincho);
+  line-height: 2;
+}
+
+.masthead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: var(--s3);
+  margin-bottom: var(--s6);
+}
+.mastheadTitle { font-size: 1.25rem; font-weight: 700; margin: 0; }
+.mastheadMeta { font-size: .75rem; color: var(--ink-muted); text-align: right; }
+.mastheadMeta div { margin: 0; }
+
+.summaryFigure { font-size: 1.75rem; font-weight: 700; margin: var(--s4) 0; }
+.summaryLine { font-size: .9375rem; margin: 0 0 var(--s2); }
+
+/* The aligned yen column: label takes the flexible column, the figure sits in a
+   fixed-width right-aligned column so every amount on the page lines up on the same
+   vertical, regardless of label length — a table's discipline without a table's
+   borders. */
+.lineRow {
+  display: grid;
+  grid-template-columns: 1fr 7rem;
+  align-items: baseline;
+  gap: var(--s4);
+  padding: var(--s3) 0;
+  border-bottom: 1px solid var(--rule);
+}
+.lineAmt { text-align: right; font-weight: 700; white-space: nowrap; }
+.lineMeta { font-size: .75rem; color: var(--ink-muted); grid-column: 1 / -1; margin: 0; }
+.lineReason { font-size: .875rem; color: var(--ink); grid-column: 1 / -1; margin: var(--s1) 0 0; line-height: 1.85; }
+.lineCite { font-size: .75rem; color: var(--ink-muted); grid-column: 1 / -1; margin: var(--s1) 0 0; }
+
+.totalsRow { display: grid; grid-template-columns: 1fr 7rem; gap: var(--s4);
+  padding: var(--s4) 0; border-top: 2px solid var(--ink); font-weight: 700; }
+.totalsAmt { text-align: right; }
+
+.footer { margin-top: var(--s16); padding-top: var(--s4); border-top: 1px solid var(--rule);
+  font-size: .75rem; color: var(--ink-muted); line-height: 1.85; }
+
+.letterBody { white-space: pre-wrap; font-size: .9375rem; }
+
+@media print {
+  :global(html), :global(body) { background: #fff; }
+  .page, .letterPage { max-width: none; padding: 0; }
+}
+
+@page {
+  size: A4;
+  margin: 20mm 18mm;
+}

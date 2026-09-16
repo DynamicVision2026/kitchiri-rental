@@ -7,8 +7,9 @@
 
 import type { ClauseEvaluation, EvaluateInput, Placement } from "@/lib/modules/taikyo/rules.ts";
 import type { FactRequest } from "@/lib/modules/taikyo/questions.ts";
+import type { Verdict } from "@/lib/modules/taikyo/taxonomy.ts";
 
-export type { ClauseEvaluation, EvaluateInput, FactRequest, Placement };
+export type { ClauseEvaluation, EvaluateInput, FactRequest, Placement, Verdict };
 
 /** Reason text resolved server-side from lib/phrases, in both locales. */
 export type LocalizedReasons = Record<"P1" | "P2" | "P3" | "P4", { ja: string; en: string }>;

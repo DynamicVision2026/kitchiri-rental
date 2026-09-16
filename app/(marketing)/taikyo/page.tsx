@@ -35,11 +35,13 @@ export default function TaikyoLandingPage() {
 
         <ul className={s.linkList}>
           <li><Link href="/taikyo/kijun">何を根拠に判定しているか<span aria-hidden="true">→</span></Link></li>
-          <li><Link href="/taikyo/preview">サンプルレポートを見る<span aria-hidden="true">→</span></Link></li>
+          <li><Link href="/taikyo/sample">サンプルレポートを見る<span aria-hidden="true">→</span></Link></li>
         </ul>
 
         <p className={s.tiny} style={{ marginTop: "2rem" }}>
-          獨歩文化株式会社　/　特定商取引法に基づく表記
+          獨歩文化株式会社　/　<Link href="/taikyo/legal/tokushoho">特定商取引法に基づく表記</Link>
+          　/　<Link href="/taikyo/legal/terms">利用規約</Link>
+          　/　<Link href="/taikyo/legal/privacy">プライバシーポリシー</Link>
         </p>
       </div>
     </main>
