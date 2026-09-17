@@ -9,6 +9,15 @@ material for future work. Text is unedited from what was sent.
   on there being no LLM in this system to dual-run against).
 - `v14-frontend-design-ui-build.md` — Ticket V14: Front-end Design & UI Build
   (`taikyo`, narrow launch).
+- `v15-taikyo-to-production.md` — Ticket V15: `/taikyo` to Production. Tasks
+  1–7 all delivered; test-mode purchase success was not achieved (no
+  Shopify credentials in the session — see the ticket's own Task 3 and the
+  final report in session history). Includes the mid-session note that
+  superseded V13/V14 (below).
+- `v16-ocr-ingestion-pipeline.md` — Ticket V16: OCR Ingestion Pipeline.
+  Runs in parallel with V15. Status tracked per-task in this file's
+  history and the corpus/eval output; see `eval/ocr/README.md` for what
+  Task 4 could and could not measure without real ground-truth batches.
 
 ## V13/V14 are superseded by V15
 

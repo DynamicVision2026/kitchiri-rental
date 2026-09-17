@@ -24,9 +24,15 @@
     "eval:ingest": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/ingest-check.ts",
     "validate:copy": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/copy-check.ts",
     "eval:audit-store": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/audit-store-check.ts",
-    "eval:webhook": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/webhook-check.ts"
+    "eval:webhook": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/webhook-check.ts",
+    "eval:dual-pass": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/dual-pass-check.ts",
+    "eval:ocr-route": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/ocr-route-check.ts",
+    "eval:assemble-text": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/assemble-text-check.ts",
+    "eval:ocr-scoring": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/fixtures/ocr-scoring-check.ts",
+    "eval:ocr-accuracy": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON eval/ocr/run.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.72.1",
     "@supabase/supabase-js": "^2.116.0",
     "next": "^16.3.5",
     "playwright": "^1.63.0",

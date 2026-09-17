@@ -15,11 +15,13 @@
  * (PaidReportView.tsx), reached from the emailed link, not from continuing this flow.
  */
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import "../_design/tokens.css";
 import { S1Ingest, S2Confirm, S3Result, S4Unlock } from "../_screens/Screens";
+import OcrConfirm from "../_screens/OcrConfirm";
 import s from "../_screens/screens.module.css";
 import { toDemoLine, recoverableTotal, sumsByTier } from "@/lib/shared/finding-view.ts";
+import { assembleConfirmedText } from "@/lib/ingest/assemble-text.ts";
 import {
   DELIVERABLES, PAYMENT_METHODS, SKUS,
 } from "@/lib/fixtures/taikyo-demo.ts";
@@ -29,8 +31,9 @@ import {
   extractPdfText,
   type BatchReportResponse,
 } from "@/lib/shared/taikyo-client.ts";
+import { runOcr, OcrError, type OcrPageResult, type VerifiedLine } from "@/lib/shared/ocr-client.ts";
 
-type Step = "ingest" | "confirm" | "result" | "unlock";
+type Step = "ingest" | "ocr_confirm" | "confirm" | "result" | "unlock";
 
 export default function TaikyoWorkspace() {
   const [step, setStep] = useState<Step>("ingest");
@@ -41,6 +44,18 @@ export default function TaikyoWorkspace() {
   const [report, setReport] = useState<BatchReportResponse | null>(null);
   const [auditId, setAuditId] = useState<string | null>(null);
   const [persisting, setPersisting] = useState(false);
+
+  // V16: OCR ingest state. ocrLines is the flat, already-sorted (page, then
+  // position) list of every OK page's VerifiedLine — the entire object the
+  // confirmation screen and the eventual text assembly work from.
+  const [ocrLines, setOcrLines] = useState<VerifiedLine[] | null>(null);
+  const [ocrImages, setOcrImages] = useState<Map<number, string>>(new Map());
+  const objectUrlsRef = useRef<string[]>([]);
+
+  const revokeOcrImages = useCallback(() => {
+    for (const url of objectUrlsRef.current) URL.revokeObjectURL(url);
+    objectUrlsRef.current = [];
+  }, []);
 
   const runAnalysis = useCallback(async (contractText: string) => {
     setBusy(true);
@@ -78,6 +93,64 @@ export default function TaikyoWorkspace() {
       setBusy(false);
     }
   }, [runAnalysis]);
+
+  /**
+   * V16 Task 3 entry point. Every page is processed independently
+   * (app/api/taikyo/ocr's own design); if ANY page comes back refused, the whole
+   * submission stops here rather than silently proceeding on a partial read — a
+   * settlement statement missing one of its rows is exactly the wrong-number risk
+   * this pipeline exists to prevent, and the confirmation screen has no way to
+   * represent "this page just isn't here."
+   */
+  const handlePhotos = useCallback(async (files: File[]) => {
+    setBusy(true);
+    setError(null);
+    setRefused(false);
+    revokeOcrImages();
+    try {
+      const response = await runOcr(files);
+      const refusedPages = response.pages.filter((p): p is Extract<OcrPageResult, { ok: false }> => !p.ok);
+      if (refusedPages.length > 0) {
+        setRefused(true);
+        setError(
+          refusedPages.length === response.pages.length
+            ? refusedPages[0].messageJa
+            : `${refusedPages.map((p) => `${p.page}枚目：${p.messageJa}`).join(" ")}`,
+        );
+        return;
+      }
+
+      const urls = files.map((f) => URL.createObjectURL(f));
+      objectUrlsRef.current = urls;
+      const byPage = new Map<number, string>(urls.map((u, i) => [i + 1, u]));
+      setOcrImages(byPage);
+
+      const lines = response.pages.flatMap((p) => (p.ok ? p.lines : []));
+      setOcrLines(lines);
+      setStep("ocr_confirm");
+    } catch (e) {
+      setError(e instanceof OcrError ? e.message : "写真の読み取りに失敗しました。時間をおいて再度お試しください。");
+    } finally {
+      setBusy(false);
+    }
+  }, [revokeOcrImages]);
+
+  /** The one place OCR output crosses into contract text — see
+   *  lib/ingest/assemble-text.ts and, upstream of it, lib/ingest/ocr.ts's
+   *  file-level comment on where the judgment boundary sits. Every line here has
+   *  already been through OcrConfirm's canConfirm gate, so resolvedTexts contains
+   *  no empty string for a line that was disputed or missing. */
+  const handleOcrConfirm = useCallback((resolved: { line: VerifiedLine; text: string }[]) => {
+    const assembled = assembleConfirmedText(
+      resolved.map((r) => r.line),
+      resolved.map((r) => r.text),
+    );
+    setText(assembled);
+    revokeOcrImages();
+    setOcrImages(new Map());
+    setOcrLines(null);
+    void runAnalysis(assembled);
+  }, [runAnalysis, revokeOcrImages]);
 
   const handleSubmitText = useCallback(() => {
     void runAnalysis(text.trim());
@@ -125,9 +198,19 @@ export default function TaikyoWorkspace() {
             text={text}
             onTextChange={(v) => { setText(v); if (refused) setRefused(false); }}
             onFile={(f) => void handleFile(f)}
+            onPhotos={(files) => void handlePhotos(files)}
             onSubmit={handleSubmitText}
             busy={busy}
             error={error}
+          />
+        )}
+
+        {step === "ocr_confirm" && ocrLines && (
+          <OcrConfirm
+            lines={ocrLines}
+            imagesByPage={ocrImages}
+            onConfirm={handleOcrConfirm}
+            busy={busy}
           />
         )}
 

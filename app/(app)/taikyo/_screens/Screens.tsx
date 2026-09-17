@@ -42,6 +42,7 @@ export function S1Ingest({
   text = "",
   onTextChange,
   onFile,
+  onPhotos,
   onSubmit,
   busy = false,
   error = null,
@@ -50,6 +51,8 @@ export function S1Ingest({
   text?: string;
   onTextChange?: (value: string) => void;
   onFile?: (file: File) => void;
+  /** V16: one or more photographed pages (JPEG/PNG/WebP), routed to the OCR path. */
+  onPhotos?: (files: File[]) => void;
   onSubmit?: () => void;
   busy?: boolean;
   error?: string | null;
@@ -62,6 +65,11 @@ export function S1Ingest({
   const handleFileInput = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && onFile) onFile(file);
+    e.target.value = "";
+  };
+  const handlePhotoInput = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length > 0 && onPhotos) onPhotos(files);
     e.target.value = "";
   };
 
@@ -99,6 +107,32 @@ export function S1Ingest({
           disabled={busy}
         />
       </label>
+
+      {onPhotos && (
+        <label
+          className={`${s.drop} ${s.noPrint}`}
+          role="button"
+          tabIndex={0}
+          aria-label="書類の写真を選択"
+          style={{ marginTop: "var(--s3)" }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") (e.currentTarget.querySelector("input") as HTMLInputElement | null)?.click();
+          }}
+        >
+          <div><strong>{busy ? "読み取り中…" : "書類の写真を選ぶ・撮影する"}</strong></div>
+          <p className={s.tiny} style={{ margin: ".35rem 0 0" }}>
+            手書きの精算書やレシートなど。読み取り後、写真と見比べながら内容を確認していただきます。
+          </p>
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            onChange={handlePhotoInput}
+            style={{ position: "absolute", width: "1px", height: "1px", opacity: 0, overflow: "hidden", clip: "rect(0,0,0,0)" }}
+            disabled={busy}
+          />
+        </label>
+      )}
 
       {refused && (
         <div className={s.deadEnd}>
